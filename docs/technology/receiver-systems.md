@@ -33,13 +33,24 @@ Combinations of networks that you can receive data from simultaneously:
 - ACARS + HFDL
 - ACARS + AERO
 - ACARS + AOI
-
+- HFDL + HFDL
 
 ## Experienced Hobbyist System
 
+If you've already been feeding in the past, you might be ready to expand your system to cover more aircraft networks and provide more data. This allows you to see more information about the aircraft around you, and also fills in any gaps that might not have been seen otherwise.
 
 ### Triple SDR
 
+Most computers can handle two SDRs relatively well (except the very small ones like the Raspberry Pi Zero). Once you begin to use three or more, the system requirements rise very quickly.
+
+Combinations of networks that you can receive data from simultaneously:
+- ACARS + VDL + HFDL
+- ACARS + VDL + AERO
+- ACARS + VDL + AOI
+- VDL + HFDL + AERO
+- VDL + HFDL + AOI
+- HFDL + AERO + AOI
+- HFDL + HFDL + HFDL
 
 ### Quadruple SDR
 
