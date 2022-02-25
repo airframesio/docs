@@ -91,7 +91,7 @@ const config = {
               },
               {
                 label: 'API',
-                to: '/api/overview',
+                to: '/api',
               },
             ],
           },
