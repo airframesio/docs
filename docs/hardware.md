@@ -11,7 +11,7 @@ airframes (commonly known as aircraft) and ground stations.
 
 | Item | Type | Purpose | Notes |
 | ---- | ---- | ------- | ----- |
-| [Raspberry Pi 4 4GB]() | Embedded | Computer / Server | Low cost, low power, small dedicated embedded computer to run all your capture and feeding needs. |
+| [Raspberry Pi 4 4GB](https://www.raspberrypi.com/products/raspberry-pi-4-model-b/) | Embedded | Computer / Server | Low cost, low power, small dedicated embedded computer to run all your capture and feeding needs. |
 
 ## Software Defined Radio
 
