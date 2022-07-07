@@ -1,3 +1,7 @@
+---
+sidebar_position: 4
+---
+
 # Hardware
 
 To get started with feeding Airframes or ADS-B Exchange, you will first need to acquire the hardware necessary to receive signals from nearby
