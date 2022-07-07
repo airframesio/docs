@@ -11,7 +11,7 @@ If you're not yet familiar with aircraft tracking and the technologies it involv
 ## Steps to Begin Now
 
 1. [Determine what kind of system you want to set up](/docs/technology/receiver-systems).
-2. Acquire the parts.
+2. [Acquire the parts](/docs/hardware).
 3. Install the operating system and related software.
 4. Configure the software and test the receptions of data from the airwaves.
 5. Setup to feed data to additional aggregators.
