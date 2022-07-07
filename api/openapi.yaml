@@ -1,0 +1,411 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: Airframes API
+  contact:
+    name: Kevin Elliott
+    email: kevin@airframes.io
+    url: 'https://airframes.io/'
+  description: >-
+    API for accessing the Airframes.io aerospace data, originally sourced from
+    contributions by users.
+
+servers:
+  - url: 'http://localhost:8080'
+    description: Local Development Server
+  - url: 'https://staging.airframes.io/{basePath}'
+    description: Staging Server
+    variables:
+      basePath:
+        default: v1
+  - url: 'https://api.airframes.io/{basePath}'
+    description: Production Server
+    variables:
+      basePath:
+        default: v1
+
+paths:
+  /airframes:
+    get:
+      summary: 'Get a list of Airframes'
+      parameters: []
+      operationId: getAirframes
+      responses:
+        '200':
+          description: A list of Airframes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/airframe'
+      security:
+        - oauth2:
+          - airframes
+  /airframes/{id}:
+    get:
+      summary: 'Get an Airframe by an ID'
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: getAirframeById
+      responses:
+        '200':
+          description: An Airframe
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/airframe'
+      security:
+        - oauth2:
+          - airframes
+  /airlines:
+    get:
+      summary: ''
+      description: ''
+      parameters: []
+      operationId: getAirlines
+      responses:
+        '200':
+          description: A list of Airlines
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/airline'
+      security:
+        - oauth2:
+          - airlines
+  /airlines/{id}:
+    get:
+      summary: 'Get an Airline by an ID'
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: getAirlineById
+      responses:
+        '200':
+          description: An Airline
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/airline'
+      security:
+        - oauth2:
+          - airlines
+  /airports:
+    get:
+      summary: 'Get a list of Airports'
+      parameters: []
+      operationId: getAirports
+      responses:
+        '200':
+          description: A list of Airports
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/airport'
+      security:
+        - oauth2:
+          - airports
+  /airports/{id}:
+    get:
+      summary: 'Get an Airport by an ID'
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: getAirportById
+      responses:
+        '200':
+          description: An Airport
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/airport'
+      security:
+        - oauth2:
+          - airports
+  /leaderboards:
+    get:
+      summary: 'Get a list of Leaderboards'
+      parameters: []
+      operationId: getLeaderboards
+      responses:
+        '200':
+          description: A list of Leaderboards
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/leaderboard'
+      security:
+        - oauth2:
+          - leaderboards
+  /leaderboards/{id}:
+    get:
+      summary: 'Get a Leaderboard by ID'
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: getLeaderboardById
+      responses:
+        '200':
+          description: A Leaderboard
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/leaderboard'
+      security:
+        - oauth2:
+          - leaderboards
+  /messages:
+    get:
+      summary: 'Get a list of Messages'
+      parameters: []
+      operationId: getMessages
+      responses:
+        '200':
+          description: A list of Messages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/message'
+      security:
+        - oauth2:
+          - messages
+  /messages/{id}:
+    get:
+      summary: 'Get a Message by ID'
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: getMessageById
+      responses:
+        '200':
+          description: A Message
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/message'
+      security:
+        - oauth2:
+          - messages
+  /stations:
+    get:
+      summary: 'Get a list of Stations'
+      parameters: []
+      operationId: getStations
+      responses:
+        '200':
+          description: A list of Stations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/station'
+      security:
+        - oauth2:
+          - stations
+    post:
+      summary: 'Create your Station'
+      parameters: []
+      operationId: createStation
+      responses:
+        '200':
+          description: The new Station
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/station'
+      security:
+        - oauth2:
+          - stations:write
+    put:
+      summary: 'Update a Station that you own'
+      parameters: []
+      operationId: updateStation
+      responses:
+        '200':
+          description: The updated Station
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/station'
+      security:
+        - oauth2:
+          - stations:write
+    delete:
+      summary: 'Delete a Station that you own'
+      description: ''
+      parameters: []
+      operationId: deleteStation
+      responses:
+        default:
+          description: Default response
+  /waypoints:
+    get:
+      summary: ''
+      description: ''
+      parameters: []
+      operationId: getWaypoints
+      responses:
+        '200':
+          description: A list of Waypoints
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/waypoint'
+      security:
+        - oauth2:
+          - waypoints
+  /waypoints/{id}:
+    get:
+      summary: 'Get a Waypoint by an ID'
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: getWaypointById
+      responses:
+        '200':
+          description: A Waypoint
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/waypoint'
+      security:
+        - oauth2:
+          - waypoints
+
+components:
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      name: api_key
+      in: header
+    oauth2:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: /oauth/token
+          scopes:
+            airframes: Read access to airframes
+            airports: Read access to airports
+            airlines: Read access to airlines
+            fixes: Read access to fixes
+            leaderboards: Read access to leaderboards
+            messages: Read access to messages
+            messages:decodings: Read access to message decodings
+            stations: Read access to public stations information
+
+  schemas:
+    Message:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+        station_id:
+          type: integer
+          format: int64
+        airframe_id:
+          type: integer
+          format: int64
+        flight_id:
+          type: integer
+          format: int64
+        flight_number:
+          type: string
+        source:
+          type: object
+        error:
+          type: integer
+          format: int64
+        mode:
+          type: string
+        label:
+          type: string
+        block_id:
+          type: string
+        message_number:
+          type: string
+        ack:
+          type: string
+        block_end:
+          type: boolean
+        link_direction:
+          type: string
+        from_icao_hex:
+          type: string
+        to_icao_hex:
+          type: string
+        departing_airport:
+          type: string
+        destination_airport:
+          type: string
+        position:
+          type: object
+        text:
+          type: string
+
+  parameters:
+    limit:
+      name: limit
+      in: query
+      description: Max items to return
+      required: false
+      schema:
+        type: integer
+        format: int32
+    page:
+      name: page
+      in: query
+      description: Page of items to return
+      required: false
+      schema:
+        type: integer
+        format: int32
+
+  links: {}
+  callbacks: {}
+
+security:
+  - oauth2: []
+externalDocs:
+  url: 'https://docs.airframes.io/api'
+tags: []

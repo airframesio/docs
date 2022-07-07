@@ -34,9 +34,3 @@ These communication mediums deliver enhanced details, above and beyond aircraft 
 - and yes, even locations
 
 Aggregating, processing, and otherwise making available this information will be a fruitful endeavor for feeders and consumers. It will help further color and detail what is happening during flights from start to finish. If you are feeding ADS-B/UAT to one or more services already, consider adding another receiver and feeding [Airframes](https://airframes.io) today.
-
-![Docusaurus Plushie](./docusaurus-plushie-banner.jpeg)
-
-The blog supports tags as well!
-
-**And if you don't want a blog**: just delete this directory, and use `blog: false` in your Docusaurus config.
