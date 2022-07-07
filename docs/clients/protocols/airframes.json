@@ -1,0 +1,56 @@
+{
+  "protocol": "asf-1.0",
+  "source": {
+    "station": { "id": "18B44A2D-6F92-42DC-9946-CA67624FD7DE" },
+    "app": { "name": "dumphfdl", "ver": "1.2.1-632c44f" },
+    "sdr": { "name": "RTL-SDR" }
+  },
+  "message": {
+
+  },
+  "messages": [
+    {
+      "type": "acars",
+      "text": "GUY WONT WEAR MASK\nNEED BACKUP\nAND A SHOT OF TEQUILA PLZ"
+    },
+    {
+      "type": "vdl",
+      "timestamp": "1647934365.6301939",
+      "channel": 0,
+      "frequency": "136.975",
+      "source": { "type": "AC", "icao": "aea321" },
+      "destination": { "type": "GS", "icao": "aea123" },
+      "position": { "latitude": "20.809518", "longitude": "32.335915", "altitude": 30000 },
+      "mode": "2",
+      "label": "H1",
+      "block_id": "7",
+      "ack": "!",
+      "tail": "VH-ZNI",
+      "message_number": "D08A",
+      "flight_number": "QF0009",
+      "text": "GUY WONT WEAR MASK\nNEED BACKUP\nAND A SHOT OF TEQUILA PLZ"
+    },
+    {
+      "type": "hfdl",
+      "timestamp": "1647389233.649182",
+      "frequency": "10.081000",
+      "frequency_skew": "1.822463",
+      "signal_level": "-62.659115",
+      "noise_level": "-66.902695",
+      "source": { "type": "AC", "icao": "" },
+      "destination": { "type": "GS", "icao": "" },
+      "flight_number": "ETH726",
+      "position": { "latitude": "20.809518", "longitude": "32.335915" }
+    },
+    {
+      "type": "aoi",
+      "timestamp": "1647389233.649182",
+      "mode": "2",
+      "label": "",
+      "block_id": "Y",
+      "ack": "0",
+      "tail": "N310AG",
+      "text": "01/0804/22/KLAS/KDTW////////"
+    }
+  ]
+}

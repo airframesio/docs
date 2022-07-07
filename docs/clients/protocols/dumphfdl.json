@@ -1,0 +1,1021 @@
+{
+  "hfdl": {
+    "app": {
+      "name": "dumphfdl",
+      "ver": "1.2.1-632c44f"
+    },
+    "t": {
+      "sec": 1647389233,
+      "usec": 649182
+    },
+    "freq": 10081000,
+    "bit_rate": 300,
+    "sig_level": -62.659115,
+    "noise_level": -66.902695,
+    "freq_skew": 1.822463,
+    "slot": "S",
+    "lpdu": {
+      "err": false,
+      "src": {
+        "type": "Aircraft",
+        "id": 229
+      },
+      "dst": {
+        "type": "Ground station",
+        "id": 7,
+        "name": "Shannon, Ireland"
+      },
+      "type": {
+        "id": 13,
+        "name": "Unnumbered data"
+      },
+      "hfnpdu": {
+        "err": false,
+        "type": {
+          "id": 209,
+          "name": "Performance data"
+        },
+        "version": 3,
+        "flight_id": "AC0871",
+        "pos": {
+          "lat": 45.475589,
+          "lon": -73.719776
+        },
+        "time": {
+          "hour": 23,
+          "min": 21,
+          "sec": 44
+        },
+        "flight_leg_num": 206,
+        "gs": {
+          "type": "Ground station",
+          "id": 1,
+          "name": "San Francisco, California"
+        },
+        "frequency": {
+          "id": 1,
+          "freq": 21934.000000
+        },
+        "freq_search_cnt": {
+          "cur_leg": 13,
+          "prev_leg": 14
+        },
+        "hfdl_disabled_duration": {
+          "this_leg": 0,
+          "prev_leg": 0
+        },
+        "pdu_stats": {
+          "mpdus_rx_ok_cnt": {
+            "300bps": 3,
+            "600bps": 0,
+            "1200bps": 0,
+            "1800bps": 0
+          },
+          "mpdus_rx_err_cnt": {
+            "300bps": 1,
+            "600bps": 0,
+            "1200bps": 0,
+            "1800bps": 0
+          },
+          "mpdus_tx_cnt": {
+            "300bps": 1,
+            "600bps": 0,
+            "1200bps": 0,
+            "1800bps": 0
+          },
+          "mpdus_delivered_cnt": {
+            "300bps": 1,
+            "600bps": 0,
+            "1200bps": 0,
+            "1800bps": 0
+          },
+          "spdus_rx_ok_cnt": 148,
+          "spdus_missed_cnt": 2
+        },
+        "last_freq_change_cause": {
+          "code": 9,
+          "descr": "unknown"
+        }
+      }
+    }
+  }
+}
+{
+  "hfdl": {
+    "app": {
+      "name": "dumphfdl",
+      "ver": "1.2.1-632c44f"
+    },
+    "t": {
+      "sec": 1647389272,
+      "usec": 923271
+    },
+    "freq": 11184000,
+    "bit_rate": 300,
+    "sig_level": -65.717819,
+    "noise_level": -66.502831,
+    "freq_skew": 1.953819,
+    "slot": "S",
+    "lpdu": {
+      "err": false,
+      "src": {
+        "type": "Aircraft",
+        "id": 235
+      },
+      "dst": {
+        "type": "Ground station",
+        "id": 3,
+        "name": "Reykjavik, Iceland"
+      },
+      "type": {
+        "id": 13,
+        "name": "Unnumbered data"
+      },
+      "hfnpdu": {
+        "err": false,
+        "type": {
+          "id": 209,
+          "name": "Performance data"
+        },
+        "version": 10,
+        "flight_id": "UC1400",
+        "pos": {
+          "lat": 21.143229,
+          "lon": -81.500514
+        },
+        "time": {
+          "hour": 0,
+          "min": 7,
+          "sec": 44
+        },
+        "flight_leg_num": 50,
+        "gs": {
+          "type": "Ground station",
+          "id": 3,
+          "name": "Reykjavik, Iceland"
+        },
+        "frequency": {
+          "id": 8,
+          "freq": 8977.000000
+        },
+        "freq_search_cnt": {
+          "cur_leg": 0,
+          "prev_leg": 0
+        },
+        "hfdl_disabled_duration": {
+          "this_leg": 0,
+          "prev_leg": 5162
+        },
+        "pdu_stats": {
+          "mpdus_rx_ok_cnt": {
+            "300bps": 47,
+            "600bps": 4,
+            "1200bps": 0,
+            "1800bps": 0
+          },
+          "mpdus_rx_err_cnt": {
+            "300bps": 5,
+            "600bps": 1,
+            "1200bps": 0,
+            "1800bps": 0
+          },
+          "mpdus_tx_cnt": {
+            "300bps": 7,
+            "600bps": 1,
+            "1200bps": 0,
+            "1800bps": 0
+          },
+          "mpdus_delivered_cnt": {
+            "300bps": 6,
+            "600bps": 1,
+            "1200bps": 0,
+            "1800bps": 0
+          },
+          "spdus_rx_ok_cnt": 69,
+          "spdus_missed_cnt": 6
+        },
+        "last_freq_change_cause": {
+          "code": 7,
+          "descr": "No change"
+        }
+      }
+    }
+  }
+}
+{
+  "hfdl": {
+    "app": {
+      "name": "dumphfdl",
+      "ver": "1.2.1-632c44f"
+    },
+    "t": {
+      "sec": 1647389302,
+      "usec": 486650
+    },
+    "freq": 10081000,
+    "bit_rate": 300,
+    "sig_level": -64.786865,
+    "noise_level": -67.124710,
+    "freq_skew": 2.006999,
+    "slot": "S",
+    "lpdu": {
+      "err": false,
+      "src": {
+        "type": "Aircraft",
+        "id": 142
+      },
+      "dst": {
+        "type": "Ground station",
+        "id": 7,
+        "name": "Shannon, Ireland"
+      },
+      "type": {
+        "id": 13,
+        "name": "Unnumbered data"
+      },
+      "hfnpdu": {
+        "err": false,
+        "type": {
+          "id": 209,
+          "name": "Performance data"
+        },
+        "version": 18,
+        "flight_id": "RAM228",
+        "pos": {
+          "lat": 38.234211,
+          "lon": -0.406152
+        },
+        "time": {
+          "hour": 0,
+          "min": 8,
+          "sec": 16
+        },
+        "flight_leg_num": 209,
+        "gs": {
+          "type": "Ground station",
+          "id": 7,
+          "name": "Shannon, Ireland"
+        },
+        "frequency": {
+          "id": 4,
+          "freq": 8942.000000
+        },
+        "freq_search_cnt": {
+          "cur_leg": 0,
+          "prev_leg": 0
+        },
+        "hfdl_disabled_duration": {
+          "this_leg": 0,
+          "prev_leg": 684
+        },
+        "pdu_stats": {
+          "mpdus_rx_ok_cnt": {
+            "300bps": 106,
+            "600bps": 9,
+            "1200bps": 0,
+            "1800bps": 0
+          },
+          "mpdus_rx_err_cnt": {
+            "300bps": 0,
+            "600bps": 0,
+            "1200bps": 0,
+            "1800bps": 0
+          },
+          "mpdus_tx_cnt": {
+            "300bps": 7,
+            "600bps": 0,
+            "1200bps": 0,
+            "1800bps": 0
+          },
+          "mpdus_delivered_cnt": {
+            "300bps": 7,
+            "600bps": 0,
+            "1200bps": 0,
+            "1800bps": 0
+          },
+          "spdus_rx_ok_cnt": 115,
+          "spdus_missed_cnt": 2
+        },
+        "last_freq_change_cause": {
+          "code": 7,
+          "descr": "No change"
+        }
+      }
+    }
+  }
+}
+{
+  "hfdl": {
+    "app": {
+      "name": "dumphfdl",
+      "ver": "1.2.1-632c44f"
+    },
+    "t": {
+      "sec": 1647389351,
+      "usec": 566379
+    },
+    "freq": 13276000,
+    "bit_rate": 300,
+    "sig_level": -74.510994,
+    "noise_level": -74.972198,
+    "freq_skew": 3.250322,
+    "slot": "S",
+    "lpdu": {
+      "err": false,
+      "src": {
+        "type": "Aircraft",
+        "id": 210
+      },
+      "dst": {
+        "type": "Ground station",
+        "id": 4,
+        "name": "Riverhead, New York"
+      },
+      "type": {
+        "id": 13,
+        "name": "Unnumbered data"
+      },
+      "hfnpdu": {
+        "err": false,
+        "type": {
+          "id": 209,
+          "name": "Performance data"
+        },
+        "version": 18,
+        "flight_id": "ETH726",
+        "pos": {
+          "lat": 20.809518,
+          "lon": 32.335915
+        },
+        "time": {
+          "hour": 0,
+          "min": 9,
+          "sec": 4
+        },
+        "flight_leg_num": 33,
+        "gs": {
+          "type": "Ground station",
+          "id": 4,
+          "name": "Riverhead, New York"
+        },
+        "frequency": {
+          "id": 8,
+          "freq": 11387.000000
+        },
+        "freq_search_cnt": {
+          "cur_leg": 5,
+          "prev_leg": 0
+        },
+        "hfdl_disabled_duration": {
+          "this_leg": 0,
+          "prev_leg": 524
+        },
+        "pdu_stats": {
+          "mpdus_rx_ok_cnt": {
+            "300bps": 45,
+            "600bps": 4,
+            "1200bps": 0,
+            "1800bps": 0
+          },
+          "mpdus_rx_err_cnt": {
+            "300bps": 6,
+            "600bps": 0,
+            "1200bps": 0,
+            "1800bps": 0
+          },
+          "mpdus_tx_cnt": {
+            "300bps": 3,
+            "600bps": 0,
+            "1200bps": 1,
+            "1800bps": 0
+          },
+          "mpdus_delivered_cnt": {
+            "300bps": 3,
+            "600bps": 0,
+            "1200bps": 1,
+            "1800bps": 0
+          },
+          "spdus_rx_ok_cnt": 58,
+          "spdus_missed_cnt": 1
+        },
+        "last_freq_change_cause": {
+          "code": 7,
+          "descr": "No change"
+        }
+      }
+    }
+  }
+}
+{
+  "hfdl": {
+    "app": {
+      "name": "dumphfdl",
+      "ver": "1.2.1-632c44f"
+    },
+    "t": {
+      "sec": 1647389740,
+      "usec": 788320
+    },
+    "freq": 8942000,
+    "bit_rate": 300,
+    "sig_level": -59.822685,
+    "noise_level": -62.068443,
+    "freq_skew": -1.818425,
+    "slot": "S",
+    "lpdu": {
+      "err": false,
+      "src": {
+        "type": "Aircraft",
+        "id": 239
+      },
+      "dst": {
+        "type": "Ground station",
+        "id": 7,
+        "name": "Shannon, Ireland"
+      },
+      "type": {
+        "id": 13,
+        "name": "Unnumbered data"
+      },
+      "hfnpdu": {
+        "err": false,
+        "type": {
+          "id": 209,
+          "name": "Performance data"
+        },
+        "version": 18,
+        "flight_id": "REU975",
+        "pos": {
+          "lat": 26.960501,
+          "lon": 30.122166
+        },
+        "time": {
+          "hour": 23,
+          "min": 53,
+          "sec": 10
+        },
+        "flight_leg_num": 212,
+        "gs": {
+          "type": "Ground station",
+          "id": 3,
+          "name": "Reykjavik, Iceland"
+        },
+        "frequency": {
+          "id": 8,
+          "freq": 8977.000000
+        },
+        "freq_search_cnt": {
+          "cur_leg": 11,
+          "prev_leg": 0
+        },
+        "hfdl_disabled_duration": {
+          "this_leg": 142,
+          "prev_leg": 778
+        },
+        "pdu_stats": {
+          "mpdus_rx_ok_cnt": {
+            "300bps": 13,
+            "600bps": 0,
+            "1200bps": 0,
+            "1800bps": 0
+          },
+          "mpdus_rx_err_cnt": {
+            "300bps": 1,
+            "600bps": 0,
+            "1200bps": 0,
+            "1800bps": 0
+          },
+          "mpdus_tx_cnt": {
+            "300bps": 0,
+            "600bps": 1,
+            "1200bps": 0,
+            "1800bps": 0
+          },
+          "mpdus_delivered_cnt": {
+            "300bps": 0,
+            "600bps": 0,
+            "1200bps": 0,
+            "1800bps": 0
+          },
+          "spdus_rx_ok_cnt": 14,
+          "spdus_missed_cnt": 6
+        },
+        "last_freq_change_cause": {
+          "code": 2,
+          "descr": "SPDUs no longer received"
+        }
+      }
+    }
+  }
+}
+{
+  "hfdl": {
+    "app": {
+      "name": "dumphfdl",
+      "ver": "1.2.1-632c44f"
+    },
+    "t": {
+      "sec": 1647389883,
+      "usec": 543558
+    },
+    "freq": 11184000,
+    "bit_rate": 300,
+    "sig_level": -64.752655,
+    "noise_level": -66.233612,
+    "freq_skew": 2.240579,
+    "slot": "S",
+    "lpdu": {
+      "err": false,
+      "src": {
+        "type": "Aircraft",
+        "id": 109
+      },
+      "dst": {
+        "type": "Ground station",
+        "id": 3,
+        "name": "Reykjavik, Iceland"
+      },
+      "type": {
+        "id": 13,
+        "name": "Unnumbered data"
+      },
+      "hfnpdu": {
+        "err": false,
+        "type": {
+          "id": 209,
+          "name": "Performance data"
+        },
+        "version": 18,
+        "flight_id": "KQA002",
+        "pos": {
+          "lat": 10.780355,
+          "lon": 20.546189
+        },
+        "time": {
+          "hour": 0,
+          "min": 18,
+          "sec": 0
+        },
+        "flight_leg_num": 246,
+        "gs": {
+          "type": "Ground station",
+          "id": 3,
+          "name": "Reykjavik, Iceland"
+        },
+        "frequency": {
+          "id": 8,
+          "freq": 8977.000000
+        },
+        "freq_search_cnt": {
+          "cur_leg": 0,
+          "prev_leg": 0
+        },
+        "hfdl_disabled_duration": {
+          "this_leg": 0,
+          "prev_leg": 548
+        },
+        "pdu_stats": {
+          "mpdus_rx_ok_cnt": {
+            "300bps": 211,
+            "600bps": 14,
+            "1200bps": 0,
+            "1800bps": 0
+          },
+          "mpdus_rx_err_cnt": {
+            "300bps": 11,
+            "600bps": 1,
+            "1200bps": 0,
+            "1800bps": 0
+          },
+          "mpdus_tx_cnt": {
+            "300bps": 15,
+            "600bps": 1,
+            "1200bps": 0,
+            "1800bps": 0
+          },
+          "mpdus_delivered_cnt": {
+            "300bps": 14,
+            "600bps": 1,
+            "1200bps": 0,
+            "1800bps": 0
+          },
+          "spdus_rx_ok_cnt": 276,
+          "spdus_missed_cnt": 9
+        },
+        "last_freq_change_cause": {
+          "code": 7,
+          "descr": "No change"
+        }
+      }
+    }
+  }
+}
+{
+  "hfdl": {
+    "app": {
+      "name": "dumphfdl",
+      "ver": "1.2.1-632c44f"
+    },
+    "t": {
+      "sec": 1647389900,
+      "usec": 622145
+    },
+    "freq": 8977000,
+    "bit_rate": 300,
+    "sig_level": -61.240955,
+    "noise_level": -63.138653,
+    "freq_skew": -1.512961,
+    "slot": "S",
+    "lpdu": {
+      "err": false,
+      "src": {
+        "type": "Aircraft",
+        "id": 255
+      },
+      "dst": {
+        "type": "Ground station",
+        "id": 3,
+        "name": "Reykjavik, Iceland"
+      },
+      "type": {
+        "id": 79,
+        "name": "Logon resume"
+      },
+      "ac_info": {
+        "icao": "018000"
+      },
+      "hfnpdu": {
+        "err": false,
+        "type": {
+          "id": 213,
+          "name": "Frequency data"
+        },
+        "flight_id": "LAA193",
+        "pos": {
+          "lat": 41.295626,
+          "lon": 28.725870
+        },
+        "utc_time": {
+          "hour": 0,
+          "min": 18,
+          "sec": 16
+        },
+        "freq_data": [
+          {
+            "gs": {
+              "type": "Ground station",
+              "id": 3,
+              "name": "Reykjavik, Iceland"
+            },
+            "listening_on_freqs": [
+              {
+                "id": 0,
+                "freq": 17985.000000
+              },
+              {
+                "id": 1,
+                "freq": 15025.000000
+              },
+              {
+                "id": 2,
+                "freq": 11184.000000
+              },
+              {
+                "id": 3,
+                "freq": 8977.000000
+              },
+              {
+                "id": 4,
+                "freq": 6712.000000
+              },
+              {
+                "id": 5,
+                "freq": 5720.000000
+              },
+              {
+                "id": 6,
+                "freq": 3900.000000
+              }
+            ],
+            "heard_on_freqs": [
+              {
+                "id": 2,
+                "freq": 11184.000000
+              },
+              {
+                "id": 3,
+                "freq": 8977.000000
+              }
+            ]
+          },
+          {
+            "gs": {
+              "type": "Ground station",
+              "id": 2,
+              "name": "Molokai, Hawaii"
+            },
+            "listening_on_freqs": [
+              {
+                "id": 0,
+                "freq": 21937.000000
+              },
+              {
+                "id": 1,
+                "freq": 17919.000000
+              },
+              {
+                "id": 2,
+                "freq": 13324.000000
+              },
+              {
+                "id": 3,
+                "freq": 13312.000000
+              },
+              {
+                "id": 4,
+                "freq": 13276.000000
+              },
+              {
+                "id": 5,
+                "freq": 11348.000000
+              },
+              {
+                "id": 6,
+                "freq": 11312.000000
+              },
+              {
+                "id": 9,
+                "freq": 8912.000000
+              },
+              {
+                "id": 10,
+                "freq": 6565.000000
+              },
+              {
+                "id": 11,
+                "freq": 5514.000000
+              }
+            ],
+            "heard_on_freqs": []
+          },
+          {
+            "gs": {
+              "type": "Ground station",
+              "id": 16,
+              "name": "Agana, Guam"
+            },
+            "listening_on_freqs": [
+              {
+                "id": 0,
+                "freq": 21928.000000
+              },
+              {
+                "id": 1,
+                "freq": 17919.000000
+              },
+              {
+                "id": 2,
+                "freq": 13312.000000
+              },
+              {
+                "id": 3,
+                "freq": 11306.000000
+              },
+              {
+                "id": 4,
+                "freq": 8927.000000
+              },
+              {
+                "id": 5,
+                "freq": 6652.000000
+              },
+              {
+                "id": 6,
+                "freq": 5451.000000
+              }
+            ],
+            "heard_on_freqs": [
+              {
+                "id": 3,
+                "freq": 11306.000000
+              },
+              {
+                "id": 4,
+                "freq": 8927.000000
+              },
+              {
+                "id": 5,
+                "freq": 6652.000000
+              }
+            ]
+          },
+          {
+            "gs": {
+              "type": "Ground station",
+              "id": 4,
+              "name": "Riverhead, New York"
+            },
+            "listening_on_freqs": [
+              {
+                "id": 0,
+                "freq": 21931.000000
+              },
+              {
+                "id": 1,
+                "freq": 17919.000000
+              },
+              {
+                "id": 2,
+                "freq": 13276.000000
+              },
+              {
+                "id": 4,
+                "freq": 8912.000000
+              }
+            ],
+            "heard_on_freqs": [
+              {
+                "id": 0,
+                "freq": 21931.000000
+              },
+              {
+                "id": 2,
+                "freq": 13276.000000
+              },
+              {
+                "id": 4,
+                "freq": 8912.000000
+              }
+            ]
+          },
+          {
+            "gs": {
+              "type": "Ground station",
+              "id": 15,
+              "name": "Al Muharraq, Bahrain"
+            },
+            "listening_on_freqs": [
+              {
+                "id": 0,
+                "freq": 21982.000000
+              },
+              {
+                "id": 1,
+                "freq": 17967.000000
+              },
+              {
+                "id": 2,
+                "freq": 13354.000000
+              },
+              {
+                "id": 3,
+                "freq": 10075.000000
+              },
+              {
+                "id": 4,
+                "freq": 8885.000000
+              },
+              {
+                "id": 5,
+                "freq": 5544.000000
+              }
+            ],
+            "heard_on_freqs": []
+          },
+          {
+            "gs": {
+              "type": "Ground station",
+              "id": 6,
+              "name": "Hat Yai, Thailand"
+            },
+            "listening_on_freqs": [
+              {
+                "id": 0,
+                "freq": 21949.000000
+              },
+              {
+                "id": 1,
+                "freq": 17928.000000
+              },
+              {
+                "id": 2,
+                "freq": 13270.000000
+              },
+              {
+                "id": 4,
+                "freq": 8825.000000
+              },
+              {
+                "id": 6,
+                "freq": 5655.000000
+              }
+            ],
+            "heard_on_freqs": []
+          }
+        ]
+      }
+    }
+  }
+}
+{
+  "hfdl": {
+    "app": {
+      "name": "dumphfdl",
+      "ver": "1.2.1-632c44f"
+    },
+    "t": {
+      "sec": 1647389935,
+      "usec": 124230
+    },
+    "freq": 10081000,
+    "bit_rate": 300,
+    "sig_level": -65.941803,
+    "noise_level": -67.283142,
+    "freq_skew": -3.909467,
+    "slot": "S",
+    "lpdu": {
+      "err": false,
+      "src": {
+        "type": "Aircraft",
+        "id": 16
+      },
+      "dst": {
+        "type": "Ground station",
+        "id": 7,
+        "name": "Shannon, Ireland"
+      },
+      "type": {
+        "id": 13,
+        "name": "Unnumbered data"
+      },
+      "hfnpdu": {
+        "err": false,
+        "type": {
+          "id": 209,
+          "name": "Performance data"
+        },
+        "version": 2,
+        "flight_id": "SAA053",
+        "pos": {
+          "lat": -2.116245,
+          "lon": 4.846697
+        },
+        "time": {
+          "hour": 23,
+          "min": 52,
+          "sec": 40
+        },
+        "flight_leg_num": 246,
+        "gs": {
+          "type": "Ground station",
+          "id": 3,
+          "name": "Reykjavik, Iceland"
+        },
+        "frequency": {
+          "id": 8,
+          "freq": 8977.000000
+        },
+        "freq_search_cnt": {
+          "cur_leg": 21,
+          "prev_leg": 59
+        },
+        "hfdl_disabled_duration": {
+          "this_leg": 0,
+          "prev_leg": 7052
+        },
+        "pdu_stats": {
+          "mpdus_rx_ok_cnt": {
+            "300bps": 78,
+            "600bps": 4,
+            "1200bps": 0,
+            "1800bps": 0
+          },
+          "mpdus_rx_err_cnt": {
+            "300bps": 12,
+            "600bps": 1,
+            "1200bps": 0,
+            "1800bps": 0
+          },
+          "mpdus_tx_cnt": {
+            "300bps": 8,
+            "600bps": 6,
+            "1200bps": 3,
+            "1800bps": 0
+          },
+          "mpdus_delivered_cnt": {
+            "300bps": 7,
+            "600bps": 6,
+            "1200bps": 2,
+            "1800bps": 0
+          },
+          "spdus_rx_ok_cnt": 115,
+          "spdus_missed_cnt": 10
+        },
+        "last_freq_change_cause": {
+          "code": 2,
+          "descr": "SPDUs no longer received"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "timestamp": 1647934365.6301939,
+  "station_id": "AU-YMML1-VDL2",
+  "channel": 0,
+  "freq": 136.975,
+  "icao": 8159340,
+  "toaddr": 2528664,
+  "is_response": 0,
+  "is_onground": 0,
+  "mode": "2",
+  "label": "H1",
+  "block_id": "7",
+  "ack": "!",
+  "tail": "VH-ZNI",
+  "flight": "QF0009",
+  "msgno": "D08A",
+  "text": "#DFBPTR\r\n VH-ZNI QFA9      \r\n0732 220322 YMML YPDN CL  297 030S\r\n\r\n --- PITCH ---    -- RATE --   ROT\r\nSTART  END   MAX   AVE   MAX  SPEED\r\n  1.0   9.0  13.5   1.7   2.1 158.2"
+}
