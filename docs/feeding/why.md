@@ -25,3 +25,11 @@ There are several benefits to feeding aggregation services.
 **5. You will potentially help to prevent bad things in the world.**
 
   Data from aggregation services like [ADSBExchange](https://adsbexchange.com) have led to the capture of terrorists, dictators, and other bad actors. We don't claim that feeding is guaranteed to lead to this, but it is a comforting feeling knowing that you might have some contribution to that.
+
+**6. You will potentially help people to investigate accidents that happen.**
+
+  Sometimes airplanes crash. Sometimes airplanes go missing. While the official investigation involves recovering the black box and acquiring official data link feeds, those that are curious or also media that is covering the crashes often would like access to the same kinds of data. [Airframes](https://airframes.io) collects data from feeders that contain information that often tells a greater story about the journey that the aircraft went on, and the more feeders that exist to provide data, the more chance we can figure out that whole story.
+
+**7. We ultimately can't do it without you.**
+
+  You are a big piece of this puzzle. Without you contributing data from your region we can't gather the end-to-end flight route clarity we all need. Help by being the missing link.
