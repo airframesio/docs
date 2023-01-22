@@ -22,6 +22,11 @@ If you are using the [ADSBExchange Raspberry Pi Image](https://www.adsbexchange.
 
 *Instructions coming soon.*
 
+## Manually via Compilation of Clients
+
+There are a few ways to install the necessary clients. At this moment we will not go into great detail, but here are some external resources:
+* [acarsdec](https://github.com/wiedehopf/adsb-wiki/wiki/acarsdec-install) via wiedehopf's install script
+
 ## Other Distributions
 
 If you are using an OS distribution from one of the other aggregation services, you will need to install and/or configure a feeding client in order to feed your data to these services. The rule of thumb is that the aggregator that put together the OS distribution will likely have already included their own feeder client, but you will likely need to add the feeder clients for any other aggregation service that you would like to feed to.
