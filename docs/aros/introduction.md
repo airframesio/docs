@@ -2,11 +2,11 @@
 sidebar_position: 1
 ---
 
-# Introduction to AROS
+# Introduction to AirwavesOS
 
-**AROS**, or *Airframes Receiver OS*, is a custom operating system based on Debian Linux used for interacting with [Airframes](https://airframes.io) and other aggregation services. AROS is intended to be installed on low power embedded systems like the Raspberry Pi, but is also compatible with higher end PCs.
+**AirwavesOS** is a custom operating system based on Debian Linux used for interacting with [Airframes](https://airframes.io) and other aggregation services. AirwavesOS is intended to be installed on low power embedded systems like the Raspberry Pi, but is also compatible with higher end PCs.
 
-**AROS** provides:
+**AirwavesOS** provides:
 - easy installation
 - easy web-based configuration & management
 - simplified updating and upgrading
