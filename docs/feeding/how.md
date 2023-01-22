@@ -12,9 +12,9 @@ Feeder clients are small pieces of software, often in the form of scripts, that 
 
 Some feeder clients are sophisticated, in that they might filter and optimize what data is sent. Other feeder clients simply send everything completely unfiltered.
 
-## Airframes Receiver OS / AROS
+## AirwavesOS (formerly Airframes Receiver OS / AROS)
 
-If you are using the [Airframes Receiver OS](https://docs.airframes.io/docs/aros), feeder clients are already installed for most services and ready for you to configure as an `Output`. You are able to feed multiple aggregation services.
+If you are using the [AirwavesOS](https://docs.airframes.io/docs/aros), feeder clients are already installed for most services and ready for you to configure as an `Output`. You are able to feed multiple aggregation services.
 
 ## ADSBExchange Distribution
 
