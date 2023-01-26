@@ -20,7 +20,7 @@ If you are using the [AirwavesOS](https://docs.airframes.io/docs/aros), feeder c
 
 If you are using the [ADSBExchange Raspberry Pi Image](https://www.adsbexchange.com/how-to-feed/), an [Airframes](https://airframes.io) feeder client has already been installed. You will need to configure a secondary SDR to use the Airframes feeder client.
 
-*Instructions coming soon.*
+*On hold.*
 
 ## Manually via Compilation of Clients
 
