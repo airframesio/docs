@@ -14,7 +14,9 @@ Some feeder clients are sophisticated, in that they might filter and optimize wh
 
 ## AirwavesOS (formerly Airframes Receiver OS / AROS)
 
-If you are using the [AirwavesOS](https://docs.airframes.io/docs/aros), feeder clients are already installed for most services and ready for you to configure as an `Output`. You are able to feed multiple aggregation services.
+If you are using the [AirwavesOS](https://docs.airframes.io/docs/aros), feeder clients are already installed for most services and ready for you to configure as an `Output`. You are able to feed multiple aggregation services. This will be the easiest way to get going for just about everyone.
+
+*In development.*
 
 ## ADSBExchange Distribution
 
