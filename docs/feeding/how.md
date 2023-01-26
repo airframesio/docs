@@ -25,6 +25,7 @@ If you are using the [ADSBExchange Raspberry Pi Image](https://www.adsbexchange.
 ## Manually via Compilation of Clients
 
 There are a few ways to install the necessary clients. At this moment we will not go into great detail, but here are some external resources:
+* [thebaldgeek's awesome documentation](https://thebaldgeek.github.io/)
 * [acarsdec](https://github.com/wiedehopf/adsb-wiki/wiki/acarsdec-install) via wiedehopf's install script
 
 ## Other Distributions
