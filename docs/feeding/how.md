@@ -30,6 +30,11 @@ There are a few ways to install the necessary clients. At this moment we will no
 * [thebaldgeek's awesome documentation](https://thebaldgeek.github.io/)
 * [acarsdec](https://github.com/wiedehopf/adsb-wiki/wiki/acarsdec-install) via wiedehopf's install script
 
+## Docker
+
+While there is an old soon-to-be-replaced page on how to get feeding with Docker, here are some other resources that you can get started with now:
+* [ACARS HUB](https://github.com/sdr-enthusiasts/docker-acarshub) by Fred Clausen
+
 ## Other Distributions
 
 If you are using an OS distribution from one of the other aggregation services, you will need to install and/or configure a feeding client in order to feed your data to these services. The rule of thumb is that the aggregator that put together the OS distribution will likely have already included their own feeder client, but you will likely need to add the feeder clients for any other aggregation service that you would like to feed to.
