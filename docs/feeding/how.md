@@ -4,7 +4,7 @@ sidebar_position: 3
 
 # How to Feed
 
-Feeding requires that you have active reception of aerospace data (coming from aircraft, ground stations, etc) already using one or more SDRs.
+Feeding requires that you have active reception of aviation data (coming from aircraft, ground stations, etc) already using one or more SDRs.
 
 ## Feeder Clients
 
