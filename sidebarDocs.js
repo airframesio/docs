@@ -38,7 +38,7 @@ const sidebars = {
       type: 'category',
       label: 'Community',
       items: [
-        'team', 'chat'
+        'contributing', 'chat', 'team'
       ]
     },
   ],
