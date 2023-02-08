@@ -26,6 +26,7 @@ airframes (commonly known as aircraft) and ground stations. We have personally t
 | ---- | ---- | ------- | ----- |
 | [Nooelec Flamingo+ FM](https://www.amazon.com/Flamingo-FM-Applications-Problematic-SMA-Connected/dp/B07XKY8YKB?&_encoding=UTF8&tag=airframes05-20&linkCode=ur2&linkId=b8c22b69822d02b6f223318844d22d08&camp=1789&creative=9325) | Notch Filter | FM Broadcast | If you have any tall FM broadcast towers nearby, this will help by reducing overload to the SDR and give you higher signal attenuation. |
 | [Nooelec SAWbird+ IR](https://www.amazon.com/Nooelec-SAWbird-IR-Ultra-Low-Applications/dp/B07K1LW983?&_encoding=UTF8&tag=airframes05-20&linkCode=ur2&linkId=b8c22b69822d02b6f223318844d22d08&camp=1789&creative=9325) | LNA | Iridium / Inmarsat | If you plan to setup ACARS over Iridium or Inmarsat stations, this is a must have. It is perfect for L-band signals. |
+| [Nooelec SAWbird+ NOAA](https://www.amazon.com/Nooelec-SAWbird-NOAA-Ultra-Low-Applications/dp/B07TWPR871?&_encoding=UTF8&tag=airframes05-20&linkCode=ur2&linkId=b8c22b69822d02b6f223318844d22d08&camp=1789&creative=9325) | LNA | NOAA | Typically used for NOAA weather satellite reception, there may be some value (still testing) to ACARS/VDL in certain circumstances where signals are low (near frequency range). Let us know if you try this and it helps. |
 
 
 ## Affiliate Links
