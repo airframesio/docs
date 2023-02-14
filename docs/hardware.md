@@ -12,13 +12,14 @@ airframes (commonly known as aircraft) and ground stations. We have personally t
 | Item | Type | Purpose | Notes |
 | ---- | ---- | ------- | ----- |
 | [Raspberry Pi 4 4GB](https://www.raspberrypi.com/products/raspberry-pi-4-model-b/) | Embedded | Computer / Server | Low cost, low power, small dedicated embedded computer to run all your capture and feeding needs. |
+| [TRIGKEY Green G3 16GB + 500G SSD](https://www.amazon.com/Generation-Processors-TRIGKEY-G2-Computer/dp/B09GK47562?&_encoding=UTF8&tag=airframes05-20&creative=9325) | Mini PC | Computer / Server | Low cost, low power, small dedicated computer with tons of CPU power and memory to run the most demanding of feed needs (such as HFDL, SATCOM, etc) |
 
 ## Software Defined Radio
 
 | Item | Type | Purpose | Notes |
 | ---- | ---- | ------- | ----- |
 | [ADSBExchange.com Orange SDR](https://www.amazon.com/ADSBexchange-com-Orange-R860-RTL2832U-TCXO/dp/B09NJWMY56?&_encoding=UTF8&tag=airframes05-20&linkCode=ur2&linkId=b8c22b69822d02b6f223318844d22d08&camp=1789&creative=9325) | SDR | ACARS, VDL | The official co-branded Orange SDR from ADS-B Exchange &amp; Airframes.io is unfiltered (unlike the Blue SDR which contains a filter intended for ADS-B traffic at 1090mhz) and ideal for ACARS or VDL. |
-| [ADSBExchange.com Blue SDR](https://www.amazon.com/ADSBexchange-com-RTL2832U-Antenna-Software-Industrial/dp/B09F2ND4R6/r?&_encoding=UTF8&tag=airframes05-20&linkCode=ur2&linkId=3f770a9f2aa2cb592f7cd490064b55f7&camp=1789&creative=9325) | SDR | ADS-B | The official ADS-B Exchange Blue SDR is filtered and intended for ADS-B reception. |
+| [ADSBExchange.com Blue SDR](https://www.amazon.com/ADSBexchange-com-RTL2832U-Antenna-Software-Industrial/dp/B09F2ND4R6?&_encoding=UTF8&tag=airframes05-20&linkCode=ur2&linkId=3f770a9f2aa2cb592f7cd490064b55f7&camp=1789&creative=9325) | SDR | ADS-B | The official ADS-B Exchange Blue SDR is filtered and intended for ADS-B reception. |
 
 ## Filters & LNAs
 
