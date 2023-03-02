@@ -4,7 +4,7 @@ sidebar_position: 1
 
 # Introduction to Airwaves OS
 
-**Airwaves OS** is a custom operating system based on Debian Linux used for interacting with [Airframes](https://airframes.io) and other aggregation services. AirwavesOS is intended to be installed on low power embedded systems like the Raspberry Pi, but is also compatible with higher end PCs.
+**Airwaves OS** is a custom operating system based on Debian Linux used for interacting with [Airframes](https://airframes.io) and other aggregation services. Airwaves OS is intended to be installed on low power embedded systems like the Raspberry Pi, but is also compatible with higher end PCs.
 
 **Airwaves OS** provides:
 - easy installation
