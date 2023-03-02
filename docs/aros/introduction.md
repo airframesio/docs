@@ -15,3 +15,4 @@ sidebar_position: 1
 - the use of multiple SDRs at the same time (limited only to system capacity)
 - customizable outputs (send feed to log, another AROS node, aggregators)
 - output to multiple outputs & aggregators per feed
+- app catalog to easily install additional radio-based functionality
