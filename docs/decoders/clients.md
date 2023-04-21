@@ -12,7 +12,9 @@ Here is a list of decoder clients supported by Airframes.
 
 # acarsdec
 
-A description will go here. And a link to a decoder specific documentation page.
+Acarsdec is a multi-channels acars decoder with built-in rtl_sdr, airspy front end or sdrplay device.
+
+- [How to Install](acarsdec)
 
 # dumphfdl
 
