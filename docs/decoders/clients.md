@@ -14,7 +14,7 @@ Here is a list of decoder clients supported by Airframes.
 
 Acarsdec is a multi-channels acars decoder with built-in rtl_sdr, airspy front end or sdrplay device.
 
-- [How to Install](acarsdec)
+- [How to Install](install-acarsdec)
 
 # dumphfdl
 
@@ -38,4 +38,6 @@ A description will go here. And a link to a decoder specific documentation page.
 
 # vdlm2dec
 
-A description will go here. And a link to a decoder specific documentation page.
+VDLm2dec is an open-source software application used to decode VDL (VHF Data Link) messages transmitted by aircraft.
+
+- [How to Install](install-vdlm2dec)
