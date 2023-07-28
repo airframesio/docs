@@ -29,6 +29,11 @@ airframes (commonly known as aircraft) and ground stations. We have personally t
 | [Nooelec SAWbird+ IR](https://www.amazon.com/Nooelec-SAWbird-IR-Ultra-Low-Applications/dp/B07K1LW983?&_encoding=UTF8&tag=airframes05-20&linkCode=ur2&linkId=b8c22b69822d02b6f223318844d22d08&camp=1789&creative=9325) | LNA | Iridium / Inmarsat | If you plan to setup ACARS over Iridium or Inmarsat stations, this is a must have. It is perfect for L-band signals. |
 | [Nooelec SAWbird+ NOAA](https://www.amazon.com/Nooelec-SAWbird-NOAA-Ultra-Low-Applications/dp/B07TWPR871?&_encoding=UTF8&tag=airframes05-20&linkCode=ur2&linkId=b8c22b69822d02b6f223318844d22d08&camp=1789&creative=9325) | LNA | NOAA | Typically used for NOAA weather satellite reception, there may be some value (still testing) to ACARS/VDL in certain circumstances where signals are low (near frequency range). Let us know if you try this and it helps. |
 
+## Miscellaneous
+
+| Item | Type | Purpose | Notes |
+| ---- | ---- | ------- | ----- |
+| [Anker 10 Port 60W Data Hub w/ 7 USB3 Ports](https://www.amazon.com/Anker-PowerIQ-Charging-MacBook-Surface/dp/B00VDVCQ84?tag=airframes05-20) | USB Hub | Connect multiple SDRs | Allows attachment of multiple powered SDRs via USB 2.0 and USB 3.0 without drawing power from the host system |
 
 ## Affiliate Links
 
