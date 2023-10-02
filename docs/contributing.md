@@ -32,3 +32,7 @@ If you are a developer and want to contribute a small fix, a feature, or take on
 Become a Patreon! By spending a monthly allotment that you can afford as a Patreon, you help to provide much needed funds for servers, hosting, design & dev time, and maybe a coffee or two. We are still fleshing out the Patreon tiers (a way of giving back to Patreons at different levels), but we have some great stuff up our sleeves.
 
 Visit the [Airframes Patreon](https://www.patreon.com/Airframes) to help out right away! If you're on the Discord, send a moderator a message and you will be rewarded with a special Patreon role that will grant you access to additional channels (we are looking to automate this).
+
+## Buy From Our Shop
+
+Visit the [Airframes Shop](https://shop.airframes.io) to purchase swag, SDRs, SBCs, cables, antennas, and other hardware. All purchases directly support the development and server costs.
