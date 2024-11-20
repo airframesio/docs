@@ -109,9 +109,9 @@ ENTRYPOINT ["/usr/local/bin/acarsdec"]
 CMD ["-o", "4", "-i", "<STATION ID>", "-j", "feed.acars.io:5550", "-r", "<ACARS SDR SERIAL>", "130.025", "130.425", "130.450", "131.125", "131.425", "131.550"]
 ```
 
-In the above Dockerfile, you will need to put the serial number of the SDR you are going to use for ACARS in the CMD line, replacing the <ACARS SDR SERIAL/> template.
+In the above Dockerfile, you will need to put the serial number of the SDR you are going to use for ACARS in the CMD line, replacing the `<ACARS SDR SERIAL>` template.
 
-Your identifier (indicated by the -i parameter) can be whatever you want it to be. Our recommendation is to use the XX-YYYYZ format, where XX is a two-digit representation of your initials or other personal id (mine is MJ), YYYY is the nearest airport to you (mine is KCVO) and Z is the receiver number (in case you have multiple in the same locale). You are welcome to add additional identifiers to the end of it (such as -ACARS or -VDL2) to further clarify your station identification. Replace the <STATION ID/> with your identifier.
+Your identifier (indicated by the -i parameter) can be whatever you want it to be. Our recommendation is to use the XX-YYYYZ format, where XX is a two-digit representation of your initials or other personal id (mine is MJ), YYYY is the nearest airport to you (mine is KCVO) and Z is the receiver number (in case you have multiple in the same locale). You are welcome to add additional identifiers to the end of it (such as -ACARS or -VDL2) to further clarify your station identification. Replace the  `<STATION ID>` with your identifier.
 
 Also, update the list of frequencies to those appropriate for your region. See the [Airframes About Page](https://app.airframes.io/about) for a current list of frequencies.
 
@@ -227,9 +227,9 @@ ENTRYPOINT ["/usr/local/bin/dumpvdl2"]
 CMD ["--rtlsdr", "<VDL SDR SERIAL>", "--gain", "40", "--output", "decoded:json:udp:address=feed.airframes.io,port=5552", "--station-id", "<STATION ID>", "136600000", "136650000", "136700000", "136800000", "136925000", "136975000"]
 ```
 
-In the above Dockerfile, you will need to put the serial number of the SDR you are going to use for VDL in the CMD line, replacing the <VDL SDR SERIAL/> template.
+In the above Dockerfile, you will need to put the serial number of the SDR you are going to use for VDL in the CMD line, replacing the `<VDL SDR SERIAL>` template.
 
-Your identifier (indicated by the -i parameter) can be whatever you want it to be. Our recommendation is to use the XX-YYYYZ format, where XX is a two-digit representation of your initials or other personal id (mine is MJ), YYYY is the nearest airport to you (mine is KCVO) and Z is the receiver number (in case you have multiple in the same locale). You are welcome to add additional identifiers to the end of it (such as -ACARS or -VDL2) to further clarify your station identification. Replace the <STATION ID/> with your identifier.
+Your identifier (indicated by the -i parameter) can be whatever you want it to be. Our recommendation is to use the XX-YYYYZ format, where XX is a two-digit representation of your initials or other personal id (mine is MJ), YYYY is the nearest airport to you (mine is KCVO) and Z is the receiver number (in case you have multiple in the same locale). You are welcome to add additional identifiers to the end of it (such as -ACARS or -VDL2) to further clarify your station identification. Replace the `<STATION ID>` with your identifier.
 
 Also, update the list of frequencies to those appropriate for your region. See the [Airframes About Page](https://app.airframes.io/about) for a current list of frequencies.
 
