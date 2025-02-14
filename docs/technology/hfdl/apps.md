@@ -1,3 +1,7 @@
+---
+sidebar_position: 1
+---
+
 # Applications & Utilities
 
 ![IMG_3202](https://github.com/user-attachments/assets/48b919a2-1be2-42c9-a5f8-e3b440ac8300)
