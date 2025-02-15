@@ -1,6 +1,6 @@
 # Documentation Website
 
-This website is built using [Docusaurus 2](https://docusaurus.io/), a modern static website generator.
+This website is built using [Docusaurus 3](https://docusaurus.io/), a modern static website generator.
 
 [![Contributors](https://img.shields.io/github/contributors/airframesio/docs)](https://github.com/airframesio/docs/graphs/contributors)
 [![Activity](https://img.shields.io/github/commit-activity/m/airframesio/docs)](https://github.com/airframesio/docs/pulse)
