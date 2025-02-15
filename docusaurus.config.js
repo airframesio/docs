@@ -16,6 +16,10 @@ const config = {
   organizationName: 'airframesio', // Usually your GitHub org/user name.
   projectName: 'docs', // Usually your repo name.
 
+  future: {
+    experimental_faster: true,
+  },
+
   presets: [
     [
       'classic',
@@ -24,11 +28,6 @@ const config = {
         docs: {
           sidebarPath: require.resolve('./sidebarDocs.js'),
           editUrl: 'https://github.com/airframesio/docs/tree/main/',
-        },
-        blog: {
-          showReadingTime: true,
-          editUrl:
-            'https://github.com/facebook/airframesio/docs/main/',
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
@@ -70,9 +69,6 @@ const config = {
             to: '/api', label: 'API', position: 'left',
           },
           {
-            to: '/blog', label: 'Blog', position: 'left'
-          },
-          {
             href: 'https://github.com/airframesio/docs',
             label: 'GitHub',
             position: 'right',
@@ -111,10 +107,6 @@ const config = {
           {
             title: 'More',
             items: [
-              {
-                label: 'Blog',
-                to: '/blog',
-              },
               {
                 label: 'GitHub',
                 href: 'https://github.com/airframesio/docs',
