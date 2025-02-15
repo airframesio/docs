@@ -8,7 +8,7 @@ const FeatureList = [
     Svg: require('../../static/img/undraw_docusaurus_mountain.svg').default,
     description: (
       <>
-        Learn how to get started with <a href="/feeding/what">feeding your data</a> to Airframes quickly.
+        Learn how to get started with <a href="/docs/feeding/what">feeding your data</a> to Airframes quickly.
       </>
     ),
   },
@@ -17,7 +17,7 @@ const FeatureList = [
     Svg: require('../../static/img/undraw_docusaurus_tree.svg').default,
     description: (
       <>
-        Utilize the data aggregated and processed by Airframes to search and monitor active flights.
+        Utilize the data aggregated and processed by Airframes to <a href="https://app.airframes.io/messages">search</a> and monitor active flights.
       </>
     ),
   },

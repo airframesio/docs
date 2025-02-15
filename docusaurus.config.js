@@ -7,7 +7,7 @@ const darkCodeTheme = require('prism-react-renderer').themes.dracula;
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title: 'Airframes Documentation',
-  tagline: 'Planes are cool',
+  tagline: 'Planes are cool, but people who like plane data are even cooler.',
   url: 'https://docs.airframes.io',
   baseUrl: '/',
   onBrokenLinks: 'throw',
