@@ -11,8 +11,10 @@ airframes (commonly known as aircraft) and ground stations. We have personally t
 
 | Item | Type | Purpose | Notes |
 | ---- | ---- | ------- | ----- |
-| [Raspberry Pi 4 4GB](https://www.raspberrypi.com/products/raspberry-pi-4-model-b/) | Embedded | Computer / Server | Low cost, low power, small dedicated embedded computer to run all your capture and feeding needs. |
-| [TRIGKEY Green G3 16GB + 500G SSD](https://www.amazon.com/Generation-Processors-TRIGKEY-G2-Computer/dp/B09GK47562?&_encoding=UTF8&tag=airframes05-20&creative=9325) | Mini PC | Computer / Server | Low cost, low power, small dedicated computer with tons of CPU power and memory to run the most demanding of feed needs (such as HFDL, SATCOM, etc) |
+| [Raspberry Pi 5 16GB](https://www.amazon.com/dp/B0DSPYPKRG?tag=airframes05-20) | Embedded | Computer / Server | Low cost, low power, small dedicated SBC to run all your capture and feeding needs on a single server |
+| [Raspberry Pi 5 8GB](https://www.amazon.com/dp/B0CK2FCG1K?tag=airframes05-20) | Embedded | Computer / Server | Low cost, low power, small dedicated SBC to run all your capture and feeding needs on a single server |
+| [Raspberry Pi 4 4GB](https://www.amazon.com/dp/B07TC2BK1X?tag=airframes05-20) | Embedded | Computer / Server | Low cost, low power, small dedicated embedded computer to run all your capture and feeding needs. |
+| [TRIGKEY Green G4 N100 + 16GB + 500G SSD](https://www.amazon.com/dp/B0CLNTGPM8?tag=airframes05-20) | Mini PC | Computer / Server | Low cost, low power, small dedicated computer with tons of CPU power and memory to run the most demanding of feed needs (such as HFDL, SATCOM, etc) |
 
 ## Software Defined Radio
 
