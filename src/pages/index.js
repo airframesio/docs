@@ -21,7 +21,7 @@ function HomepageHeader() {
           </Link>
           <Link
             className="button button--primary button--lg"
-            to="https://app.airframes.io/messages"
+            to="https://app.airframes.io"
             style={{marginLeft: '10px'}}>
             View Live Messages 🛩️
           </Link>
