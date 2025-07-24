@@ -1,50 +1,259 @@
-openapi: 3.0.0
+openapi: 3.0.3
 info:
-  version: 1.0.0
-  title: Airframes API
+  version: 0.0.1
+  title: Airframes REST API
   contact:
     name: Kevin Elliott
     email: kevin@airframes.io
-    url: 'https://airframes.io/'
+    url: "https://airframes.io/"
   description: >-
-    API for accessing the Airframes.io aerospace data, originally sourced from
-    contributions by users.
+    Aviation data aggregated and processed by Airframes, supported by community feeder stations.
+  termsOfService: "https://docs.airframes.io/api/terms"
+  x-categpry: "Aviation"
+  x-logo:
+    url: "https://airframes.io/images/logo.png"
+    altText: "Airframes"
+  x-website: "https://airframes.io/"
+  x-twitter: "https://twitter.com/airframesio"
+  x-github: "https://github.com/airframesio"
+  x-badges:
+    - name: "API Type"
+      value: "REST"
+    - name: "Region"
+      value: "Global"
+x-gateways:
+  - url: rapidapi.com
+
+tags:
+  - name: "General"
+  - name: "Authentication"
+  - name: "Airframes API"
+  - name: "Airlines API"
+  - name: "Airports API"
+  - name: "Feeders API"
+  - name: "Flights API"
+  - name: "Messages API"
+  - name: "Routes API"
+  - name: "Stations API"
 
 servers:
-  - url: 'http://localhost:8080'
+  - url: "http://localhost:8080"
     description: Local Development Server
-  - url: 'https://staging.airframes.io/{basePath}'
+  - url: "https://staging.airframes.io/{basePath}"
     description: Staging Server
     variables:
       basePath:
         default: v1
-  - url: 'https://api.airframes.io/{basePath}'
+  - url: "https://api.airframes.io/{basePath}"
     description: Production Server
     variables:
       basePath:
         default: v1
+  - url: "https://rapidapi.airframes.io"
+    description: Production API for RapidAPI Users
 
 paths:
+  # Authentication endpoints
+  /:
+    get:
+      summary: "API Root"
+      description: "Returns a welcome message"
+      tags:
+        - General
+      responses:
+        "200":
+          description: Welcome message
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Hello World!"
+  
+  /auth/login:
+    post:
+      summary: "User Login"
+      description: "Authenticate user and return JWT token"
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+              required:
+                - username
+                - password
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+        "401":
+          description: Unauthorized
+  
+  /auth/register:
+    post:
+      summary: "User Registration"
+      description: "Register a new user account"
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                username:
+                  type: string
+      responses:
+        "201":
+          description: Registration successful
+        "400":
+          description: Bad request
+  
+  /auth/confirm:
+    post:
+      summary: "Confirm Email"
+      description: "Confirm user email with token"
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                token:
+                  type: string
+      responses:
+        "200":
+          description: Email confirmed
+        "400":
+          description: Invalid token
+  
+  /auth/resend-confirmation-email:
+    post:
+      summary: "Resend Confirmation Email"
+      description: "Resend email confirmation"
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+      responses:
+        "200":
+          description: Email sent
+  
+  /auth/reset-password:
+    post:
+      summary: "Reset Password"
+      description: "Request password reset"
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+      responses:
+        "200":
+          description: Reset email sent
+  
+  /auth/reset-password/confirm:
+    post:
+      summary: "Confirm Password Reset"
+      description: "Confirm password reset with token"
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                token:
+                  type: string
+                password:
+                  type: string
+      responses:
+        "200":
+          description: Password reset successful
+        "400":
+          description: Invalid token
+
+  # Airframes API
   /airframes:
     get:
-      summary: 'Get a list of Airframes'
-      parameters: []
+      name: "Search Airframes"
+      summary: "Search Airframes"
+      description: "Search Airframes with optional filtering and pagination"
+      tags:
+        - Airframes API
+      parameters:
+        - name: tail
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Filter by tail number
+        - $ref: "#/components/parameters/limit"
+        - $ref: "#/components/parameters/page"
       operationId: getAirframes
       responses:
-        '200':
+        "200":
           description: A list of Airframes
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/airframe'
+                  $ref: "#/components/schemas/Airframe"
       security:
+        - apiKey: []
         - oauth2:
-          - airframes
+            - airframes
   /airframes/{id}:
     get:
-      summary: 'Get an Airframe by an ID'
+      summary: "Find an Airframe by ID"
+      tags:
+        - Airframes API
       parameters:
         - name: id
           in: path
@@ -53,37 +262,115 @@ paths:
             type: string
       operationId: getAirframeById
       responses:
-        '200':
+        "200":
           description: An Airframe
           content:
             application/json:
               schema:
                 type: object
-                $ref: '#/components/schemas/airframe'
+                $ref: "#/components/schemas/Airframe"
+        "404":
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                title: Airframe not found
+                type: string
+                example: Not found
       security:
+        - apiKey: []
         - oauth2:
-          - airframes
+            - airframes
+  /airframes/tail/{tail}:
+    get:
+      summary: "Find an Airframe by Tail"
+      tags:
+        - Airframes API
+      parameters:
+        - name: tail
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: getAirframeByTail
+      responses:
+        "200":
+          description: An Airframe
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/Airframe"
+        "404":
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                title: Airframe not found
+                type: string
+                example: Not found
+      security:
+        - apiKey: []
+        - oauth2:
+            - airframes
+  /airframes/icao/{icao}:
+    get:
+      summary: "Find an Airframe by ICAO"
+      tags:
+        - Airframes API
+      parameters:
+        - name: icao
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: getAirframeByICAO
+      responses:
+        "200":
+          description: An Airframe
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/Airframe"
+        "404":
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                title: Airframe not found
+                type: string
+                example: Not found
+      security:
+        - apiKey: []
+        - oauth2:
+            - airframes
   /airlines:
     get:
-      summary: ''
-      description: ''
+      summary: "Search Airlines"
+      tags:
+        - Airlines API
+      description: ""
       parameters: []
       operationId: getAirlines
       responses:
-        '200':
+        "200":
           description: A list of Airlines
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/airline'
+                  $ref: "#/components/schemas/Airline"
       security:
+        - apiKey: []
         - oauth2:
           - airlines
   /airlines/{id}:
     get:
-      summary: 'Get an Airline by an ID'
+      summary: "Find an Airline by ID"
+      tags:
+        - Airlines API
       parameters:
         - name: id
           in: path
@@ -92,36 +379,115 @@ paths:
             type: string
       operationId: getAirlineById
       responses:
-        '200':
+        "200":
           description: An Airline
           content:
             application/json:
               schema:
                 type: object
-                $ref: '#/components/schemas/airline'
+                $ref: "#/components/schemas/Airline"
+        "404":
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                title: Airline not found
+                type: string
+                example: Not found
       security:
+        - apiKey: []
+        - oauth2:
+          - airlines
+  /airlines/icao/{icao}:
+    get:
+      summary: "Find an Airline by ICAO 3LD"
+      tags:
+        - Airlines API
+      parameters:
+        - name: icao
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: getAirlineByICAO
+      responses:
+        "200":
+          description: An Airline
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/Airline"
+        "404":
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                title: Airline not found
+                type: string
+                example: Not found
+      security:
+        - apiKey: []
+        - oauth2:
+          - airlines
+  /airlines/iata/{iata}:
+    get:
+      summary: "Find one or more Airlines by IATA 2LD"
+      tags:
+        - Airlines API
+      parameters:
+        - name: iata
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: getAirlinesByIATA
+      responses:
+        "200":
+          description: A list of Airlines
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Airline"
+        "404":
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                title: Airline not found
+                type: string
+                example: Not found
+      security:
+        - apiKey: []
         - oauth2:
           - airlines
   /airports:
     get:
-      summary: 'Get a list of Airports'
+      summary: "Search Airports"
+      tags:
+        - Airports API
       parameters: []
       operationId: getAirports
       responses:
-        '200':
+        "200":
           description: A list of Airports
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/airport'
+                  $ref: "#/components/schemas/Airport"
       security:
+        - apiKey: []
         - oauth2:
-          - airports
+            - airports
   /airports/{id}:
     get:
-      summary: 'Get an Airport by an ID'
+      summary: "Find an Airport by ID"
+      tags:
+        - Airports API
       parameters:
         - name: id
           in: path
@@ -130,74 +496,293 @@ paths:
             type: string
       operationId: getAirportById
       responses:
-        '200':
+        "200":
           description: An Airport
           content:
             application/json:
               schema:
                 type: object
-                $ref: '#/components/schemas/airport'
+                $ref: "#/components/schemas/Airport"
+        "404":
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                title: Airport not found
+                type: string
+                example: Not found
       security:
+        - apiKey: []
         - oauth2:
-          - airports
-  /leaderboards:
+            - airports
+  /airports/icao/{icao}:
     get:
-      summary: 'Get a list of Leaderboards'
-      parameters: []
-      operationId: getLeaderboards
+      summary: "Find an Airport by ICAO 4LD"
+      tags:
+        - Airports API
+      parameters:
+        - name: icao
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: getAirportByICAO
       responses:
-        '200':
-          description: A list of Leaderboards
+        "200":
+          description: An Airport
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/Airport"
+        "404":
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                title: Airport not found
+                type: string
+                example: Not found
+      security:
+        - apiKey: []
+        - oauth2:
+            - airports
+  /airports/iata/{iata}:
+    get:
+      summary: "Find an Airport by IATA 3LD"
+      tags:
+        - Airports API
+      parameters:
+        - name: iata
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: getAirportByIATA
+      responses:
+        "200":
+          description: An Airport
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/Airport"
+        "404":
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                title: Airport not found
+                type: string
+                example: Not found
+      security:
+        - apiKey: []
+        - oauth2:
+            - airports
+  /airports/ident/{ident}:
+    get:
+      summary: "Find an Airport by Ident"
+      tags:
+        - Airports API
+      parameters:
+        - name: ident
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: getAirportByIdent
+      responses:
+        "200":
+          description: An Airport
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/Airport"
+        "404":
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                title: Airport not found
+                type: string
+                example: Not found
+      security:
+        - apiKey: []
+        - oauth2:
+            - airports
+  /airports/type/{type}:
+    get:
+      summary: "Find Airports by Type"
+      tags:
+        - Airports API
+      parameters:
+        - name: type
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: getAirportByICAO
+      responses:
+        "200":
+          description: An Airport
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/leaderboard'
+                  $ref: "#/components/schemas/Airport"
       security:
+        - apiKey: []
         - oauth2:
-          - leaderboards
-  /leaderboards/{id}:
+            - airports
+  /airports/bbox/{xmin},{ymin},{xmax},{ymax}:
     get:
-      summary: 'Get a Leaderboard by ID'
+      summary: "Find Airports by Bounding Box"
+      tags:
+        - Airports API
+      parameters:
+        - name: xmin
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: ymin
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: xmax
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: ymax
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: getAirportByBoundingBox
+      responses:
+        "200":
+          description: An Airport
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Airport"
+      security:
+        - apiKey: []
+        - oauth2:
+            - airports
+  /flights:
+    get:
+      summary: "Get All Flights"
+      description: "Get all flights in the system"
+      tags:
+        - Flights API
+      operationId: getFlights
+      responses:
+        "200":
+          description: A list of Flights
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Flight"
+      security:
+        - apiKey: []
+        - oauth2:
+            - flights
+  
+  /flights/active:
+    get:
+      summary: "Get Active Flights"
+      description: "Get currently active flights (requires authentication)"
+      tags:
+        - Flights API
+      parameters:
+        - name: query
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Optional query filter
+      operationId: getActiveFlights
+      responses:
+        "200":
+          description: A list of active Flights
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Flight"
+        "401":
+          description: Unauthorized
+      security:
+        - apiKey: []
+        - oauth2:
+            - flights
+  /flights/{id}:
+    get:
+      summary: "Find a specific Flight by ID"
+      tags:
+        - Flights API
       parameters:
         - name: id
           in: path
           required: true
           schema:
             type: string
-      operationId: getLeaderboardById
+      operationId: getFlightById
       responses:
-        '200':
-          description: A Leaderboard
+        "200":
+          description: A Flight
           content:
             application/json:
               schema:
                 type: object
-                $ref: '#/components/schemas/leaderboard'
+                $ref: "#/components/schemas/Flight"
+        "404":
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                title: Flight not found
+                type: string
+                example: Not found
       security:
+        - apiKey: []
         - oauth2:
-          - leaderboards
+            - flights
   /messages:
     get:
-      summary: 'Get a list of Messages'
+      summary: "Search Messages"
+      tags:
+        - Messages API
       parameters: []
       operationId: getMessages
       responses:
-        '200':
+        "200":
           description: A list of Messages
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/message'
+                  $ref: "#/components/schemas/Message"
       security:
+        - apiKey: []
         - oauth2:
-          - messages
+            - messages
   /messages/{id}:
     get:
-      summary: 'Get a Message by ID'
+      summary: "Find a Message by ID"
+      tags:
+        - Messages API
       parameters:
         - name: id
           in: path
@@ -206,92 +791,246 @@ paths:
             type: string
       operationId: getMessageById
       responses:
-        '200':
+        "200":
           description: A Message
           content:
             application/json:
               schema:
                 type: object
-                $ref: '#/components/schemas/message'
+                $ref: "#/components/schemas/Message"
+        "404":
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                title: Message not found
+                type: string
+                example: Not found
       security:
+        - apiKey: []
         - oauth2:
-          - messages
-  /stations:
+            - messages
+  /messages/{message_id}/decodings:
     get:
-      summary: 'Get a list of Stations'
-      parameters: []
-      operationId: getStations
+      summary: "Get Message Decodings for a Message"
+      tags:
+        - Messages API
+      parameters:
+        - name: message_id
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: getMessageDecodingsByMessageId
       responses:
-        '200':
-          description: A list of Stations
+        "200":
+          description: A list of Message Decodings
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/station'
+                  $ref: "#/components/schemas/MessageDecoding"
       security:
+        - apiKey: []
         - oauth2:
-          - stations
-    post:
-      summary: 'Create your Station'
-      parameters: []
-      operationId: createStation
+            - messages
+            - messages:decodings
+  /messages/{message_id}/reports:
+    get:
+      summary: "Get Message Reports for a Message"
+      tags:
+        - Messages API
+      parameters:
+        - name: message_id
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: getMessageReportsByMessageId
       responses:
-        '200':
-          description: The new Station
+        "200":
+          description: A list of Message Reports
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MessageReport"
+      security:
+        - apiKey: []
+        - oauth2:
+            - messages
+            - messages:reports
+  
+  /messages/ar_uuid/{id}:
+    get:
+      summary: "Find Message by AR UUID"
+      description: "Get a message by its AR UUID identifier"
+      tags:
+        - Messages API
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: AR UUID of the message
+      operationId: getMessageByArUUID
+      responses:
+        "200":
+          description: A Message
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+        "404":
+          description: Message not found
+          content:
+            text/plain:
+              schema:
+                title: Message not found
+                type: string
+                example: Not found
+      security:
+        - apiKey: []
+        - oauth2:
+            - messages
+  
+  /stations:
+    get:
+      summary: "Get All Stations"
+      description: "Get all feeder stations in the system"
+      tags:
+        - Stations API
+      operationId: getStations
+      responses:
+        "200":
+          description: A list of Stations
           content:
             application/json:
               schema:
                 type: object
-                $ref: '#/components/schemas/station'
+                description: Stations data as key-value pairs
       security:
+        - apiKey: []
         - oauth2:
-          - stations:write
-    put:
-      summary: 'Update a Station that you own'
-      parameters: []
-      operationId: updateStation
+            - stations
+  
+  /stations/counts_24_hours:
+    get:
+      summary: "Get Stations with 24-Hour Message Counts"
+      description: "Get stations with their message counts from the last 24 hours"
+      tags:
+        - Stations API
+      operationId: getStationsWith24HourCounts
       responses:
-        '200':
-          description: The updated Station
+        "200":
+          description: A list of Stations with message counts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Station"
+      security:
+        - apiKey: []
+        - oauth2:
+            - stations
+  /stations/{id}:
+    get:
+      summary: "Find a Station by ID"
+      description: "Get a specific station by ID with coverage and circle data"
+      tags:
+        - Stations API
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Station ID
+      operationId: getStationById
+      responses:
+        "200":
+          description: A Station with coverage data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Station"
+        "404":
+          description: Station not found
+          content:
+            text/plain:
+              schema:
+                title: Station not found
+                type: string
+                example: Not found
+      security:
+        - apiKey: []
+        - oauth2:
+            - stations
+  
+  /stations/ident/{ident}:
+    get:
+      summary: "Find a Station by Ident"
+      description: "Get a station by its identifier"
+      tags:
+        - Stations API
+      parameters:
+        - name: ident
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Station identifier
+      operationId: getStationByIdent
+      responses:
+        "200":
+          description: A Station
           content:
             application/json:
               schema:
                 type: object
-                $ref: '#/components/schemas/station'
+                $ref: "#/components/schemas/Station"
+        "404":
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                title: Station not found
+                type: string
+                example: Not found
       security:
+        - apiKey: []
         - oauth2:
-          - stations:write
-    delete:
-      summary: 'Delete a Station that you own'
-      description: ''
-      parameters: []
-      operationId: deleteStation
-      responses:
-        default:
-          description: Default response
+            - stations
   /waypoints:
     get:
-      summary: ''
-      description: ''
+      summary: "Search Waypoinds"
+      tags:
+        - Routes API
+      description: ""
       parameters: []
       operationId: getWaypoints
       responses:
-        '200':
+        "200":
           description: A list of Waypoints
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/waypoint'
+                  $ref: "#/components/schemas/Waypoint"
       security:
+        - apiKey: []
         - oauth2:
-          - waypoints
+            - waypoints
   /waypoints/{id}:
     get:
-      summary: 'Get a Waypoint by an ID'
+      summary: "Find a Waypoint by ID"
+      tags:
+        - Routes API
       parameters:
         - name: id
           in: path
@@ -300,23 +1039,32 @@ paths:
             type: string
       operationId: getWaypointById
       responses:
-        '200':
+        "200":
           description: A Waypoint
           content:
             application/json:
               schema:
                 type: object
-                $ref: '#/components/schemas/waypoint'
+                $ref: "#/components/schemas/Waypoint"
+        "404":
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                title: Waypoint not found
+                type: string
+                example: Not found
       security:
+        - apiKey: []
         - oauth2:
-          - waypoints
+            - waypoints
 
 components:
   securitySchemes:
     apiKey:
       type: apiKey
-      name: api_key
       in: header
+      name: X-API-KEY
     oauth2:
       type: oauth2
       flows:
@@ -333,26 +1081,244 @@ components:
             stations: Read access to public stations information
 
   schemas:
-    Message:
+    Airframe:
       type: object
-      required:
-        - id
+      properties:
+        id:
+          type: integer
+        tail:
+          type: string
+        icao:
+          type: string
+        iata:
+          type: string
+        manufacturer:
+          type: string
+        manufacturerModel:
+          type: string
+        owner:
+          type: string
+        operator:
+          type: string
+        messages:
+          type: array
+          items:
+            $ref: "#/components/schemas/Message"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    Airline:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        icao:
+          type: string
+        iata:
+          type: string
+        prefix:
+          type: string
+        callsign:
+          type: string
+        addressLine1:
+          type: string
+        addressLine2:
+          type: string
+        city:
+          type: string
+        region:
+          type: string
+        postalCode:
+          type: string
+        country:
+          type: string
+        phoneCountryCode:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+        logoUrl:
+          type: string
+        websiteUrl:
+          type: string
+        facebookUrl:
+          type: string
+        youtubeUrl:
+          type: string
+        linkedinUrl:
+          type: string
+        instagramUrl:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    Airport:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        ident:
+          type: string
+        icao:
+          type: string
+        iata:
+          type: string
+        municipality:
+          type: string
+        region:
+          type: string
+        country:
+          type: string
+        countryCode:
+          type: string
+        latitude:
+          type: number
+          format: float
+        longitude:
+          type: number
+          format: float
+        altitude:
+          type: number
+          format: float
+        faaLid:
+          type: string
+        ourAirportId:
+          type: string
+        status:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    Flight:
+      type: object
+      properties:
+        id:
+          type: integer
+        flight:
+          type: string
+        airframe:
+          $ref: "#/components/schemas/Airframe"
+        airline:
+          $ref: "#/components/schemas/Airline"
+        departingAirport:
+          type: string
+        departureTimeScheduled:
+          type: string
+          format: date-time
+        departureTimeActual:
+          type: string
+          format: date-time
+        departureGateScheduled:
+          type: string
+        departureGateActual:
+          type: string
+        destinationAirport:
+          type: string
+        arrivalTimeScheduled:
+          type: string
+          format: date-time
+        arrivalTimeActual:
+          type: string
+          format: date-time
+        arrivalGateScheduled:
+          type: string
+        arrivalGateActual:
+          type: string
+        latitude:
+          type: number
+          format: float
+        longitude:
+          type: number
+          format: float
+        altitude:
+          type: number
+          format: float
+        track:
+          type: number
+          format: float
+        status:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    Ingest:
+      type: object
       properties:
         id:
           type: string
-        station_id:
-          type: integer
-          format: int64
-        airframe_id:
-          type: integer
-          format: int64
-        flight_id:
-          type: integer
-          format: int64
-        flight_number:
+        name:
           type: string
-        source:
-          type: object
+        decoderClient:
+          type: string
+        band:
+          type: string
+        mode:
+          type: string
+        networkProtocol:
+          type: string
+        ingressPort:
+          type: integer
+        format:
+          type: string
+        enabled:
+          type: boolean
+        status:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    Message:
+      type: object
+      properties:
+        id:
+          type: number
+        station:
+          $ref: "#/components/schemas/Station"
+        airframe:
+          $ref: "#/components/schemas/Airframe"
+        flight:
+          $ref: "#/components/schemas/Flight"
+        flightNumber:
+          type: string
+        sourceType:
+          type: string
+        linkDirection:
+          type: string
+        fromHex:
+          type: string
+        toHex:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        tail:
+          type: string
+        frequency:
+          type: number
+          format: float
+        level:
+          type: number
+          format: float
         error:
           type: integer
           format: int64
@@ -360,28 +1326,142 @@ components:
           type: string
         label:
           type: string
-        block_id:
+        blockId:
           type: string
-        message_number:
+        messageNumber:
           type: string
         ack:
           type: string
-        block_end:
+        blockEnd:
           type: boolean
-        link_direction:
-          type: string
-        from_icao_hex:
-          type: string
-        to_icao_hex:
-          type: string
-        departing_airport:
-          type: string
-        destination_airport:
-          type: string
-        position:
-          type: object
         text:
           type: string
+        departingAirport:
+          type: string
+        destinationAirport:
+          type: string
+        latitude:
+          type: number
+          format: float
+        longitude:
+          type: number
+          format: float
+        altitude:
+          type: number
+          format: float
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    MessageDecoding:
+      type: object
+      properties:
+        id:
+          type: integer
+    MessageReport:
+      type: object
+      properties:
+        id:
+          type: integer
+    Station:
+      type: object
+      properties:
+        id:
+          type: integer
+        uuid:
+          type: string
+        ident:
+          type: string
+        ipAddress:
+          type: string
+        user:
+          type: object
+          $ref: "#/components/schemas/User"
+        latitude:
+          type: number
+          format: float
+        longitude:
+          type: number
+          format: float
+        fuzzedLatitude:
+          type: number
+          format: float
+        fuzzedLongitude:
+          type: number
+          format: float
+        useFuzzedLocation:
+          type: boolean
+        altitude:
+          type: number
+          format: float
+        nearestAirportIcao:
+          type: string
+        description:
+          type: string
+        systemPlatform:
+          type: string
+        systemOS:
+          type: string
+        equimentSdr:
+          type: string
+        equipmentFilters:
+          type: string
+        equipmentAntenna:
+          type: string
+        countryCode:
+          type: string
+        countryName:
+          type: string
+        flagEmoji:
+          type: string
+        flagImageUrl:
+          type: string
+        messageCount:
+          type: integer
+        status:
+          type: string
+        lastReportAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        username:
+          type: string
+        name:
+          type: string
+        role:
+          type: string
+        status:
+          type: string
+        gravatarUrl:
+          type: string
+        stations:
+          type: array
+          items:
+            $ref: "#/components/schemas/Station"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    Waypoint:
+      type: object
+      properties:
+        id:
+          type: integer
+
 
   parameters:
     limit:
@@ -405,7 +1485,7 @@ components:
   callbacks: {}
 
 security:
+  - apiKey: []
   - oauth2: []
 externalDocs:
-  url: 'https://docs.airframes.io/api'
-tags: []
+  url: "https://docs.airframes.io/api"
