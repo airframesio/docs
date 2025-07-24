@@ -17,7 +17,13 @@ function HomepageHeader() {
           <Link
             className="button button--secondary button--lg"
             to="/docs/intro">
-            Introduction - 5min ⏱️
+            Get Started with Airframes 📡
+          </Link>
+          <Link
+            className="button button--primary button--lg"
+            to="https://app.airframes.io/messages"
+            style={{marginLeft: '10px'}}>
+            View Live Messages 🛩️
           </Link>
         </div>
       </div>

@@ -4,30 +4,29 @@ import styles from './HomepageFeatures.module.css';
 
 const FeatureList = [
   {
-    title: 'Share Your Data',
+    title: 'Feed ACARS Data',
     Svg: require('../../static/img/undraw_docusaurus_mountain.svg').default,
     description: (
       <>
-        Learn how to get started with <a href="/docs/feeding/what">feeding your data</a> to Airframes quickly.
+        Learn how to get started with <a href="/docs/feeding/what">feeding your ACARS data</a> to Airframes and contribute to the global aviation data network.
       </>
     ),
   },
   {
-    title: 'Search and Monitor',
+    title: 'Search Live Messages',
     Svg: require('../../static/img/undraw_docusaurus_tree.svg').default,
     description: (
       <>
-        Utilize the data aggregated and processed by Airframes to <a href="https://app.airframes.io/messages">search</a> and monitor active flights.
+        Access real-time ACARS messages, OOOI reports, weather data, and aircraft communications through our <a href="https://app.airframes.io/messages">live search interface</a>.
       </>
     ),
   },
   {
-    title: 'Powered by React',
+    title: 'Open & Unfiltered',
     Svg: require('../../static/img/undraw_docusaurus_react.svg').default,
     description: (
       <>
-        Extend or customize your website layout by reusing React. Docusaurus can
-        be extended while reusing the same header and footer.
+        All aviation data collected remains unfiltered and unbiased by governments or corporate interests, providing transparent access to aircraft communications.
       </>
     ),
   },
