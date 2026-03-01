@@ -1,0 +1,46 @@
+.strip {
+  background: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
+  padding: 2.5rem 0;
+}
+
+.inner {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  min-width: 120px;
+}
+
+.value {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #4FE3C2;
+  line-height: 1;
+}
+
+.label {
+  font-size: 0.85rem;
+  color: #a0a0b8;
+  margin-top: 0.35rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+@media (max-width: 575px) {
+  .inner {
+    justify-content: center;
+    gap: 2rem 3rem;
+  }
+
+  .value {
+    font-size: 1.8rem;
+  }
+}

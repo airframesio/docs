@@ -1,23 +1,129 @@
-/**
- * CSS files with the .module.css suffix will be treated as CSS modules
- * and scoped locally.
- */
-
 .heroBanner {
-  padding: 4rem 0;
+  padding: 5rem 0 4rem;
   text-align: center;
   position: relative;
   overflow: hidden;
+  background: linear-gradient(160deg, #0d1117 0%, #131a24 50%, #0d1117 100%);
 }
 
-@media screen and (max-width: 966px) {
-  .heroBanner {
-    padding: 2rem;
-  }
+/* Dot-grid overlay */
+.heroBanner::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(79, 227, 194, 0.07) 1px, transparent 1px);
+  background-size: 24px 24px;
+  pointer-events: none;
+}
+
+/* Teal glow behind logo */
+.heroBanner::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -60%);
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(79, 227, 194, 0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.heroInner {
+  position: relative;
+  z-index: 1;
+}
+
+.heroLogo {
+  width: 80px;
+  height: 80px;
+  margin-bottom: 1.25rem;
+  filter: drop-shadow(0 0 20px rgba(79, 227, 194, 0.3));
+}
+
+.heroTitle {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 0.5rem;
+}
+
+.heroSubtitle {
+  font-size: 1.15rem;
+  color: #a0a0b8;
+  max-width: 520px;
+  margin: 0 auto 2rem;
+  line-height: 1.5;
 }
 
 .buttons {
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.btnPrimary {
+  background: #4FE3C2;
+  color: #0a1a16;
+  border: none;
+  font-weight: 600;
+  padding: 0.65rem 1.5rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  transition: background 0.2s ease, transform 0.2s ease;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btnPrimary:hover {
+  background: #6ce8cc;
+  color: #0a1a16;
+  transform: translateY(-1px);
+  text-decoration: none;
+}
+
+.btnOutline {
+  background: transparent;
+  color: #e0e0e0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  font-weight: 500;
+  padding: 0.65rem 1.5rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  transition: border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btnOutline:hover {
+  border-color: #4FE3C2;
+  color: #4FE3C2;
+  transform: translateY(-1px);
+  text-decoration: none;
+}
+
+@media screen and (max-width: 575px) {
+  .heroBanner {
+    padding: 3rem 1.5rem 2.5rem;
+  }
+
+  .heroTitle {
+    font-size: 1.8rem;
+  }
+
+  .heroSubtitle {
+    font-size: 1rem;
+  }
+
+  .buttons {
+    flex-direction: column;
+  }
+
+  .btnPrimary,
+  .btnOutline {
+    width: 100%;
+    text-align: center;
+  }
 }

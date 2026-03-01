@@ -1,0 +1,133 @@
+.section {
+  padding: 3rem 0 2rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-areas:
+    'feed  feed  live  live'
+    'flights flights tech  tech'
+    'open  community global global';
+  gap: 1rem;
+}
+
+.cardLink {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.cardLink:hover {
+  text-decoration: none;
+  color: inherit;
+}
+
+.card {
+  background: var(--ifm-card-background-color, #fff);
+  border: 1px solid var(--ifm-color-emphasis-200, #e3e3e3);
+  border-radius: 12px;
+  padding: 1.5rem;
+  height: 100%;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+/* Large cards get a teal accent glow on hover */
+.card_feed:hover,
+.card_live:hover {
+  box-shadow: 0 8px 24px rgba(79, 227, 194, 0.15);
+}
+
+.cardIcon {
+  color: var(--ifm-color-primary);
+  margin-bottom: 0.75rem;
+}
+
+.cardTitle {
+  font-size: 1.15rem;
+  margin-bottom: 0.5rem;
+}
+
+.cardDescription {
+  color: var(--ifm-color-emphasis-700, #666);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.75rem;
+}
+
+.badge {
+  background: var(--ifm-color-primary-lightest, #4fddbf);
+  color: #0a2520;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  letter-spacing: 0.02em;
+}
+
+/* Dark mode */
+html[data-theme='dark'] .card {
+  background: #1a1a2e;
+  border-color: #2a2a3e;
+}
+
+html[data-theme='dark'] .card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+html[data-theme='dark'] .card_feed:hover,
+html[data-theme='dark'] .card_live:hover {
+  box-shadow: 0 8px 24px rgba(79, 227, 194, 0.12);
+}
+
+html[data-theme='dark'] .cardDescription {
+  color: #a0a0b8;
+}
+
+html[data-theme='dark'] .badge {
+  background: rgba(79, 227, 194, 0.15);
+  color: #4FE3C2;
+}
+
+/* Responsive: tablet */
+@media (max-width: 996px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-areas:
+      'feed  feed'
+      'live  live'
+      'flights tech'
+      'open  community'
+      'global global';
+  }
+}
+
+/* Responsive: mobile */
+@media (max-width: 575px) {
+  .grid {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      'feed'
+      'live'
+      'flights'
+      'tech'
+      'open'
+      'community'
+      'global';
+  }
+}
