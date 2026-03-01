@@ -11,10 +11,15 @@ const config = {
   url: 'https://docs.airframes.io',
   baseUrl: '/',
   onBrokenLinks: 'throw',
-  onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
   organizationName: 'airframesio', // Usually your GitHub org/user name.
   projectName: 'docs', // Usually your repo name.
+
+  markdown: {
+    hooks: {
+      onBrokenMarkdownLinks: 'warn',
+    },
+  },
 
   future: {
     experimental_faster: true,
@@ -98,8 +103,12 @@ const config = {
             title: 'Community',
             items: [
               {
+                label: 'Forum',
+                href: 'https://community.airframes.io',
+              },
+              {
                 label: 'Discord',
-                href: 'https://discord.gg/paeK4qF9',
+                href: 'https://discord.gg/airframes',
               },
               {
                 label: 'Twitter',

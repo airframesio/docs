@@ -17,7 +17,7 @@ const FeatureList = [
     Svg: require('../../static/img/undraw_docusaurus_tree.svg').default,
     description: (
       <>
-        Access real-time ACARS messages, OOOI reports, weather data, and aircraft communications through our <a href="https://app.airframes.io/messages">live search interface</a>.
+        Access real-time ACARS messages, OOOI reports, weather data, and aircraft communications through our <a href="https://app.airframes.io/messages/historical">live search interface</a>.
       </>
     ),
   },

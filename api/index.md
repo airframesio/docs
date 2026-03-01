@@ -2,14 +2,47 @@
 sidebar_position: 1
 ---
 
-# Overview
+# API Overview
 
-We have been building an API for authorized users to be able to query aggregated and processed Airframes data. There will be two classifications of authorized API users:
-- **feeders**
-- **customers**
+The Airframes REST API provides access to aggregated and processed aviation data from our global network of ACARS receivers. Our API allows authorized users to query real-time and historical aircraft communications, flight data, and station information.
 
-**Feeders** (users who run a receiver that contributes data in real-time to Airframes) with a measure of *validated data* will receive a minimal, yet useful, free API account.
+## API Specification
 
-**Customers** (paying users/subscribers) will be able to access to the API in relation to tier. Initially this will be a nominal fee with no feeder requirement.
+🚀 **[Interactive API Reference](/api-reference)** - Complete interactive API documentation with live testing capabilities.
 
-Coming soon. Stay tuned...
+📋 **[View OpenAPI Specification](./openapi.yaml)** - Raw OpenAPI YAML specification file.
+
+## Authentication & Access
+
+There are two classifications of authorized API users:
+
+### **Feeders** 🛰️
+Users who run a receiver that contributes data in real-time to Airframes with a measure of *validated data* will receive a minimal, yet useful, free API account.
+
+### **Customers** 💳
+Paying users/subscribers will be able to access the API in relation to their subscription tier. Initially this will be a nominal fee with no feeder requirement.
+
+## Available Endpoints
+
+Our API provides access to:
+
+- **Messages** - ACARS messages, OOOI reports, and aircraft communications
+- **Flights** - Active and historical flight information
+- **Aircraft** - Airframe data and registration details
+- **Airlines** - Airline information and ICAO/IATA codes
+- **Airports** - Airport data and location information
+- **Stations** - Feeder station data and statistics
+- **Routes** - Flight route and waypoint information
+
+## Getting Started
+
+1. Review the [OpenAPI specification](./openapi.yaml) for detailed endpoint documentation
+2. Contact us for API access and authentication credentials
+3. Start making requests to our REST endpoints
+
+## Base URLs
+
+- **Production**: `https://api.airframes.io/v1`
+- **Staging**: `https://staging.airframes.io/v1`
+
+For more information about API access, please see our [contact page](./contact.md).

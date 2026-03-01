@@ -26,8 +26,9 @@ If you are using the [ADSBExchange Raspberry Pi Image](https://www.adsbexchange.
 
 ## Manually via Compilation of Clients
 
-There are a few ways to install the necessary clients. At this moment we will not go into great detail, but here are some external resources:
-* [thebaldgeek's awesome documentation](https://thebaldgeek.github.io/)
+There are a few ways to install the necessary clients. At this moment we will not go into great detail, but here are some excellent external resources:
+
+* **[thebaldgeek's documentation](https://thebaldgeek.github.io/)** — Comprehensive guides covering hardware setup, software configuration, and feeding for every ACARS medium (VHF, VDL, HFDL, Inmarsat L-Band/C-Band, and Iridium). TBG's documentation has been an inspiration for the Airframes project and remains one of the best community resources for getting started. Start here if you're unsure which path to take.
 * [acarsdec](https://github.com/wiedehopf/adsb-wiki/wiki/acarsdec-install) via wiedehopf's install script
 
 ## Docker

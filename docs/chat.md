@@ -2,9 +2,13 @@
 sidebar_position: 2
 ---
 
-# Chat
+# Chat & Community
 
-There are two Discord servers to find Airframes related discussions and resources. The first is the official Airframes Discord, and the second is an older but still relevant Discord where we first started.
+There are several places to find Airframes-related discussions, get support, and connect with the community.
+
+## Airframes Community Forum
+
+The [Airframes Community Forum](https://community.airframes.io) is a Discourse-based discussion platform for Airframes, Airwaves, and other tracking communities. It includes categories for general discussion, SDRs, antennas, ADS-B aggregators, aviation, and more. There is also a dedicated [tbg.airframes.io section](https://community.airframes.io/c/acars-thebaldgeek/30) for updates, tips, and feature requests related to thebaldgeek's ACARS platforms.
 
 ## Official Airframes Discord
 
