@@ -1,14 +1,49 @@
+---
+sidebar_position: 1
+---
 
 # Introduction to VDL
 
-VDL (VHF Data Link) is a digital communication system that is used for air-to-ground and ground-to-air communication in the aviation industry. It is a part of the aircraft's avionics system and is used for various purposes such as sending and receiving flight plans, weather reports, and other important messages. VDL uses VHF (Very High Frequency) radio waves to transmit and receive data, and it operates in the frequency range between 118 MHz and 136.975 MHz. The system is designed to improve communication efficiency and safety by providing real-time information to pilots and ground-based operators. VDL is widely used in the aviation industry and has become an essential tool for modern aircraft operations.
+VDL (VHF Data Link) is a digital communication system used for air-to-ground and ground-to-air data exchange in aviation. It operates in the VHF frequency range (118–136.975 MHz) and represents a significant upgrade over the original analog ACARS system.
 
-# Differences between POA and VDL
+## VDL Mode 2
 
-The main difference between Plain Old ACARS (POA) and VDL (VHF Data Link) is the technology used for communication. POA uses a narrowband analog communication system, while VDL uses a digital communication system.
+VDL Mode 2 (VDL2) is the most widely deployed variant and the one relevant to Airframes. It uses a digital modulation scheme (D8PSK) that provides higher data throughput than Plain Old ACARS (POA), allowing more messages to be transmitted in less time and with greater reliability.
 
-POA is the original ACARS system that was developed in the 1970s and uses a narrowband analog VHF radio signal to transmit and receive data. POA is limited in terms of the amount and type of data that can be transmitted, and it is not as efficient or reliable as modern digital communication systems.
+VDL2 carries the same types of ACARS messages as POA — OOOI reports, position reports, weather data, free-text messages, CPDLC, and more — but over a more efficient digital link.
 
-In contrast, VDL is a more advanced digital communication system that uses a wider frequency range and can transmit a wider range of data types, including text and voice messages. VDL is also more efficient and reliable than POA, and it is capable of providing real-time data communication between aircraft and ground-based systems.
+## Differences between POA and VDL2
 
-In summary, the main difference between POA and VDL is that POA uses an analog communication system, while VDL uses a digital communication system. VDL is a more advanced and efficient system that can transmit a wider range of data types and is capable of providing real-time communication between aircraft and ground-based systems.
+| Feature | Plain Old ACARS (POA) | VDL Mode 2 |
+|---------|----------------------|-------------|
+| Modulation | AM-MSK (analog) | D8PSK (digital) |
+| Data rate | 2,400 bps | 31,500 bps |
+| Era | 1978 | Late 1990s |
+| Efficiency | Low — one message per channel at a time | Higher — better channel utilization |
+| Error correction | Basic | More robust |
+| Decoder | [acarsdec](/docs/decoders/install-acarsdec) | [dumpvdl2](/docs/decoders/install-dumpvdl2) |
+
+In practice, many airlines and aircraft use both POA and VDL2 simultaneously. VDL2 is increasingly the primary link for newer aircraft, while POA remains in use for backwards compatibility and in regions where VDL2 infrastructure is less developed.
+
+## VDL2 Frequencies
+
+VDL2 operates on dedicated channels within the aviation VHF band. The Common Signalling Channel (CSC) at **136.975 MHz** is used worldwide for initial link establishment.
+
+### Key frequencies
+
+| Frequency | Region | Provider |
+|-----------|--------|----------|
+| 136.650 MHz | North America | ARINC |
+| 136.700 MHz | North America | ARINC |
+| 136.725 MHz | Europe | ARINC |
+| 136.775 MHz | Europe | SITA |
+| 136.800 MHz | North America | SITA |
+| 136.825 MHz | Europe | ARINC |
+| 136.875 MHz | Europe | SITA |
+| 136.975 MHz | Worldwide | CSC (ARINC & SITA) |
+
+## Receiving VDL2
+
+VDL2 reception uses the same VHF antenna and RTL-SDR hardware as POA ACARS. The recommended decoder is [dumpvdl2](/docs/decoders/install-dumpvdl2), which can decode multiple VDL2 channels simultaneously. VDL2 typically produces a higher volume of messages than POA, especially near busy airports.
+
+See the [dumpvdl2 installation guide](/docs/decoders/install-dumpvdl2) for complete setup instructions including feeding to Airframes.

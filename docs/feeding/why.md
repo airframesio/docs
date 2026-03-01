@@ -4,7 +4,7 @@ sidebar_position: 2
 
 # Why should I feed?
 
-There are several benefits to feeding aggregation services.
+Every feeder strengthens the network. Here's why your contribution matters.
 
 **1. It feels good to give back to the community that gave to you.**
 

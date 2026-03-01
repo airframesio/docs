@@ -1,8 +1,19 @@
+---
+sidebar_position: 2
+---
 
 # Notification System
 
-When data comes through the Aggregator, data is injected into the **Notification System** in the Airframes Standard Format. This service alerts other services in the infrastructure about the new data. Since the data is in the ASF, it does not have to do anything special to process the data again, except where the extended data provides value.
+When data comes through the [Aggregator](/docs/backend/aggregator), it is injected into the **Notification System** in the Airframes Standard Format (ASF). This service alerts other backend services about new data, enabling a pipeline of further processing.
 
-One service that is notified will process raw message text looking to further parse what appears to be cryptic goobledygook. If successful, it will store these decodings further, and continue to notify with the results.
+## Message decoding
 
-Other services, such as frontend web browsers, can be notified as well, often to see live feeds or decodings. Sometimes these decodings are provided by the backend, and sometimes they are determined by the client itself.
+One key service that receives notifications processes the raw ACARS message text — looking to decode what often appears to be cryptic strings of characters into meaningful information. For example, a raw message like `FPN/RI:DA:KLAX:AA:KJFK` can be decoded into a flight plan route from Los Angeles to New York. When decoding succeeds, the results are stored and further notifications are emitted with the enriched data.
+
+## Real-time delivery
+
+Frontend clients, such as the [Airframes web application](https://app.airframes.io), can subscribe to notifications to display live message feeds and decoded data. This is what powers the real-time message view on the site — when a feeder sends a message to the aggregator, it can appear in your browser within seconds.
+
+## Flight tracking
+
+Another service processes position-bearing messages (ADS-C reports, OOOI events, and other location data) to build and maintain active flight tracks. These are displayed on the Airframes flights map and associated with aircraft and airline records.

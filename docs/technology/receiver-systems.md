@@ -1,57 +1,66 @@
+---
+sidebar_position: 2
+---
 
 # Receiver Systems
 
-When building or purchasing an aircraft tracking receiver system, you should first know what kind of data you are trying to receive and what your overall goals are.
+When building an aircraft tracking receiver system, you should first know what kind of data you are trying to receive and what your overall goals are.
 
-There are a couple of types of people who might want to put together a receiver system:
+## Choosing a starting point
 
-1. A person who is just getting into the hobby or wants to see what it's all about without putting a lot of money into it, would want to build a an introductory or exploratory system. Low cost, low commitment.
-2. An experienced hobbyist who wants to expand coverage for the network with as many possible reception points as possible, would want to build a Experienced Hobbyist system. Higher cost, higher commitment.
+If you're new to the hobby, start with **VHF ACARS or VDL2**. These require the least hardware investment (a single RTL-SDR and a basic VHF antenna) and will produce results quickly if you're near an airport or flight path. VDL2 typically produces more messages than VHF ACARS in busy areas.
+
+If you want to track oceanic flights, **HFDL** is the most accessible option — it also uses a single SDR but with an HF antenna, and can receive position data from aircraft thousands of miles away.
+
+**SATCOM** (Inmarsat AERO and Iridium) requires more specialized hardware (satellite dishes, L-Band LNAs) and is best tackled after you have experience with the simpler modes.
 
 ## Introductory/Exploratory System
 
-You might be someone who is just getting into the hobby and are not yet ready to invest a lot of money and time into it yet. You might not know all of the jargon and terms, but just have an interest in tracking aircraft. You might have heard about the project and just think it's cool and want to be a part of it. If that's you, then you'll want to start with a single or double SDR receiver system.
+Low cost, low commitment setups for getting started.
 
 ### Single SDR
 
-A single SDR system has, as you guessed it, only a single SDR. This requires you to pick a specific radio network to listen and collect data from. This may be a requirement because you are limited on how much you want to spend, or because your very small embedded hardware would not be able to do more.
+A single SDR system requires you to pick one network to receive from. This is ideal if you want to minimize cost or are running on very limited hardware.
 
-Networks that you can choose from:
-- ACARS
-- VDL
-- HFDL
-- AERO
-- AOI
-
+| Network | What you'll receive | Decoder | Antenna |
+|---------|-------------------|---------|---------|
+| ACARS | VHF ACARS messages from nearby aircraft | [acarsdec](/docs/decoders/install-acarsdec) | VHF whip or collinear |
+| VDL2 | VDL Mode 2 digital messages | [dumpvdl2](/docs/decoders/install-dumpvdl2) | VHF whip or collinear |
+| HFDL | HF data link from oceanic/remote aircraft | [dumphfdl](/docs/decoders/install-dumphfdl) | HF wire or loop antenna |
+| AERO | Inmarsat satellite ACARS | [JAERO](/docs/decoders/clients) | Satellite dish + LNA |
+| AoI | ACARS over Iridium | [iridium-toolkit](/docs/decoders/install-iridium-toolkit) | L-Band patch/helix + LNA |
 
 ### Double SDR
 
-A double SDR system will allow you to listen for aircraft data across multiple ACARS-related networks at the same time. Depending on your region, your equipment, and your interests, choose a pair of networks to use with your two SDRs.
+Two SDRs let you receive from two networks simultaneously. Popular combinations:
 
-Combinations of networks that you can receive data from simultaneously:
-- ACARS + VDL
-- ACARS + HFDL
-- ACARS + AERO
-- ACARS + AOI
-- HFDL + HFDL
+| Combination | Why this combo |
+|------------|----------------|
+| **ACARS + VDL2** | Maximum VHF coverage — captures both legacy and modern messages. Most popular starter combo. |
+| **ACARS + HFDL** | Local VHF messages plus oceanic HF coverage |
+| **VDL2 + HFDL** | High-volume digital VHF plus oceanic |
+| **HFDL + HFDL** | Monitor two different HFDL ground stations simultaneously for broader HF coverage |
 
 ## Experienced Hobbyist System
 
-If you've already been feeding in the past, you might be ready to expand your system to cover more aircraft networks and provide more data. This allows you to see more information about the aircraft around you, and also fills in any gaps that might not have been seen otherwise.
+For expanding coverage and contributing more data to the network.
 
 ### Triple SDR
 
-Most computers can handle two SDRs relatively well (except the very small ones like the Raspberry Pi Zero). Once you begin to use three or more, the system requirements rise very quickly.
+Most computers can handle three SDRs, but a Raspberry Pi 3 may struggle. A Pi 4/5 or x86 mini PC is recommended.
 
-Combinations of networks that you can receive data from simultaneously:
-- ACARS + VDL + HFDL
-- ACARS + VDL + AERO
-- ACARS + VDL + AOI
-- VDL + HFDL + AERO
-- VDL + HFDL + AOI
-- HFDL + AERO + AOI
-- HFDL + HFDL + HFDL
+| Combination | What it covers |
+|------------|----------------|
+| **ACARS + VDL2 + HFDL** | The "complete VHF + HF" setup — captures everything within VHF range plus oceanic HFDL |
+| **ACARS + VDL2 + AERO** | VHF + satellite for maximum aircraft visibility |
+| **VDL2 + HFDL + AERO** | Digital-focused with satellite coverage |
 
-### Quadruple SDR
+### Quadruple SDR and Beyond
 
-This is going to likely require a very powerful system. A Raspberry Pi 3 or 4 will not work for this. Too much data will be coming in on the USB ports from the SDR for the small embedded system to keep up, much less will it be able to then process and decode from all of the SDRs at the same time.
+Four or more SDRs require a capable system — a Raspberry Pi 4/5 with active cooling or an x86 mini PC like the [TRIGKEY N100](/docs/hardware). The USB bandwidth and CPU requirements increase significantly with each additional SDR.
+
+At this level, consider running your setup with [Docker and ACARS Hub](/docs/feeding/Docker) for easier management of multiple decoder processes.
+
+## Hardware recommendations
+
+See the [Hardware](/docs/hardware) page for specific SDR, computer, antenna, and accessory recommendations.
