@@ -5,6 +5,7 @@ const sidebars = {
   introSidebar: [
     'intro',
     'getting_started',
+    'using-airframes',
     {
       type: 'category',
       label: 'Technology',

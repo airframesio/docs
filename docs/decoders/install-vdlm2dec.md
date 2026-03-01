@@ -1,37 +1,73 @@
+---
+sidebar_position: 5
+---
+
 # Install vdlm2dec
 
-Here are the steps to install vdlm2dec from source code on Ubuntu:
+:::caution
+vdlm2dec is an older VDL2 decoder that is no longer actively developed. For new installations, we recommend using [dumpvdl2](/docs/decoders/install-dumpvdl2) instead, which offers more features, flexible output options, and active maintenance.
+:::
 
-1. Open the terminal on your Ubuntu system.
+vdlm2dec is a lightweight VDL Mode 2 decoder. If you still need to use it, here are the installation steps for Ubuntu/Debian.
 
-2. Install the required dependencies by running the following command:
+## Installation
 
-   ```
-   sudo apt-get install build-essential libusb-1.0-0-dev librtlsdr-dev
-   ```
+### Install dependencies
 
-3. Download the vdlm2dec source code by running the following command:
+```bash
+sudo apt-get install build-essential cmake git libusb-1.0-0-dev librtlsdr-dev
+```
 
-   ```
-   git clone https://github.com/szpajder/vdlm2dec.git
-   ```
+### Install libacars
 
-4. Change to the vdlm2dec directory by running the following command:
+```bash
+git clone https://github.com/szpajder/libacars.git
+cd libacars
+mkdir build && cd build
+cmake ../
+make
+sudo make install
+sudo ldconfig
+```
 
-   ```
-   cd vdlm2dec
-   ```
+### Build vdlm2dec
 
-5. Run the following command to compile and install vdlm2dec:
+```bash
+git clone https://github.com/TLeconte/vdlm2dec.git
+cd vdlm2dec
+mkdir build && cd build
+cmake .. -Drtl=ON
+make
+sudo make install
+```
 
-   ```
-   make && sudo make install
-   ```
+## Basic Usage
 
-6. Once the installation is complete, you can run vdlm2dec by typing the following command:
+```bash
+vdlm2dec -j feed.airframes.io:5555 -i MY-STATION-VDL2 -r 0 -g 40 136975000
+```
 
-   ```
-   vdlm2dec
-   ```
+### Key options
 
-Note: You may need to configure your RTL-SDR device before running vdlm2dec. You can do this by running the `rtl_test` command in the terminal, which will check if your device is working properly. If it is not working, you may need to install additional drivers or firmware.
+| Option | Description |
+|--------|-------------|
+| `-r <device>` | RTL-SDR device number |
+| `-g <gain>` | Tuner gain in dB |
+| `-j <host:port>` | Send JSON via UDP |
+| `-i <station_id>` | Station identifier |
+| `-v` | Verbose output |
+
+Frequencies are specified as trailing arguments in Hz.
+
+## Migrating to dumpvdl2
+
+dumpvdl2 is a drop-in improvement over vdlm2dec. The equivalent command would be:
+
+```bash
+dumpvdl2 --rtlsdr 0 --gain 40 \
+  --output decoded:json:udp:address=feed.airframes.io,port=5552 \
+  --station-id MY-STATION-VDL2 \
+  136975000
+```
+
+See the [dumpvdl2 installation guide](/docs/decoders/install-dumpvdl2) for the complete setup.

@@ -49,8 +49,12 @@ Airframes also acknowledges the open source decoder projects that make ACARS rec
 * **[dumpvdl2](https://github.com/szpajder/dumpvdl2)** — VDL2 decoder
 * **[dumphfdl](https://github.com/szpajder/dumphfdl)** — HFDL decoder
 * **[JAERO](https://github.com/jontio/JAERO)** — Inmarsat AERO decoder
-* **[iridium-toolkit](https://github.com/muccc/iridium-toolkit)** — Iridium signal decoder
+* **[iridium-toolkit](https://github.com/muccc/iridium-toolkit)** — Iridium frame parser and decoder by the Chaos Computer Club Munich
+* **[iridium-sniffer](https://github.com/alphafox02/iridium-sniffer)** — Standalone Iridium burst detector and demodulator by Aaron (creator of DragonOS). A lightweight alternative to gr-iridium that runs on resource-constrained systems like the Raspberry Pi without requiring GNU Radio
+* **[gr-iridium](https://github.com/muccc/gr-iridium)** — GNU Radio-based Iridium burst detector and demodulator
 * **[satdump](https://github.com/SatDump/SatDump)** — General purpose satellite decoder
 * **[ACARS Hub](https://github.com/sdr-enthusiasts/docker-acarshub)** — Docker-based ACARS multi-decoder by Fred Clausen and the SDR Enthusiasts community
+* **[acars_router](https://github.com/sdr-enthusiasts/acars_router)** — Message router and deduplicator for ACARS feeds by the SDR Enthusiasts community
+* **[libacars](https://github.com/szpajder/libacars)** — ACARS message decoding library by Tomasz Lemiech, used by dumpvdl2, dumphfdl, and acarsdec
 
 These tools, built and maintained by dedicated developers, form the foundation that makes community-driven ACARS aggregation possible.
