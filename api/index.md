@@ -14,13 +14,17 @@ The Airframes REST API provides access to aggregated and processed aviation data
 
 ## Authentication & Access
 
+All API requests require an API key. See the [Authentication](./authentication.md) page for details on obtaining and using API keys.
+
 There are two classifications of authorized API users:
 
-### **Feeders** 🛰️
+### **Feeders**
 Users who run a receiver that contributes data in real-time to Airframes with a measure of *validated data* will receive a minimal, yet useful, free API account.
 
-### **Customers** 💳
+### **Customers**
 Paying users/subscribers will be able to access the API in relation to their subscription tier. Initially this will be a nominal fee with no feeder requirement.
+
+See [Pricing](./pricing.md) for current access tiers.
 
 ## Available Endpoints
 

@@ -17,3 +17,11 @@ The official [Airframes Discord](https://discord.gg/airframes) is at https://dis
 ## Airplanes.Live Discord (previously the ADSBExchange Discord)
 
 The Airframes community is on the [Airplanes.Live Discord](https://discord.gg/aXt7KdycJk). This was previously named as the ADSBExchange Discord. We encourage you to come participate in the development or get your questions answered. While Airframes does not ingest ADS-B, we are huge fans, and we continually support and encourage others to help all of the ADS-B services to expand their coverage. Many of them will be our partners at some point, so please consider it.
+
+## Getting Help
+
+If you're stuck on a technical issue:
+
+1. Check the [Troubleshooting](/docs/troubleshooting) guide first — your issue may already be covered
+2. Search the [Community Forum](https://community.airframes.io) for existing threads
+3. If you're still stuck, post in the Discord or Forum with details about your setup (hardware, software versions, decoder output, error messages)

@@ -33,3 +33,7 @@ Every feeder strengthens the network. Here's why your contribution matters.
 **7. We ultimately can't do it without you.**
 
   You are a big piece of this puzzle. Without you contributing data from your region we can't gather the end-to-end flight route clarity we all need. Help by being the missing link.
+
+---
+
+Ready to start? See [Getting Started](/docs/getting_started) to set up your feeder, or [How to Feed](/docs/feeding/how) if you already have a decoder running.

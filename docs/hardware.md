@@ -66,6 +66,10 @@ Not sure what to buy? Here are recommended combinations based on your goals:
 **Dual SDR (ACARS + VDL2):** 2x Orange SDR + VHF antenna + Raspberry Pi 5 — ~$150
 **Triple SDR (ACARS + VDL2 + HFDL):** 2x Orange SDR + HF-capable SDR + antennas + Pi 5 or mini PC — ~$250+
 
+## Next Steps
+
+Once you have your hardware, head to the [Getting Started](/docs/getting_started) guide to set up your feeder station. If you're not sure which combination to choose, the [Receiver Systems](/docs/technology/receiver-systems) page can help you decide.
+
 ## Affiliate Links
 
 Some of the links provided above are affiliate links with Amazon. We encourage you to purchase with these links to help us continue to raise funding that supports the costs of development and hosting. If you prefer to purchase these elsewhere, we certainly understand.

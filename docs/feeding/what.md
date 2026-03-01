@@ -25,3 +25,15 @@ Aircraft ──radio signal──► Your Antenna ──► SDR ──► Decode
 The data you feed contains decoded ACARS messages — short text-based communications between aircraft and ground systems. This includes things like position reports, weather requests, maintenance alerts, and operational messages. See the [Introduction](/docs/intro) for a full list of ACARS message types.
 
 Your feed also includes metadata like the frequency the message was received on, the signal level, and your station identifier — which helps Airframes correlate and deduplicate messages from multiple feeders receiving the same transmission.
+
+## What happens to your data
+
+Once the [aggregator](/docs/backend/aggregator) receives your data, it:
+
+1. **Validates** the message structure
+2. **Deduplicates** — if multiple feeders hear the same aircraft message, only one copy is stored
+3. **Enriches** — adds aircraft, airline, and flight information from reference databases
+4. **Decodes** — attempts to parse the message text into structured, human-readable data
+5. **Distributes** — makes the data available through the [web application](https://app.airframes.io), the API, and flight tracking displays
+
+Your contribution joins data from feeders worldwide to build a more complete picture of aviation communications. See [Why should I feed?](/docs/feeding/why) for more on the impact of your data.

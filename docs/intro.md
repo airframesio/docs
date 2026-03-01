@@ -39,6 +39,10 @@ An interesting use of ACARS is for automated OOOI reports (also known as Out, Of
 
 As you can see, there's a wealth of information on ACARS, and Airframes exists to continually capture, aggregate, parse, and reveal the useful information otherwise not available on unfiltered and unbiased aggregators. Airframes is partnering with other known ADS-B aggregators to enhance our collective capabilities. By feeding ACARS to Airframes, feeders are helping to enhance the data the partners receive.
 
+:::tip Ready to get started?
+Jump to the [Getting Started](/docs/getting_started) guide to set up your first feeder station, or explore [Using Airframes](/docs/using-airframes) to see what the platform offers. Not sure what some of these terms mean? Check the [Glossary](/docs/glossary).
+:::
+
 ## The Airframes Ecosystem
 
 Airframes is more than just a single service. It's a growing ecosystem of tools, platforms, and community-built projects:

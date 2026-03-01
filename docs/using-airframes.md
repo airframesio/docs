@@ -61,3 +61,9 @@ The [Airlines](https://app.airframes.io/airlines) section lets you browse airlin
 ## About Page
 
 The [About](https://app.airframes.io/about) page contains current information about the Airframes project, including links to resources for setting up feeders, common frequencies by region, and community links.
+
+## Tips
+
+- **Bookmark specific filters** — The URL updates as you apply filters on the Messages page, so you can bookmark a filtered view (e.g., all messages for a specific tail number) for quick access later.
+- **Time zones** — All timestamps in the application are displayed in UTC. Keep this in mind when correlating with local flight schedules.
+- **Message labels** — ACARS message labels like `H1`, `SA`, `5Z`, etc. indicate the message type. See the [Glossary](/docs/glossary) for common terms or explore the [ACARS message documentation](https://github.com/airframesio/acars-message-documentation) for label details.

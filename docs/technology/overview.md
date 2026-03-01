@@ -8,6 +8,17 @@ sidebar_position: 1
 
 ACARS (Aircraft Communications Addressing and Reporting System) has been the backbone of digital air-ground communication since 1978. Originally developed by ARINC as a simple way to automate routine pilot-to-airline communications, ACARS has evolved into a diverse ecosystem of transmission mediums, protocols, and applications that touch nearly every aspect of modern aviation operations.
 
+### Transmission Mediums at a Glance
+
+| Medium | Frequency | Range | Decoder | Difficulty |
+|--------|-----------|-------|---------|------------|
+| VHF ACARS (POA) | 129–131 MHz | Line-of-sight (~200 nm) | [acarsdec](/docs/decoders/install-acarsdec) | Beginner |
+| VDL Mode 2 | 136–137 MHz | Line-of-sight (~200 nm) | [dumpvdl2](/docs/decoders/install-dumpvdl2) | Beginner |
+| HFDL | 2–22 MHz | Thousands of miles | [dumphfdl](/docs/decoders/install-dumphfdl) | Intermediate |
+| Inmarsat AERO (L-Band) | ~1.5 GHz | Geostationary coverage | [JAERO](/docs/decoders/clients) | Advanced |
+| Inmarsat AERO (C-Band) | ~3.4–4.2 GHz | Geostationary coverage | [JAERO](/docs/decoders/clients) | Expert |
+| Iridium (AoI) | ~1.6 GHz | Global (incl. polar) | [iridium-toolkit](/docs/decoders/install-iridium-toolkit) | Advanced |
+
 ### Transmission Mediums
 
 ACARS data doesn't travel over a single radio link. It spans multiple transmission mediums, each with different characteristics, coverage areas, and use cases:
@@ -39,3 +50,7 @@ The ACARS landscape continues to evolve:
 Airframes aggregates data across all of these transmission mediums. Our feeder network uses software-defined radios (SDRs) to receive signals that are then decoded by clients like [acarsdec](/docs/decoders/clients), [dumpvdl2](/docs/decoders/clients), [dumphfdl](/docs/decoders/clients), [JAERO](/docs/decoders/clients), and others. This decoded data is sent to the Airframes [aggregator](/docs/backend/aggregator) for processing, storage, and distribution.
 
 For a deeper look at each technology, see the individual sections on [ACARS](/docs/technology/acars/intro), [VDL](/docs/technology/vdl/intro), [HFDL](/docs/technology/hfdl/intro), and [SATCOM](/docs/technology/satcom/aero/intro).
+
+:::tip New to ACARS?
+Start with VHF ACARS or VDL2 — they need only an inexpensive RTL-SDR and a simple antenna. See [Getting Started](/docs/getting_started) or [Receiver Systems](/docs/technology/receiver-systems) for guidance on choosing your first setup.
+:::

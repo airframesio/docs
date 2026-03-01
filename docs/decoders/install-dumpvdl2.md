@@ -143,8 +143,23 @@ Recommended: `136650000 136700000 136800000 136975000`
 
 Recommended: `136725000 136775000 136825000 136875000 136975000`
 
+### Asia-Pacific
+
+| Frequency | Provider |
+|-----------|----------|
+| 136.700 MHz | ARINC |
+| 136.750 MHz | SITA |
+| 136.975 MHz | Common Signalling Channel (worldwide) |
+
+### Middle East
+
+| Frequency | Provider |
+|-----------|----------|
+| 136.750 MHz | SITA |
+| 136.975 MHz | Common Signalling Channel (worldwide) |
+
 :::tip
-136.975 MHz is the VDL2 Common Signalling Channel (CSC) and should always be included.
+136.975 MHz is the VDL2 Common Signalling Channel (CSC) and should always be included. Check the [Airframes stations page](https://app.airframes.io/stations) to see what frequencies work for feeders in your area.
 :::
 
 ## Running as a Service

@@ -54,3 +54,9 @@ Build and configure each decoder from source. This gives you the most control an
 5. **Feed to Airframes** — Point your decoder output at the [Airframes ingest endpoints](/docs/feeding/how#direct-feeding-from-decoders).
 6. **Verify on [app.airframes.io](https://app.airframes.io/stations)** — Confirm your station is appearing and messages are being received.
 7. **[Explore the data](/docs/using-airframes)** — Browse messages, flights, and stations on the Airframes web app.
+
+## Need Help?
+
+- Check the [Troubleshooting](/docs/troubleshooting) guide for common issues and solutions
+- Visit the [Airframes Discord](https://discord.gg/airframes) or [Community Forum](https://community.airframes.io) for support
+- Browse the [Glossary](/docs/glossary) if you encounter unfamiliar terms

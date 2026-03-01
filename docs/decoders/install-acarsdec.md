@@ -125,8 +125,25 @@ Recommended North America set: `130.025 130.425 130.450 131.125 131.550`
 
 Recommended Europe set: `131.525 131.725 131.825 131.850`
 
+### Asia-Pacific
+
+| Frequency | Provider |
+|-----------|----------|
+| 131.550 MHz | SITA (primary) |
+| 131.450 MHz | SITA |
+| 129.125 MHz | ARINC |
+| 130.025 MHz | ARINC |
+
+### Middle East / Africa
+
+| Frequency | Provider |
+|-----------|----------|
+| 131.550 MHz | SITA (primary) |
+| 129.125 MHz | ARINC |
+| 130.025 MHz | ARINC |
+
 :::tip
-Check the [Airframes stations page](https://app.airframes.io/stations) to see what frequencies other feeders in your area are using.
+Check the [Airframes stations page](https://app.airframes.io/stations) to see what frequencies other feeders in your area are using. Frequencies vary by region and may change — the station list shows what's working for feeders near you.
 :::
 
 ## Running as a Service
