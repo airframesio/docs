@@ -2,7 +2,7 @@ import React from 'react';
 import styles from './StatsStrip.module.css';
 
 const stats = [
-  { value: '100+', label: 'Active Feeders' },
+  { value: '635+', label: 'Active Feeders' },
   { value: '2M+', label: 'Messages / Day' },
   { value: '30+', label: 'Countries' },
   { value: '6', label: 'Continents' },

@@ -24,6 +24,10 @@ The SDR is the device that receives radio signals and converts them to digital d
 | Item | Type | Best For | Notes |
 | ---- | ---- | -------- | ----- |
 | [ADSBExchange.com Orange SDR](https://www.amazon.com/ADSBexchange-com-Orange-R860-RTL2832U-TCXO/dp/B09NJWMY56?&_encoding=UTF8&tag=airframes05-20&linkCode=ur2&linkId=b8c22b69822d02b6f223318844d22d08&camp=1789&creative=9325) | RTL-SDR | ACARS / VDL2 | The official co-branded Orange SDR from ADS-B Exchange & Airframes.io. Unfiltered (unlike the Blue SDR) and ideal for VHF ACARS or VDL2 reception. |
+| [RTL-SDR Blog V4](https://www.amazon.com/RTL-SDR-Blog-RTL2832U-Software-Defined/dp/B0CD745394?tag=airframes05-20) | RTL-SDR | ACARS / VDL2 / HFDL | The latest RTL-SDR Blog dongle with R828D tuner, 1PPM TCXO, built-in HF upconverter, improved filtering, and SMA connector. Excellent all-around choice. |
+| [RTL-SDR Blog V4 with Dipole Antenna Kit](https://www.amazon.com/RTL-SDR-Blog-RTL2832U-Software-Defined/dp/B0CD7558GT?tag=airframes05-20) | RTL-SDR + Antenna | Getting started | V4 dongle bundled with a multipurpose dipole antenna kit — a great starter package for beginners. |
+| [RTL-SDR Blog V3](https://www.amazon.com/RTL-SDR-Blog-RTL2832U-Software-Defined/dp/B0BMKZCKTF?tag=airframes05-20) | RTL-SDR | ACARS / VDL2 | Previous generation with R860 tuner. Still a solid choice and widely available. |
+| [Nooelec HackRF One Complete Bundle](https://www.amazon.com/NooElec-HackRF-Complete-Bundle-Enclosure/dp/B0BKJGKCDP?tag=airframes05-20) | Wideband SDR | Iridium / SATCOM | 1 MHz–6 GHz range with 20 MHz bandwidth. Metal-encased with 0.5PPM TCXO. Required for Iridium reception with iridium-sniffer. |
 | [ADSBExchange.com Blue SDR](https://www.amazon.com/ADSBexchange-com-RTL2832U-Antenna-Software-Industrial/dp/B09F2ND4R6?&_encoding=UTF8&tag=airframes05-20&linkCode=ur2&linkId=3f770a9f2aa2cb592f7cd490064b55f7&camp=1789&creative=9325) | RTL-SDR | ADS-B | The official ADS-B Exchange Blue SDR. Filtered for 1090 MHz and intended specifically for ADS-B reception. Not recommended for ACARS/VDL2. |
 
 :::tip
@@ -51,6 +55,15 @@ Filters remove unwanted signals, and LNAs (Low Noise Amplifiers) boost weak sign
 | [Nooelec SAWbird+ IR](https://www.amazon.com/Nooelec-SAWbird-IR-Ultra-Low-Applications/dp/B07K1LW983?&_encoding=UTF8&tag=airframes05-20&linkCode=ur2&linkId=b8c22b69822d02b6f223318844d22d08&camp=1789&creative=9325) | LNA + Filter | Iridium / Inmarsat L-Band | A must-have for ACARS over Iridium or Inmarsat L-Band reception. Tuned for 1542 MHz / 1620 MHz L-Band signals. |
 | [Nooelec SAWbird+ NOAA](https://www.amazon.com/Nooelec-SAWbird-NOAA-Ultra-Low-Applications/dp/B07TWPR871?&_encoding=UTF8&tag=airframes05-20&linkCode=ur2&linkId=b8c22b69822d02b6f223318844d22d08&camp=1789&creative=9325) | LNA + Filter | NOAA / experimental | Primarily for NOAA weather satellite reception. May provide some benefit for weak VHF signals in certain situations. |
 | [Lothar ADS-B Cavity Filter](https://shop.airframes.io/products/crowhreidar-filtar-1090-mhz-filter) | Cavity Filter | ADS-B (1090 MHz) | Highly tuned, quality-controlled filter. Purchase from the [Airframes Shop](https://shop.airframes.io) to support both Airframes and Lothar. |
+
+## Cables & Adapters
+
+Good cables and adapters ensure clean signal paths between your antenna, filters, and SDR.
+
+| Item | Type | Purpose | Notes |
+| ---- | ---- | ------- | ----- |
+| [RTL-SDR Blog SMA Pigtail Adapter Kit (RG402, 10pc)](https://www.amazon.com/RTL-SDR-Blog-RG402-Pigtail-Adapters/dp/B082YPQPJY?tag=airframes05-20) | Adapter Kit | Connector conversion | 10-piece kit with SMA to BNC, Type N, Type F, and UHF adapters. Useful when connecting various antennas to your SDR. |
+| [RTL-SDR Blog SMA Pigtail Adapter Kit (RG316)](https://www.amazon.com/RTL-SDR-Blog-RG316-Pigtail-Adapters/dp/B0132N1DM0?tag=airframes05-20) | Adapter Kit | Connector conversion | Flexible RG316 pigtail adapter set from RTL-SDR Blog. Same connector variety, lighter cable. |
 
 ## Miscellaneous
 

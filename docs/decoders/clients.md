@@ -47,3 +47,17 @@ Decoder clients are the software that receives raw radio signals from your SDR a
 [vdlm2dec](https://github.com/TLeconte/vdlm2dec) is an older VDL Mode 2 decoder. For new installations, [dumpvdl2](#dumpvdl2) is recommended as it offers more features, better output options, and active development.
 
 - [How to Install](install-vdlm2dec)
+
+---
+
+## Multi-Decoder Tools
+
+These tools manage multiple decoders together and simplify complex setups.
+
+### ACARS Hub
+
+[ACARS Hub](https://github.com/sdr-enthusiasts/docker-acarshub) is a Docker-based all-in-one solution that runs acarsdec, dumpvdl2, and dumphfdl inside a single container with a built-in web dashboard. It handles decoder orchestration, message routing, and feeding to Airframes automatically. This is the recommended approach for [Docker-based setups](/docs/feeding/Docker).
+
+### acars_router
+
+[acars_router](https://github.com/sdr-enthusiasts/acars_router) is a message router and deduplicator. When running multiple decoders with overlapping coverage, acars_router consolidates the output, removes duplicate messages, and forwards clean data to one or more destinations including Airframes. Supports UDP, TCP, and ZeroMQ.

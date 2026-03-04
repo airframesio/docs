@@ -10,13 +10,23 @@ const ecosystem = [
   },
   {
     title: 'The Big Grey',
-    description: 'View real-time aircraft positions and feeder coverage on a global map.',
+    description: 'Searchable live SATCOM, HFDL, and VHF/VDL feeds powered by Node-RED.',
     url: 'https://tbg.airframes.io',
+  },
+  {
+    title: 'TBG Map',
+    description: 'Real-time map plotting ADS-C and ACARS aircraft positions worldwide.',
+    url: 'https://tbgmap.airframes.io',
   },
   {
     title: 'Community',
     description: 'Discuss aviation monitoring, get help, and share your feeder setup.',
     url: 'https://community.airframes.io',
+  },
+  {
+    title: 'Blog',
+    description: 'Guides, project updates, and deep dives into aviation data topics.',
+    url: 'https://blog.airframes.io',
   },
   {
     title: 'Shop',

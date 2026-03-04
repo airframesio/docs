@@ -19,6 +19,46 @@ There are two primary bands used:
 
 AERO SATCOM carries a rich set of ACARS data, including ADS-C position reports (which provide latitude, longitude, altitude, heading, and speed for aircraft over oceans), CPDLC messages between controllers and pilots, airline operational communications, and standard ACARS traffic.
 
+## Inmarsat Satellites
+
+The Inmarsat constellation provides regional coverage via geostationary satellites positioned over major ocean regions:
+
+| Satellite | Position | Coverage Area |
+|-----------|----------|---------------|
+| I-3 F5 / IOR | 25.0° E | Indian Ocean Region |
+| I-4 F1 / AOR-E | 63.9° W | Atlantic Ocean Region - East |
+| I-4 F3 / POR | 97.6° W | Pacific Ocean Region |
+| I-3 F4 / WOR | 54.0° W | Atlantic Ocean Region - West |
+| I-6 F1 | 63.5° E | Indian Ocean Region |
+| I-6 F2 | 107.5° E | Asia-Pacific |
+
+Your geographic location determines which satellites you can receive. In general, you need a clear line of sight to the satellite at its geostationary position.
+
 ## Receiving AERO SATCOM
 
-Receiving Inmarsat AERO signals is more involved than VHF or HFDL reception, requiring a satellite dish, an LNA, and a capable SDR. [thebaldgeek's documentation](https://thebaldgeek.github.io/) provides extensive guides for setting up both L-Band and C-Band reception stations and has been an invaluable resource for the community in this area. Decoded data can be fed to Airframes alongside your other feeds.
+Receiving Inmarsat AERO signals is more involved than VHF or HFDL reception, requiring a satellite dish, an LNA, and a capable SDR.
+
+### L-Band Setup
+
+| Component | Recommendation | Notes |
+|-----------|---------------|-------|
+| Antenna | Patch antenna, 7–10 turn helix, or small dish | A helix paired with an LNA gives good results. The RTL-SDR Discovery Dish is an excellent option if you have space. |
+| LNA | [Nooelec SAWbird+ IR](/docs/hardware) | Filtered L-Band LNA. Essential for pulling weak satellite signals out of the noise. |
+| SDR | [RTL-SDR Blog V4](/docs/hardware) or similar | Bias-tee power for the LNA is convenient. |
+| Decoder | [JAERO](/docs/decoders/clients) | GUI-based Inmarsat AERO decoder with support for multiple channels. |
+
+### C-Band Setup
+
+C-Band reception yields richer data (including ADS-C position reports for oceanic tracking) but requires significantly more hardware:
+
+| Component | Requirement | Notes |
+|-----------|------------|-------|
+| Antenna | 1.8m+ satellite dish | Must be accurately aimed at the target Inmarsat satellite. |
+| LNB | GPSDO-locked LNB | Frequency stability is critical for C-Band decoding. |
+| Mount | Elevation motor (minimum) | For 24-hour tracking as the satellite drifts slightly. |
+| SDR | RTL-SDR or Airspy | Multiple SDRs can monitor different transponders simultaneously. |
+| Decoder | [JAERO](/docs/decoders/clients) | Same decoder handles both L-Band and C-Band. |
+
+### Resources
+
+[thebaldgeek's documentation](https://thebaldgeek.github.io/) provides extensive guides for setting up both L-Band and C-Band reception stations and has been an invaluable resource for the community in this area. Decoded data can be fed to Airframes alongside your other feeds.

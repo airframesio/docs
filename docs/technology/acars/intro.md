@@ -26,6 +26,37 @@ ACARS messages cover a wide range of aviation operations. Some of the most commo
 
 See the [Introduction](/docs/intro) for the full list of ACARS use cases.
 
+## ACARS Frequencies
+
+VHF ACARS operates on dedicated frequencies within the aviation VHF band. The primary frequencies vary by region:
+
+### Common Frequencies
+
+| Frequency | Region | Provider | Notes |
+|-----------|--------|----------|-------|
+| 129.125 MHz | Global | ARINC | Primary worldwide ACARS frequency |
+| 130.025 MHz | USA / Canada | ARINC | Secondary North American channel |
+| 130.425 MHz | USA | ARINC | Additional channel |
+| 130.450 MHz | USA / Canada | ARINC | Additional channel |
+| 131.125 MHz | USA | ARINC | Additional channel |
+| 131.475 MHz | Japan | | Japan primary |
+| 131.525 MHz | Europe | SITA | European secondary |
+| 131.550 MHz | Global | SITA | Primary worldwide SITA channel |
+| 131.725 MHz | Europe | SITA | European channel |
+
+:::tip
+You don't need to monitor all frequencies. Start with 129.125 and 131.550 — these two carry the majority of ACARS traffic worldwide. Add more channels as you learn which are active in your area. acarsdec can decode up to 8 channels simultaneously from a single SDR.
+:::
+
 ## Receiving ACARS
 
-VHF ACARS is the easiest entry point for hobbyists. A basic RTL-SDR dongle, a VHF antenna, and the [acarsdec](/docs/decoders/install-acarsdec) decoder are all you need to start receiving and decoding live ACARS messages in your area. Once decoded, you can [feed the data to Airframes](/docs/feeding/what) to contribute to the global network.
+VHF ACARS is the easiest entry point for hobbyists. A basic [RTL-SDR dongle](/docs/hardware), a VHF antenna, and the [acarsdec](/docs/decoders/install-acarsdec) decoder are all you need to start receiving and decoding live ACARS messages in your area. Once decoded, you can [feed the data to Airframes](/docs/feeding/what) to contribute to the global network.
+
+### Quick Start
+
+1. **Get hardware** — An [RTL-SDR Blog V4](/docs/hardware) or [Orange SDR](/docs/hardware) and any VHF antenna (even a 53 cm wire works for testing).
+2. **Install acarsdec** — Follow the [installation guide](/docs/decoders/install-acarsdec).
+3. **Start decoding** — Run acarsdec tuned to 129.125 and 131.550 MHz.
+4. **Feed Airframes** — Configure the output to send data to the Airframes [aggregator](/docs/feeding/how).
+
+See the [Getting Started](/docs/getting_started) guide for a full walkthrough.
