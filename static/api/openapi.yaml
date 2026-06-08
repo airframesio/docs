@@ -1246,6 +1246,20 @@ paths:
         is not cached due to the large number of possible query-parameter combinations.
       operationId: findAll
       parameters:
+        - name: until
+          required: false
+          in: query
+          description: ISO-8601 upper time bound (messages created at or before).
+          schema:
+            example: '2026-06-08T00:00:00Z'
+            type: string
+        - name: since
+          required: false
+          in: query
+          description: ISO-8601 lower time bound (alias for created_at_after). Defaults to 24h ago.
+          schema:
+            example: '2026-06-01T00:00:00Z'
+            type: string
         - name: text
           required: false
           in: query
@@ -2097,6 +2111,13 @@ paths:
           schema:
             example: '2026-06-05T00:00:00Z'
             type: string
+        - name: until
+          required: false
+          in: query
+          description: ISO 8601 timestamp — return only positions before this time
+          schema:
+            example: '2026-06-08T00:00:00Z'
+            type: string
         - name: source_type
           required: false
           in: query
@@ -2443,6 +2464,19 @@ info:
     All endpoints are served under the `/v1` prefix (e.g. `https://api.airframes.io/v1/flights`).
     For backward compatibility the same endpoints also respond without the prefix, but `/v1` is the
     documented, stable path and should be preferred.
+
+
+    **Pagination** — list endpoints accept `limit`/`offset` (or `page`/`limit`, or cursor
+    `before_id`) and return pagination metadata in response headers: `X-Total-Count` (when known),
+    `X-Result-Count`, and `X-Page`/`X-Per-Page`/`X-Total-Pages` for paged endpoints.
+
+
+    **Time ranges** — time-filtered list endpoints accept `since` and `until` (ISO-8601).
+
+
+    **Rate limits** — responses carry `X-RateLimit-Limit`, `X-RateLimit-Remaining` and
+    `X-RateLimit-Reset` (and `Retry-After` on 429). Every response includes an `X-Request-ID` for
+    support.
   version: '1.0'
   contact:
     name: Airframes
