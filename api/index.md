@@ -30,19 +30,31 @@ See [Pricing](./pricing.md) for current access tiers.
 
 Our API provides access to:
 
+- **Flights** - Active, live and historical flights, with events, messages and position trails
 - **Messages** - ACARS messages, OOOI reports, and aircraft communications
-- **Flights** - Active and historical flight information
-- **Aircraft** - Airframe data and registration details
+- **ACARS / VDL / HFDL** - Protocol-specific message and ground-station data
+- **Decode** - On-demand decoding of raw ACARS payloads
+- **Airframes** - Aircraft registration and type details (by id, tail, ICAO, IATA)
 - **Airlines** - Airline information and ICAO/IATA codes
-- **Airports** - Airport data and location information
-- **Stations** - Feeder station data and statistics
-- **Routes** - Flight route and waypoint information
+- **Airports** - Airport data and location (by id, ICAO, IATA, ident, type, bounding box)
+- **Stations** - Feeder station data, coverage and statistics
+- **Leaderboard** - Station rankings, hall of fame and awards
+- **Stats** - Platform, ACARS and frequency-usage statistics
+- **Marine** - AIS vessel and voyage tracking
+- **Sonde** - Radiosonde (weather balloon) flights and positions
+
+## Versioning
+
+All endpoints are served under the **`/v1`** prefix (for example
+`https://api.airframes.io/v1/flights`). For backward compatibility the same
+endpoints also respond without the prefix, but **`/v1` is the documented, stable
+path** and should be preferred for new integrations.
 
 ## Getting Started
 
-1. Review the [OpenAPI specification](./openapi.yaml) for detailed endpoint documentation
+1. Browse the [Interactive API Reference](/api-reference) or the [OpenAPI specification](./openapi.yaml) for detailed endpoint documentation
 2. Contact us for API access and authentication credentials
-3. Start making requests to our REST endpoints
+3. Start making requests to the REST endpoints under `/v1`
 
 ## Base URLs
 
