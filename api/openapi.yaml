@@ -14,6 +14,31 @@ paths:
             All health indicators are up. Returns a Terminus health-check result with status "ok"
             and per-indicator details (e.g. db_master, redis, api_memory_heap, api_memory_rss,
             api_disk_space).
+        '429': &ref_0
+          description: >-
+            Rate limit exceeded (60 requests/min per client IP by default; some endpoints override
+            this). See the X-RateLimit-* and Retry-After headers.
+          headers:
+            Retry-After:
+              description: Seconds to wait before retrying.
+              schema:
+                type: integer
+            X-RateLimit-Limit:
+              description: Request quota for the current window.
+              schema:
+                type: integer
+            X-RateLimit-Remaining:
+              description: Requests remaining in the current window.
+              schema:
+                type: integer
+            X-RateLimit-Reset:
+              description: Seconds until the window resets.
+              schema:
+                type: integer
+          content: &ref_3
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         '503':
           description: >-
             One or more health indicators are down. Returns a Terminus health-check result with
@@ -37,6 +62,7 @@ paths:
       responses:
         '201':
           description: The decoded ACARS message payload. Structure varies by label and message content.
+        '429': *ref_0
       summary: Decode an ACARS message
       tags:
         - ACARS
@@ -44,7 +70,27 @@ paths:
     get:
       description: Returns a paginated list of airlines. Results are cached for 6 hours.
       operationId: findAll
-      parameters: []
+      parameters:
+        - name: sort
+          required: false
+          in: query
+          description: Field to sort by. Prefix with `-` for descending order. Defaults to `icao`.
+          schema:
+            example: icao
+        - name: limit
+          required: false
+          in: query
+          description: Maximum number of airlines per page. Defaults to 100.
+          schema:
+            example: 100
+            type: number
+        - name: page
+          required: false
+          in: query
+          description: Page number for pagination (1-based). Defaults to 1.
+          schema:
+            example: 1
+            type: number
       responses:
         '200':
           description: A paginated array of airlines.
@@ -54,8 +100,9 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Airline'
+        '429': *ref_0
       summary: List airlines
-      tags: &ref_0
+      tags: &ref_1
         - Airlines
   /v1/airlines/{id}:
     get:
@@ -76,8 +123,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Airline'
+        '429': *ref_0
       summary: Get airline by ID
-      tags: *ref_0
+      tags: *ref_1
   /v1/airlines/icao/{icao}:
     get:
       description: >-
@@ -99,8 +147,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Airline'
+        '429': *ref_0
       summary: Get airline by ICAO code
-      tags: *ref_0
+      tags: *ref_1
   /v1/airlines/iata/{iata}:
     get:
       description: >-
@@ -124,8 +173,456 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Airline'
+        '429': *ref_0
       summary: List airlines by IATA code
-      tags: *ref_0
+      tags: *ref_1
+  /v1/airframes/routes:
+    get:
+      description: >-
+        Returns the great-circle path between two airports (resolved by ICAO, ident or IATA), as an
+        interpolated list of points plus distance and initial bearing. Useful for drawing a
+        planned/idealized route.
+      operationId: greatCircleRoute
+      parameters:
+        - name: from
+          required: true
+          in: query
+          description: Departure airport (ICAO, ident or IATA).
+          schema:
+            example: KSFO
+            type: string
+        - name: to
+          required: true
+          in: query
+          description: Destination airport (ICAO, ident or IATA).
+          schema:
+            example: KJFK
+            type: string
+        - name: points
+          required: false
+          in: query
+          description: >-
+            Number of interpolation segments (1–1000, default 64). The response contains points + 1
+            entries.
+          schema:
+            example: 64
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GreatCircleRouteResponseDto'
+        '400':
+          description: Missing `from`/`to`.
+        '404':
+          description: Unknown airport.
+        '429': *ref_0
+      summary: Great-circle route between two airports
+      tags: &ref_2
+        - Routes
+  /v1/airframes/flights/{id}/route:
+    get:
+      description: >-
+        Returns a flight's route. When ADS-B positions exist, this is the actual flown track
+        (`source: "flown"`); otherwise it falls back to a synthesized great-circle line between the
+        departure and destination airports (`source: "great_circle"`). If neither is available,
+        `source: "none"` with an empty `points` array.
+      operationId: flightRoute
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Numeric flight id.
+          schema:
+            example: 5544014689
+            type: string
+        - name: hours
+          required: false
+          in: query
+          description: Window (hours) for the flown track (default 48).
+          schema:
+            example: 48
+            type: string
+        - name: limit
+          required: false
+          in: query
+          description: Max flown points to return (default 2000).
+          schema:
+            example: 2000
+            type: string
+        - name: points
+          required: false
+          in: query
+          description: Segments for the great-circle fallback (1–1000, default 64).
+          schema:
+            example: 64
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlightRouteResponseDto'
+        '404':
+          description: Flight not found.
+        '429': *ref_0
+      summary: Route for a flight
+      tags: *ref_2
+  /v1/flights:
+    get:
+      description: >-
+        Returns the most recent flights from the database. The result count is clamped between 1 and
+        500 (defaults to 100).
+      operationId: findAll
+      parameters:
+        - name: limit
+          required: false
+          in: query
+          description: Maximum number of flights to return (clamped to 1–500).
+          schema:
+            example: 100
+            type: string
+      responses:
+        '200':
+          description: An array of the most recent flights.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Flight'
+        '429': *ref_0
+      summary: List recent flights
+      tags: &ref_4
+        - Flights
+  /v1/flights/active:
+    get:
+      description: >-
+        Returns currently active flights, served from a short-lived Redis cache when available.
+        Requires authentication via JWT or API key. Arbitrary query parameters are passed through as
+        filters.
+      operationId: findActive
+      parameters:
+        - name: dep_airport
+          required: false
+          in: query
+          description: Filter to flights departing from this airport ICAO code.
+          schema:
+            example: KLAX
+            type: string
+        - name: arr_airport
+          required: false
+          in: query
+          description: Filter to flights arriving at this airport ICAO code.
+          schema:
+            example: KSFO
+            type: string
+      responses:
+        '200':
+          description: An array of active flights.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Flight'
+        '401': &ref_5
+          description: Authentication required or the credentials are invalid.
+          content: *ref_3
+        '429': *ref_0
+      security:
+        - api-key: []
+        - bearer: []
+      summary: List active flights
+      tags: *ref_4
+  /v1/flights/active/{id}:
+    get:
+      description: >-
+        Returns a single active flight by its numeric id, served from a short-lived Redis cache when
+        available.
+      operationId: findOneActive
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Numeric flight id.
+          schema:
+            example: 123456
+            type: string
+      responses:
+        '200':
+          description: The matching active flight (or null if not found).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Flight'
+        '429': *ref_0
+      summary: Get an active flight by id
+      tags: *ref_4
+  /v1/flights/live:
+    get:
+      description: >-
+        Returns all live aircraft flights directly from the Redis entity cache with no database
+        query — suitable for real-time map UIs. Requires authentication via JWT or API key.
+      operationId: findLive
+      parameters:
+        - name: withPosition
+          required: false
+          in: query
+          description: Set to "true" to only return flights that currently have a position.
+          schema:
+            example: 'true'
+            type: string
+        - name: limit
+          required: false
+          in: query
+          description: Maximum number of flights to return (default 5000, clamped to 1–10000).
+          schema:
+            example: 5000
+            type: string
+      responses:
+        '200':
+          description: An array of live flights from the entity cache (not a persisted entity shape).
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LiveFlightDto'
+        '401': *ref_5
+        '429': *ref_0
+      security:
+        - api-key: []
+        - bearer: []
+      summary: List live flights from cache
+      tags: *ref_4
+  /v1/flights/live/{cacheId}:
+    get:
+      description: >-
+        Returns a single live flight, including its full position trail, from the Redis entity
+        cache. Returns null if the flight is not in the cache. Requires authentication via JWT or
+        API key.
+      operationId: findOneLive
+      parameters:
+        - name: cacheId
+          required: true
+          in: path
+          description: Entity cache id of the live flight.
+          schema:
+            example: A1B2C3
+            type: string
+      responses:
+        '200':
+          description: >-
+            The live flight with an optional trail array, or null if not cached (not a persisted
+            entity shape).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LiveFlightDto'
+        '401': *ref_5
+        '429': *ref_0
+      security:
+        - api-key: []
+        - bearer: []
+      summary: Get a live flight with trail
+      tags: *ref_4
+  /v1/flights/{id}/messages:
+    get:
+      description: >-
+        Returns paginated messages for a flight. Page size is capped at 100, and the lookup can be
+        bounded to a recent window to prune partitions and speed up the query.
+      operationId: findMessages
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Numeric flight id.
+          schema:
+            example: 123456
+            type: string
+        - name: page
+          required: false
+          in: query
+          description: Page number, 1-based (default 1).
+          schema:
+            example: 1
+            type: string
+        - name: limit
+          required: false
+          in: query
+          description: Messages per page (default 100, capped at 100).
+          schema:
+            example: 100
+            type: string
+        - name: sinceHours
+          required: false
+          in: query
+          description: Restrict to messages within the last N hours to prune partitions and speed up the query.
+          schema:
+            example: 24
+            type: string
+      responses:
+        '200':
+          description: A paginated set of messages for the flight.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Message'
+        '429': *ref_0
+      summary: List messages for a flight
+      tags: *ref_4
+  /v1/flights/{id}/events:
+    get:
+      description: >-
+        Returns flight events, capped and time-bounded, served from a short-lived Redis cache when
+        available. Loaded independently by the flight detail UI.
+      operationId: findEvents
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Numeric flight id.
+          schema:
+            example: 123456
+            type: string
+      responses:
+        '200':
+          description: An array of flight events.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FlightEvent'
+        '429': *ref_0
+      summary: List events for a flight
+      tags: *ref_4
+  /v1/flights/{id}/positions:
+    get:
+      description: >-
+        Returns recent flight positions for the map, capped and time-bounded, served from a
+        short-lived Redis cache when available. Degrades to an empty array instead of failing if the
+        positions query errors (e.g. a statement timeout).
+      operationId: findPositions
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Numeric flight id.
+          schema:
+            example: 123456
+            type: string
+        - name: hours
+          required: false
+          in: query
+          description: Restrict positions to the last N hours.
+          schema:
+            example: 6
+            type: string
+      responses:
+        '200':
+          description: An array of recent flight positions (empty if the query degrades).
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FlightPosition'
+        '429': *ref_0
+      summary: List positions for a flight
+      tags: *ref_4
+  /v1/flights/{id}:
+    get:
+      description: >-
+        Returns flight detail including airframe, airline, events, and recent messages (bounded to a
+        recent window). Positions are not joined by default — fetch them from /flights/:id/positions
+        — unless include=positions is passed. Served from a Redis cache with a short TTL for
+        in-flight flights and a longer TTL for completed ones.
+      operationId: findOne
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Numeric flight id.
+          schema:
+            example: 123456
+            type: string
+        - name: include
+          required: false
+          in: query
+          description: >-
+            Comma-separated list of extra relations to load inline. Pass "positions" to also load
+            positions inline (legacy globe/map callers).
+          schema:
+            example: positions
+            type: string
+      responses:
+        '200':
+          description: The flight detail with related airframe, airline, and events.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Flight'
+        '429': *ref_0
+      summary: Get flight detail by id
+      tags: *ref_4
+  /v1/flights/bbox/{xmin},{ymin},{xmax},{ymax}:
+    get:
+      description: >-
+        Returns flights whose position falls within the given geographic bounding box. Returns an
+        empty array if any bound is infinite. Requires authentication via JWT or API key.
+      operationId: findByBoundingBox
+      parameters:
+        - name: xmin
+          required: true
+          in: path
+          description: Minimum longitude of the bounding box.
+          schema:
+            example: '-122.5'
+            type: string
+        - name: ymin
+          required: true
+          in: path
+          description: Minimum latitude of the bounding box.
+          schema:
+            example: '37.2'
+            type: string
+        - name: xmax
+          required: true
+          in: path
+          description: Maximum longitude of the bounding box.
+          schema:
+            example: '-121.8'
+            type: string
+        - name: ymax
+          required: true
+          in: path
+          description: Maximum latitude of the bounding box.
+          schema:
+            example: '37.9'
+            type: string
+      responses:
+        '200':
+          description: An array of flights within the bounding box.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Flight'
+        '401': *ref_5
+        '429': *ref_0
+      security:
+        - api-key: []
+        - bearer: []
+      summary: List flights within a bounding box
+      tags: *ref_4
   /v1/airframes:
     get:
       description: >-
@@ -142,9 +639,31 @@ paths:
         - name: tail
           required: false
           in: query
-          description: Filter airframes by tail (registration) number.
+          description: Filter airframes by tail (registration) number (prefix match).
           schema:
             example: N12345
+        - name: sort
+          required: false
+          in: query
+          description: >-
+            Field to sort by. Prefix with `-` for descending order (e.g. `-icao`). Defaults to
+            `icao`.
+          schema:
+            example: icao
+        - name: limit
+          required: false
+          in: query
+          description: Maximum number of airframes per page. Defaults to 100.
+          schema:
+            example: 100
+            type: number
+        - name: page
+          required: false
+          in: query
+          description: Page number for pagination (1-based). Defaults to 1.
+          schema:
+            example: 1
+            type: number
       responses:
         '200':
           description: A paginated array of matching airframes.
@@ -154,8 +673,9 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Airframe'
+        '429': *ref_0
       summary: List airframes
-      tags: &ref_1
+      tags: &ref_6
         - Airframes
   /v1/airframes/{id}:
     get:
@@ -176,8 +696,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Airframe'
+        '429': *ref_0
       summary: Get airframe by ID
-      tags: *ref_1
+      tags: *ref_6
   /v1/airframes/tail/{tail}:
     get:
       description: >-
@@ -199,8 +720,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Airframe'
+        '429': *ref_0
       summary: Get airframe by tail number
-      tags: *ref_1
+      tags: *ref_6
   /v1/airframes/icao/{icao}:
     get:
       description: >-
@@ -222,8 +744,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Airframe'
+        '429': *ref_0
       summary: Get airframe by ICAO code
-      tags: *ref_1
+      tags: *ref_6
   /v1/airframes/iata/{iata}:
     get:
       description: Returns a single airframe matching the given IATA code. Result is cached for 1 hour.
@@ -243,24 +766,40 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Airframe'
+        '429': *ref_0
       summary: Get airframe by IATA code
-      tags: *ref_1
+      tags: *ref_6
   /v1/airports:
     get:
-      description: Returns a paginated list of airports. Results are cached for 6 hours.
+      description: Returns a paginated list of airports, ICAO-ordered. Results are cached for 6 hours.
       operationId: findAll
-      parameters: []
+      parameters:
+        - name: limit
+          required: false
+          in: query
+          description: Maximum number of airports per page. Defaults to 100.
+          schema:
+            example: 100
+            type: number
+        - name: page
+          required: false
+          in: query
+          description: Page number for pagination (1-based). Defaults to 1.
+          schema:
+            example: 1
+            type: number
       responses:
         '200':
-          description: A paginated array of airports.
+          description: A paginated array of airports (ICAO-ordered).
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/Airport'
+        '429': *ref_0
       summary: List airports
-      tags: &ref_2
+      tags: &ref_7
         - Airports
   /v1/airports/{id}:
     get:
@@ -285,8 +824,9 @@ paths:
                 $ref: '#/components/schemas/Airport'
         '400':
           description: The provided ID is not a valid UUID.
+        '429': *ref_0
       summary: Get airport by ID
-      tags: *ref_2
+      tags: *ref_7
   /v1/airports/icao/{icao}:
     get:
       description: >-
@@ -308,8 +848,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Airport'
+        '429': *ref_0
       summary: Get airport by ICAO code
-      tags: *ref_2
+      tags: *ref_7
   /v1/airports/iata/{iata}:
     get:
       description: >-
@@ -331,8 +872,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Airport'
+        '429': *ref_0
       summary: Get airport by IATA code
-      tags: *ref_2
+      tags: *ref_7
   /v1/airports/ident/{ident}:
     get:
       description: >-
@@ -354,8 +896,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Airport'
+        '429': *ref_0
       summary: Get airport by ident
-      tags: *ref_2
+      tags: *ref_7
   /v1/airports/type/{type}:
     get:
       description: Returns all airports matching the given airport type. Results are cached for 6 hours.
@@ -377,8 +920,9 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Airport'
+        '429': *ref_0
       summary: List airports by type
-      tags: *ref_2
+      tags: *ref_7
   /v1/airports/bbox/{xmin},{ymin},{xmax},{ymax}:
     get:
       description: >-
@@ -424,8 +968,9 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Airport'
+        '429': *ref_0
       summary: List airports within a bounding box
-      tags: *ref_2
+      tags: *ref_7
   /v1/airports/{icao}/flights:
     get:
       description: >-
@@ -449,323 +994,13 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Flight'
+        '401': *ref_5
+        '429': *ref_0
       security:
         - api-key: []
         - bearer: []
       summary: List flights for an airport
-      tags: *ref_2
-  /v1/flights:
-    get:
-      description: >-
-        Returns the most recent flights from the database. The result count is clamped between 1 and
-        500 (defaults to 100).
-      operationId: findAll
-      parameters:
-        - name: limit
-          required: false
-          in: query
-          description: Maximum number of flights to return (clamped to 1–500).
-          schema:
-            example: 100
-            type: string
-      responses:
-        '200':
-          description: An array of the most recent flights.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Flight'
-      summary: List recent flights
-      tags: &ref_3
-        - Flights
-  /v1/flights/active:
-    get:
-      description: >-
-        Returns currently active flights, served from a short-lived Redis cache when available.
-        Requires authentication via JWT or API key. Arbitrary query parameters are passed through as
-        filters.
-      operationId: findActive
-      parameters: []
-      responses:
-        '200':
-          description: An array of active flights.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Flight'
-      security:
-        - api-key: []
-        - bearer: []
-      summary: List active flights
-      tags: *ref_3
-  /v1/flights/active/{id}:
-    get:
-      description: >-
-        Returns a single active flight by its numeric id, served from a short-lived Redis cache when
-        available.
-      operationId: findOneActive
-      parameters:
-        - name: id
-          required: true
-          in: path
-          description: Numeric flight id.
-          schema:
-            example: 123456
-            type: string
-      responses:
-        '200':
-          description: The matching active flight (or null if not found).
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Flight'
-      summary: Get an active flight by id
-      tags: *ref_3
-  /v1/flights/live:
-    get:
-      description: >-
-        Returns all live aircraft flights directly from the Redis entity cache with no database
-        query — suitable for real-time map UIs. Requires authentication via JWT or API key.
-      operationId: findLive
-      parameters:
-        - name: withPosition
-          required: false
-          in: query
-          description: Set to "true" to only return flights that currently have a position.
-          schema:
-            example: 'true'
-            type: string
-        - name: limit
-          required: false
-          in: query
-          description: Maximum number of flights to return (default 5000, clamped to 1–10000).
-          schema:
-            example: 5000
-            type: string
-      responses:
-        '200':
-          description: An array of live flights from the entity cache (not a persisted entity shape).
-      security:
-        - api-key: []
-        - bearer: []
-      summary: List live flights from cache
-      tags: *ref_3
-  /v1/flights/live/{cacheId}:
-    get:
-      description: >-
-        Returns a single live flight, including its full position trail, from the Redis entity
-        cache. Returns null if the flight is not in the cache. Requires authentication via JWT or
-        API key.
-      operationId: findOneLive
-      parameters:
-        - name: cacheId
-          required: true
-          in: path
-          description: Entity cache id of the live flight.
-          schema:
-            example: A1B2C3
-            type: string
-      responses:
-        '200':
-          description: >-
-            The live flight with an optional trail array, or null if not cached (not a persisted
-            entity shape).
-      security:
-        - api-key: []
-        - bearer: []
-      summary: Get a live flight with trail
-      tags: *ref_3
-  /v1/flights/{id}/messages:
-    get:
-      description: >-
-        Returns paginated messages for a flight. Page size is capped at 100, and the lookup can be
-        bounded to a recent window to prune partitions and speed up the query.
-      operationId: findMessages
-      parameters:
-        - name: id
-          required: true
-          in: path
-          description: Numeric flight id.
-          schema:
-            example: 123456
-            type: string
-        - name: page
-          required: false
-          in: query
-          description: Page number, 1-based (default 1).
-          schema:
-            example: 1
-            type: string
-        - name: limit
-          required: false
-          in: query
-          description: Messages per page (default 100, capped at 100).
-          schema:
-            example: 100
-            type: string
-        - name: sinceHours
-          required: false
-          in: query
-          description: Restrict to messages within the last N hours to prune partitions and speed up the query.
-          schema:
-            example: 24
-            type: string
-      responses:
-        '200':
-          description: A paginated set of messages for the flight.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Message'
-      summary: List messages for a flight
-      tags: *ref_3
-  /v1/flights/{id}/events:
-    get:
-      description: >-
-        Returns flight events, capped and time-bounded, served from a short-lived Redis cache when
-        available. Loaded independently by the flight detail UI.
-      operationId: findEvents
-      parameters:
-        - name: id
-          required: true
-          in: path
-          description: Numeric flight id.
-          schema:
-            example: 123456
-            type: string
-      responses:
-        '200':
-          description: An array of flight events.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/FlightEvent'
-      summary: List events for a flight
-      tags: *ref_3
-  /v1/flights/{id}/positions:
-    get:
-      description: >-
-        Returns recent flight positions for the map, capped and time-bounded, served from a
-        short-lived Redis cache when available. Degrades to an empty array instead of failing if the
-        positions query errors (e.g. a statement timeout).
-      operationId: findPositions
-      parameters:
-        - name: id
-          required: true
-          in: path
-          description: Numeric flight id.
-          schema:
-            example: 123456
-            type: string
-        - name: hours
-          required: false
-          in: query
-          description: Restrict positions to the last N hours.
-          schema:
-            example: 6
-            type: string
-      responses:
-        '200':
-          description: An array of recent flight positions (empty if the query degrades).
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/FlightPosition'
-      summary: List positions for a flight
-      tags: *ref_3
-  /v1/flights/{id}:
-    get:
-      description: >-
-        Returns flight detail including airframe, airline, events, and recent messages (bounded to a
-        recent window). Positions are not joined by default — fetch them from /flights/:id/positions
-        — unless include=positions is passed. Served from a Redis cache with a short TTL for
-        in-flight flights and a longer TTL for completed ones.
-      operationId: findOne
-      parameters:
-        - name: id
-          required: true
-          in: path
-          description: Numeric flight id.
-          schema:
-            example: 123456
-            type: string
-        - name: include
-          required: false
-          in: query
-          description: >-
-            Comma-separated list of extra relations to load inline. Pass "positions" to also load
-            positions inline (legacy globe/map callers).
-          schema:
-            example: positions
-            type: string
-      responses:
-        '200':
-          description: The flight detail with related airframe, airline, and events.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Flight'
-      summary: Get flight detail by id
-      tags: *ref_3
-  /v1/flights/bbox/{xmin},{ymin},{xmax},{ymax}:
-    get:
-      description: >-
-        Returns flights whose position falls within the given geographic bounding box. Returns an
-        empty array if any bound is infinite. Requires authentication via JWT or API key.
-      operationId: findByBoundingBox
-      parameters:
-        - name: xmin
-          required: true
-          in: path
-          description: Minimum longitude of the bounding box.
-          schema:
-            example: '-122.5'
-            type: string
-        - name: ymin
-          required: true
-          in: path
-          description: Minimum latitude of the bounding box.
-          schema:
-            example: '37.2'
-            type: string
-        - name: xmax
-          required: true
-          in: path
-          description: Maximum longitude of the bounding box.
-          schema:
-            example: '-121.8'
-            type: string
-        - name: ymax
-          required: true
-          in: path
-          description: Maximum latitude of the bounding box.
-          schema:
-            example: '37.9'
-            type: string
-      responses:
-        '200':
-          description: An array of flights within the bounding box.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Flight'
-      security:
-        - api-key: []
-        - bearer: []
-      summary: List flights within a bounding box
-      tags: *ref_3
+      tags: *ref_7
   /v1/hfdl/ground-stations:
     get:
       description: >-
@@ -779,6 +1014,7 @@ paths:
           description: >-
             JSON-encoded string containing a "ground_stations" array, each entry with id, name,
             active frequencies, and last_updated.
+        '429': *ref_0
       summary: List HFDL ground stations with active frequencies
       tags:
         - HFDL
@@ -805,8 +1041,9 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/MarineVoyage'
+        '429': *ref_0
       summary: List marine voyages
-      tags: &ref_4
+      tags: &ref_8
         - Marine
   /v1/marine/voyages/active:
     get:
@@ -824,11 +1061,13 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/MarineVoyage'
+        '401': *ref_5
+        '429': *ref_0
       security:
         - api-key: []
         - bearer: []
       summary: List active marine voyages
-      tags: *ref_4
+      tags: *ref_8
   /v1/marine/voyages/{id}:
     get:
       description: Returns a single marine voyage by its unique identifier.
@@ -848,8 +1087,77 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/MarineVoyage'
+        '429': *ref_0
       summary: Get a marine voyage by ID
-      tags: *ref_4
+      tags: *ref_8
+  /v1/marine/voyages/{id}/positions:
+    get:
+      description: >-
+        Returns the position reports recorded during a marine voyage, ordered chronologically
+        (oldest first). Use the limit query parameter to control how many are returned.
+      operationId: findPositions
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Unique identifier of the marine voyage.
+          schema:
+            example: '67890'
+            type: string
+        - name: limit
+          required: false
+          in: query
+          description: >-
+            Maximum number of position reports to return. Clamped between 1 and 5000; defaults to
+            2000.
+          schema:
+            example: 2000
+            type: string
+      responses:
+        '200':
+          description: A list of position reports for the voyage.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MarineVoyagePosition'
+        '429': *ref_0
+      summary: Get position reports for a marine voyage
+      tags: *ref_8
+  /v1/marine/voyages/{id}/messages:
+    get:
+      description: >-
+        Returns the AIS messages received during a marine voyage, most recent first. Use the limit
+        query parameter to control how many are returned.
+      operationId: findMessages
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Unique identifier of the marine voyage.
+          schema:
+            example: '67890'
+            type: string
+        - name: limit
+          required: false
+          in: query
+          description: Maximum number of messages to return. Clamped between 1 and 500; defaults to 200.
+          schema:
+            example: 200
+            type: string
+      responses:
+        '200':
+          description: A list of AIS messages for the voyage.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MarineMessage'
+        '429': *ref_0
+      summary: Get AIS messages for a marine voyage
+      tags: *ref_8
   /v1/marine/voyages/bbox/{xmin},{ymin},{xmax},{ymax}:
     get:
       description: >-
@@ -895,11 +1203,40 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/MarineVoyage'
+        '401': *ref_5
+        '429': *ref_0
       security:
         - api-key: []
         - bearer: []
       summary: List marine voyages within a bounding box
-      tags: *ref_4
+      tags: *ref_8
+  /v1/marine/vessels/{mmsi}:
+    get:
+      description: >-
+        Returns a single marine vessel identified by its Maritime Mobile Service Identity (MMSI)
+        number.
+      operationId: findByMmsi
+      parameters:
+        - name: mmsi
+          required: true
+          in: path
+          description: Maritime Mobile Service Identity (MMSI) number of the vessel.
+          schema:
+            example: '366998410'
+            type: string
+      responses:
+        '200':
+          description: The requested marine vessel.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MarineVessel'
+        '404':
+          description: No marine vessel found for the given MMSI.
+        '429': *ref_0
+      summary: Get a marine vessel by MMSI
+      tags:
+        - Marine
   /v1/messages:
     get:
       description: >-
@@ -909,16 +1246,111 @@ paths:
         is not cached due to the large number of possible query-parameter combinations.
       operationId: findAll
       parameters:
-        - name: params
+        - name: text
+          required: false
+          in: query
+          description: Substring to match case-insensitively (ILIKE) within the message text.
+          schema:
+            example: TURBULENCE
+            type: string
+        - name: icao
+          required: false
+          in: query
+          description: ICAO hex code; matched case-insensitively (ILIKE) on from_hex.
+          schema:
+            example: a1b2c3
+            type: string
+        - name: exclude_errors
+          required: false
+          in: query
+          description: Comma-separated list of error counts to exclude.
+          schema:
+            example: 1,2,3
+            type: string
+        - name: exclude_labels
+          required: false
+          in: query
+          description: Comma-separated list of message labels to exclude.
+          schema:
+            example: Q0,SA
+            type: string
+        - name: labels
+          required: false
+          in: query
+          description: Comma-separated list of message labels to include.
+          schema:
+            example: H1,5Z
+            type: string
+        - name: station_ids
+          required: false
+          in: query
+          description: Comma-separated list of station ids to filter by.
+          schema:
+            example: 11,22,33
+            type: string
+        - name: flight_id
+          required: false
+          in: query
+          description: Restrict results to a single flight id.
+          schema:
+            example: 123456
+            type: number
+        - name: airframe_ids
+          required: false
+          in: query
+          description: Comma-separated list of airframe ids to filter by.
+          schema:
+            example: 101,202,303
+            type: string
+        - name: timeframe
+          required: false
+          in: query
+          description: Relative time window for the query. Overrides created_at_after when supplied.
+          schema:
+            enum:
+              - last-hour
+              - last-6-hours
+              - last-12-hours
+              - last-day
+              - last-3-days
+              - last-week
+              - last-month
+              - last-3-months
+            type: string
+        - name: created_at_after
           required: false
           in: query
           description: >-
-            Arbitrary filter, pagination, and sorting parameters passed through to the messages
-            service (e.g. limit, offset, source_type, tail).
+            ISO-8601 date/time lower bound; only messages created at or after this instant are
+            returned. Defaults to now minus one day. Overridden by timeframe when both are supplied.
           schema:
-            type: object
-            additionalProperties:
-              type: string
+            example: '2026-06-01T00:00:00Z'
+            type: string
+        - name: before_id
+          required: false
+          in: query
+          description: >-
+            Cursor for keyset pagination: only return messages with id < before_id. Takes precedence
+            over offset.
+          schema:
+            example: 123456
+            type: number
+        - name: offset
+          required: false
+          in: query
+          description: >-
+            Number of messages to skip for pagination (default 0, max 500000). Ignored when
+            before_id is supplied.
+          schema:
+            example: 0
+            type: number
+        - name: limit
+          required: false
+          in: query
+          description: Maximum number of messages to return (default 100, max 100).
+          schema:
+            example: 100
+            type: number
       responses:
         '200':
           description: Array of messages matching the query.
@@ -928,11 +1360,13 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Message'
+        '401': *ref_5
+        '429': *ref_0
       security:
         - api-key: []
         - bearer: []
       summary: List messages
-      tags: &ref_5
+      tags: &ref_9
         - Messages
   /v1/messages/{id}:
     get:
@@ -955,8 +1389,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Message'
+        '429': *ref_0
       summary: Get a message by ID
-      tags: *ref_5
+      tags: *ref_9
   /v1/messages/ar_uuid/{id}:
     get:
       description: >-
@@ -978,8 +1413,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Message'
+        '429': *ref_0
       summary: Get a message by Airframes UUID (ar_uuid)
-      tags: *ref_5
+      tags: *ref_9
   /v1/sonde/flights:
     get:
       description: >-
@@ -1003,8 +1439,9 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/SondeFlight'
+        '429': *ref_0
       summary: List sonde flights
-      tags: &ref_6
+      tags: &ref_10
         - Sonde
   /v1/sonde/flights/active:
     get:
@@ -1022,11 +1459,13 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/SondeFlight'
+        '401': *ref_5
+        '429': *ref_0
       security:
         - api-key: []
         - bearer: []
       summary: List active sonde flights
-      tags: *ref_6
+      tags: *ref_10
   /v1/sonde/flights/{id}:
     get:
       description: Returns a single weather balloon flight by its unique identifier.
@@ -1046,8 +1485,77 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SondeFlight'
+        '429': *ref_0
       summary: Get a sonde flight by ID
-      tags: *ref_6
+      tags: *ref_10
+  /v1/sonde/flights/{id}/positions:
+    get:
+      description: >-
+        Returns the recorded position reports (track) for a single weather balloon flight, in
+        chronological order (oldest first).
+      operationId: findPositions
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Unique identifier of the sonde flight.
+          schema:
+            example: '8842'
+            type: string
+        - name: limit
+          required: false
+          in: query
+          description: >-
+            Maximum number of position reports to return. Clamped between 1 and 5000; defaults to
+            2000.
+          schema:
+            example: 2000
+            type: string
+      responses:
+        '200':
+          description: A chronological list of position reports for the flight.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SondeFlightPosition'
+        '429': *ref_0
+      summary: List position reports for a sonde flight
+      tags: *ref_10
+  /v1/sonde/flights/{id}/messages:
+    get:
+      description: >-
+        Returns the telemetry messages received during a single weather balloon flight, most recent
+        first.
+      operationId: findMessages
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Unique identifier of the sonde flight.
+          schema:
+            example: '8842'
+            type: string
+        - name: limit
+          required: false
+          in: query
+          description: Maximum number of messages to return. Clamped between 1 and 500; defaults to 200.
+          schema:
+            example: 200
+            type: string
+      responses:
+        '200':
+          description: A list of telemetry messages for the flight, newest first.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SondeMessage'
+        '429': *ref_0
+      summary: List telemetry messages for a sonde flight
+      tags: *ref_10
   /v1/sonde/flights/bbox/{xmin},{ymin},{xmax},{ymax}:
     get:
       description: >-
@@ -1093,11 +1601,89 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/SondeFlight'
+        '401': *ref_5
+        '429': *ref_0
       security:
         - api-key: []
         - bearer: []
       summary: List sonde flights within a bounding box
-      tags: *ref_6
+      tags: *ref_10
+  /v1/sonde/sites:
+    get:
+      description: >-
+        Returns radiosonde (weather balloon) launch sites. Use the limit query parameter to control
+        how many are returned.
+      operationId: findAll
+      parameters:
+        - name: limit
+          required: false
+          in: query
+          description: Maximum number of launch sites to return. Clamped between 1 and 500; defaults to 200.
+          schema:
+            example: 200
+            type: string
+      responses:
+        '200':
+          description: A list of sonde launch sites.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SondeSite'
+        '429': *ref_0
+      summary: List sonde launch sites
+      tags: &ref_11
+        - Sonde
+  /v1/sonde/sites/{id}:
+    get:
+      description: Returns a single radiosonde launch site by its unique identifier.
+      operationId: findOne
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Unique identifier of the sonde launch site.
+          schema:
+            example: '155'
+            type: string
+      responses:
+        '200':
+          description: The requested sonde launch site.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SondeSite'
+        '404':
+          description: No sonde launch site exists with the given ID.
+        '429': *ref_0
+      summary: Get a sonde launch site by ID
+      tags: *ref_11
+  /v1/sonde/sondes/{serial}:
+    get:
+      description: Returns a single radiosonde (weather balloon transmitter) by its serial number.
+      operationId: findBySerial
+      parameters:
+        - name: serial
+          required: true
+          in: path
+          description: Serial number of the radiosonde unit.
+          schema:
+            example: S4830127
+            type: string
+      responses:
+        '200':
+          description: The requested radiosonde.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sonde'
+        '404':
+          description: No radiosonde exists with the given serial number.
+        '429': *ref_0
+      summary: Get a radiosonde by serial number
+      tags:
+        - Sonde
   /v1/stations:
     get:
       description: >-
@@ -1116,8 +1702,9 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Station'
+        '429': *ref_0
       summary: List all stations
-      tags: &ref_7
+      tags: &ref_12
         - Stations
   /v1/stations/{id}:
     get:
@@ -1143,8 +1730,9 @@ paths:
                 $ref: '#/components/schemas/Station'
         '400':
           description: The station ID is malformed (must be a positive integer).
+        '429': *ref_0
       summary: Get a station by numeric ID
-      tags: *ref_7
+      tags: *ref_12
   /v1/stations/counts_24_hours:
     get:
       description: >-
@@ -1158,8 +1746,9 @@ paths:
           description: >-
             Array of computed objects with station_id, ident, fuzzed_latitude, fuzzed_longitude, and
             messages_count (count as a string).
+        '429': *ref_0
       summary: List stations with 24-hour message counts
-      tags: *ref_7
+      tags: *ref_12
   /v1/stations/ident/{ident}:
     get:
       description: >-
@@ -1181,8 +1770,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Station'
+        '429': *ref_0
       summary: Get a station by ident
-      tags: *ref_7
+      tags: *ref_12
   /v1/stations/{id}/coverage:
     get:
       description: >-
@@ -1202,7 +1792,9 @@ paths:
           in: query
           description: Time window to analyze. One of '1hour' or '24hours'. Defaults to '24hours'.
           schema:
-            example: 24hours
+            enum:
+              - 1hour
+              - 24hours
             type: string
       responses:
         '200':
@@ -1211,8 +1803,9 @@ paths:
           description: Invalid station ID or invalid time filter.
         '404':
           description: Station not found.
+        '429': *ref_0
       summary: Get station coverage polygon
-      tags: *ref_7
+      tags: *ref_12
   /v1/acars/stats:
     get:
       description: >-
@@ -1223,6 +1816,11 @@ paths:
       responses:
         '200':
           description: Object of computed ACARS statistics keyed by metric name.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcarsStatsResponseDto'
+        '429': *ref_0
       summary: Get ACARS statistics
       tags:
         - Stats
@@ -1243,11 +1841,13 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Flight'
+        '401': *ref_5
+        '429': *ref_0
       security:
         - api-key: []
         - bearer: []
       summary: List active flights
-      tags: &ref_8
+      tags: &ref_13
         - Flights
   /v1/airframes/flights/{id}:
     get:
@@ -1268,11 +1868,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Flight'
+        '401': *ref_5
+        '429': *ref_0
       security:
         - api-key: []
         - bearer: []
       summary: Get a flight by id
-      tags: *ref_8
+      tags: *ref_13
   /v1/airframes/flights/bbox/{xmin},{ymin},{xmax},{ymax}:
     get:
       description: >-
@@ -1317,11 +1919,13 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Flight'
+        '401': *ref_5
+        '429': *ref_0
       security:
         - api-key: []
         - bearer: []
       summary: List flights within a bounding box
-      tags: *ref_8
+      tags: *ref_13
   /v1/airframes/flights/active/arrdep:
     get:
       description: >-
@@ -1338,8 +1942,9 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Flight'
+        '429': *ref_0
       summary: List active flights with arrival/departure data
-      tags: *ref_8
+      tags: *ref_13
   /v1/stats:
     get:
       description: >-
@@ -1350,6 +1955,11 @@ paths:
       responses:
         '200':
           description: Object of computed platform statistics keyed by metric name.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlatformStatsResponseDto'
+        '429': *ref_0
       summary: Get platform statistics
       tags:
         - Stats
@@ -1380,7 +1990,16 @@ paths:
             example: '37.7749'
       responses:
         '200':
-          description: A plain object describing nearby flights, shaped for consumption by a Tidbyt display.
+          description: >-
+            Nearby flights (with airframe and positions), shaped for consumption by a Tidbyt
+            display.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Flight'
+        '429': *ref_0
       summary: Get nearby aircraft for a Tidbyt display
       tags:
         - Tidbyt
@@ -1394,8 +2013,9 @@ paths:
       responses:
         '200':
           description: All VDL ground stations as a serialized JSON object.
+        '429': *ref_0
       summary: List all VDL ground stations
-      tags: &ref_9
+      tags: &ref_14
         - VDL
   /v1/vdl/stations/geojson:
     get:
@@ -1407,8 +2027,9 @@ paths:
       responses:
         '200':
           description: A GeoJSON FeatureCollection of VDL ground stations (Point features).
+        '429': *ref_0
       summary: List all VDL ground stations as GeoJSON
-      tags: *ref_9
+      tags: *ref_14
   /v1/vdl/stations/{id}:
     get:
       description: >-
@@ -1426,8 +2047,9 @@ paths:
       responses:
         '200':
           description: The VDL ground station with the given ID.
+        '429': *ref_0
       summary: Get a VDL ground station by ID
-      tags: *ref_9
+      tags: *ref_14
   /v1/decode/coverage:
     get:
       operationId: getCoverage
@@ -1435,8 +2057,13 @@ paths:
       responses:
         '200':
           description: Decode coverage summary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DecodeCoverageResponseDto'
+        '429': *ref_0
       summary: Overall decode coverage statistics
-      tags: &ref_10
+      tags: &ref_15
         - Decode
   /v1/decode/coverage/labels:
     get:
@@ -1445,8 +2072,13 @@ paths:
       responses:
         '200':
           description: Per-label decode coverage
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DecodeLabelCoverageResponseDto'
+        '429': *ref_0
       summary: Per-label decode coverage
-      tags: *ref_10
+      tags: *ref_15
   /v1/decode/positions/recent:
     get:
       operationId: getRecentPositions
@@ -1456,24 +2088,32 @@ paths:
           in: query
           description: Max number of positions to return (default 100, max 1000)
           schema:
-            type: string
+            example: 100
+            type: number
         - name: since
           required: false
           in: query
           description: ISO 8601 timestamp — return only positions after this time
           schema:
+            example: '2026-06-05T00:00:00Z'
             type: string
         - name: source_type
           required: false
           in: query
-          description: Filter by source type (e.g. vdl, hfdl, acars)
+          description: Filter by source type (e.g. acars, vdl, hfdl)
           schema:
+            example: acars
             type: string
       responses:
         '200':
           description: Recent decoded positions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DecodePositionsResponseDto'
+        '429': *ref_0
       summary: Recent decoded positions for map display
-      tags: *ref_10
+      tags: *ref_15
   /v1/leaderboard/v2/meta:
     get:
       description: >-
@@ -1485,8 +2125,13 @@ paths:
       responses:
         '200':
           description: 'Leaderboard metadata object, or a { status: "computing" } placeholder.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaderboardMetaDto'
+        '429': *ref_0
       summary: Get leaderboard metadata
-      tags: &ref_11
+      tags: &ref_16
         - Leaderboard
   /v1/leaderboard/v2/performance/{view}:
     get:
@@ -1508,8 +2153,9 @@ paths:
           description: Computed performance object, or {} if no data is available.
         '400':
           description: Invalid view value.
+        '429': *ref_0
       summary: Get performance leaderboard
-      tags: *ref_11
+      tags: *ref_16
   /v1/leaderboard/v2/hall-of-fame/months:
     get:
       description: >-
@@ -1520,8 +2166,9 @@ paths:
       responses:
         '200':
           description: 'Object of the form { months: ["2026-02", ...] }.'
+        '429': *ref_0
       summary: List hall-of-fame months
-      tags: *ref_11
+      tags: *ref_16
   /v1/leaderboard/v2/hall-of-fame:
     get:
       description: >-
@@ -1542,8 +2189,9 @@ paths:
           description: Hall-of-fame object with champions and flounders for the month.
         '400':
           description: month is not in YYYY-MM format.
+        '429': *ref_0
       summary: Get hall of fame
-      tags: *ref_11
+      tags: *ref_16
   /v1/leaderboard/v2/flounders:
     get:
       description: >-
@@ -1555,8 +2203,9 @@ paths:
       responses:
         '200':
           description: Object of the form { month, picks }.
+        '429': *ref_0
       summary: Get current flounders
-      tags: *ref_11
+      tags: *ref_16
   /v1/leaderboard/v2/achievements/{userId}:
     get:
       description: >-
@@ -1575,8 +2224,9 @@ paths:
       responses:
         '200':
           description: Object of the form { userId, achievements }.
+        '429': *ref_0
       summary: Get a user's achievements
-      tags: *ref_11
+      tags: *ref_16
   /v1/leaderboard/v2/{domain}/{view}/{category}/{timeframe}:
     get:
       description: >-
@@ -1621,10 +2271,15 @@ paths:
       responses:
         '200':
           description: 'Computed leaderboard object, or a { status: "computing" } placeholder.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaderboardResponseDto'
         '400':
           description: Invalid domain, view, category, or timeframe.
+        '429': *ref_0
       summary: Get a leaderboard ranking
-      tags: *ref_11
+      tags: *ref_16
   /v1/leaderboard/v2/awards/trigger:
     post:
       description: >-
@@ -1651,8 +2306,9 @@ paths:
           description: Result of the award processing run.
         '400':
           description: month is missing or not in YYYY-MM format.
+        '429': *ref_0
       summary: Trigger award processing for a month
-      tags: *ref_11
+      tags: *ref_16
   /v1/leaderboard/v2/awards/diagnose-flounders:
     get:
       description: >-
@@ -1670,8 +2326,9 @@ paths:
       responses:
         '200':
           description: Diagnostic object describing flounder award computation.
+        '429': *ref_0
       summary: Diagnose flounder award computation
-      tags: *ref_11
+      tags: *ref_16
   /v1/leaderboard/v2/awards/materialize-daily-counts:
     post:
       description: >-
@@ -1689,8 +2346,9 @@ paths:
       responses:
         '201':
           description: Result of the materialization run.
+        '429': *ref_0
       summary: Materialize daily counts for awards
-      tags: *ref_11
+      tags: *ref_16
   /v1/leaderboard/current:
     get:
       description: >-
@@ -1702,8 +2360,9 @@ paths:
       responses:
         '200':
           description: Legacy-shaped leaderboard object with current, next, and previous fields.
+        '429': *ref_0
       summary: Get current leaderboard (legacy)
-      tags: *ref_11
+      tags: *ref_16
   /v1/leaderboard/{date}:
     get:
       description: >-
@@ -1722,8 +2381,9 @@ paths:
       responses:
         '200':
           description: Legacy-shaped leaderboard object (same as /leaderboard/current).
+        '429': *ref_0
       summary: Get leaderboard by date (legacy)
-      tags: *ref_11
+      tags: *ref_16
   /v1/stats/frequency-usage:
     get:
       description: >-
@@ -1762,8 +2422,13 @@ paths:
       responses:
         '200':
           description: Aggregated frequency usage statistics for the selected period and filters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FrequencyUsageResponseDto'
         '400':
           description: Invalid period or invalid country code.
+        '429': *ref_0
       summary: Get frequency usage statistics
       tags:
         - Stats
@@ -2676,6 +3341,281 @@ components:
         - owner
         - createdAt
         - updatedAt
+    RouteAirportDto:
+      type: object
+      properties:
+        icao:
+          type: string
+          description: Airport ICAO code.
+          example: KSFO
+        ident:
+          type: string
+          description: OurAirports ident.
+          example: KSFO
+        name:
+          type: string
+          description: Airport name.
+          example: San Francisco International Airport
+        latitude:
+          type: number
+          description: Latitude in decimal degrees.
+          example: 37.6188
+        longitude:
+          type: number
+          description: Longitude in decimal degrees.
+          example: -122.3756
+      required:
+        - icao
+        - latitude
+        - longitude
+    RoutePointDto:
+      type: object
+      properties:
+        latitude:
+          type: number
+          description: Latitude in decimal degrees.
+          example: 37.6188
+        longitude:
+          type: number
+          description: Longitude in decimal degrees.
+          example: -122.3756
+        altitude:
+          type: number
+          description: Altitude in feet, when known (flown points only).
+          example: 35000
+          nullable: true
+        track:
+          type: number
+          description: Track/heading in degrees, when known (flown points only).
+          example: 92
+          nullable: true
+        timestamp:
+          type: string
+          description: ISO-8601 timestamp of the point, when known (flown points).
+          example: '2026-06-08T12:34:56.000Z'
+          nullable: true
+        name:
+          type: string
+          description: Named waypoint/fix, when known (filed routes only).
+          example: KSFO
+          nullable: true
+      required:
+        - latitude
+        - longitude
+    GreatCircleRouteResponseDto:
+      type: object
+      properties:
+        from:
+          description: Departure airport.
+          allOf:
+            - $ref: '#/components/schemas/RouteAirportDto'
+        to:
+          description: Destination airport.
+          allOf:
+            - $ref: '#/components/schemas/RouteAirportDto'
+        distanceNm:
+          type: number
+          description: Great-circle distance in nautical miles.
+          example: 2235.4
+        initialBearing:
+          type: number
+          description: Initial true bearing in degrees (0–360).
+          example: 273.1
+        pointCount:
+          type: number
+          description: Number of points returned.
+          example: 65
+        points:
+          description: Interpolated great-circle points (departure → destination).
+          type: array
+          items:
+            $ref: '#/components/schemas/RoutePointDto'
+      required:
+        - from
+        - to
+        - distanceNm
+        - initialBearing
+        - pointCount
+        - points
+    FlightRouteResponseDto:
+      type: object
+      properties:
+        flightId:
+          type: number
+          description: Flight id.
+          example: 5544014689
+        source:
+          type: string
+          description: >-
+            Where the route came from: `flown` = actual ADS-B track from positions; `great_circle` =
+            synthesized departure→destination great-circle line (no positions available); `none` =
+            no route could be derived.
+          enum:
+            - flown
+            - great_circle
+            - none
+          example: flown
+        departure:
+          type: string
+          description: Departure airport ICAO, when known.
+          example: KSFO
+          nullable: true
+        destination:
+          type: string
+          description: Destination airport ICAO, when known.
+          example: KJFK
+          nullable: true
+        distanceNm:
+          type: number
+          description: Total route distance in nautical miles.
+          example: 2235.4
+          nullable: true
+        pointCount:
+          type: number
+          description: Number of points in the route.
+          example: 128
+        points:
+          description: Ordered route points.
+          type: array
+          items:
+            $ref: '#/components/schemas/RoutePointDto'
+      required:
+        - flightId
+        - source
+        - pointCount
+        - points
+    LivePositionDto:
+      type: object
+      properties:
+        lat:
+          type: number
+          description: Latitude in decimal degrees.
+          example: 37.6188
+        lon:
+          type: number
+          description: Longitude in decimal degrees.
+          example: -122.3754
+        alt:
+          type: number
+          description: Altitude in feet, when known.
+          example: 35000
+        speed:
+          type: number
+          description: Ground speed in knots, when known.
+          example: 420
+        heading:
+          type: number
+          description: Magnetic heading in degrees (0–359), when known.
+          example: 270
+        track:
+          type: number
+          description: Track over ground in degrees (0–359), when known.
+          example: 268
+        timestamp:
+          type: number
+          description: Observation timestamp in epoch milliseconds.
+          example: 1717459200000
+        source:
+          type: string
+          description: Source that produced this position (e.g. the ingest feed).
+          example: adsb
+        confidence:
+          type: string
+          description: Confidence in the position (e.g. low, medium, high).
+          example: high
+        type:
+          type: string
+          description: Position type (e.g. observed, estimated).
+          example: observed
+      required:
+        - lat
+        - lon
+        - timestamp
+        - source
+        - confidence
+        - type
+    LiveFlightDto:
+      type: object
+      properties:
+        cacheId:
+          type: string
+          description: Entity cache ID of the live flight.
+          example: A1B2C3
+        transport:
+          type: string
+          description: Transport type of the entity (e.g. aircraft).
+          example: aircraft
+        hex:
+          type: string
+          description: ICAO 24-bit hex code of the aircraft.
+          example: a1b2c3
+        tail:
+          type: string
+          description: Tail / registration of the aircraft.
+          example: N12345
+        flightIcao:
+          type: string
+          description: ICAO flight number / callsign.
+          example: SWA403
+        flightIata:
+          type: string
+          description: IATA flight number.
+          example: WN403
+        flightRaw:
+          type: string
+          description: Raw flight callsign as decoded.
+          example: SWA403
+        departure:
+          type: string
+          description: Departure airport ICAO code.
+          example: KLAX
+        arrival:
+          type: string
+          description: Arrival airport ICAO code.
+          example: KSFO
+        status:
+          type: string
+          description: Entity status (e.g. active, gapped, ended).
+          example: active
+        source:
+          type: string
+          description: Last ingest source for the entity.
+          example: adsb
+        airframeId:
+          type: string
+          description: Airframe DB ID, if the entity has been synced.
+          example: '987654'
+        dbId:
+          type: string
+          description: Flight DB ID, if the entity has been synced.
+          example: '123456'
+        firstSeenAt:
+          type: number
+          description: First seen timestamp in epoch seconds.
+          example: 1717459000
+        lastSeenAt:
+          type: number
+          description: Last seen timestamp in epoch seconds.
+          example: 1717459200
+        position:
+          description: Current position of the flight, or null if no position is available.
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/LivePositionDto'
+        trailCount:
+          type: number
+          description: Number of trail points recorded for this flight.
+          example: 42
+        trail:
+          description: >-
+            Full position trail. Only populated by the single-flight endpoint (GET
+            /flights/live/:cacheId).
+          type: array
+          items:
+            $ref: '#/components/schemas/LivePositionDto'
+      required:
+        - cacheId
+        - transport
     Airport:
       type: object
       properties:
@@ -3467,6 +4407,200 @@ components:
     UpdateWebhookDto:
       type: object
       properties: {}
+    AcarsLabelDto:
+      type: object
+      properties:
+        label:
+          type: string
+          example: H1
+        count:
+          type: number
+          example: 18240
+      required:
+        - label
+        - count
+    AcarsSourceTypeDto:
+      type: object
+      properties:
+        sourceType:
+          type: string
+          example: acars
+        count:
+          type: number
+          example: 42010
+      required:
+        - sourceType
+        - count
+    AcarsMessageWindowDto:
+      type: object
+      properties:
+        total:
+          type: number
+          example: 52310
+          description: Total messages in the window
+        labels:
+          type: array
+          items:
+            $ref: '#/components/schemas/AcarsLabelDto'
+        sourceTypes:
+          type: array
+          items:
+            $ref: '#/components/schemas/AcarsSourceTypeDto'
+      required:
+        - total
+        - labels
+        - sourceTypes
+    AcarsMessagesStatsDto:
+      type: object
+      properties:
+        lastHour:
+          $ref: '#/components/schemas/AcarsMessageWindowDto'
+        last24Hours:
+          $ref: '#/components/schemas/AcarsMessageWindowDto'
+      required:
+        - lastHour
+        - last24Hours
+    AcarsStatsDto:
+      type: object
+      properties:
+        messages:
+          $ref: '#/components/schemas/AcarsMessagesStatsDto'
+      required:
+        - messages
+    AcarsStatsResponseDto:
+      type: object
+      properties:
+        stats:
+          $ref: '#/components/schemas/AcarsStatsDto'
+      required:
+        - stats
+    StationsStatsDto:
+      type: object
+      properties:
+        total:
+          type: number
+          example: 1240
+          description: Total number of stations
+        byStatus:
+          type: object
+          additionalProperties: true
+          description: >-
+            Dynamic per-status breakdown of stations keyed by status (e.g. "active", "inactive",
+            "pending-reception", "secret"). Each value has a "total" and an optional
+            type/source_type breakdown.
+          example:
+            active:
+              total: 980
+              ground:
+                acars: 410
+                vdl: 260
+                hfdl: 90
+            inactive:
+              total: 180
+            pending-reception:
+              total: 60
+            secret:
+              total: 20
+      required:
+        - total
+        - byStatus
+    CountWrapperDto:
+      type: object
+      properties:
+        total:
+          type: number
+          example: 0
+      required:
+        - total
+    FlightCountsDto:
+      type: object
+      properties:
+        active:
+          type: number
+          example: 320
+          description: Currently active flights
+        total:
+          type: number
+          example: 1850320
+          description: Total flights recorded
+      required:
+        - active
+        - total
+    AirframesStatsDto:
+      type: object
+      properties:
+        airframes:
+          $ref: '#/components/schemas/CountWrapperDto'
+        flights:
+          $ref: '#/components/schemas/FlightCountsDto'
+      required:
+        - airframes
+        - flights
+    VoyageCountsDto:
+      type: object
+      properties:
+        active:
+          type: number
+          example: 540
+          description: Currently active voyages
+        total:
+          type: number
+          example: 92010
+          description: Total voyages recorded
+      required:
+        - active
+        - total
+    MarineStatsDto:
+      type: object
+      properties:
+        voyages:
+          $ref: '#/components/schemas/VoyageCountsDto'
+      required:
+        - voyages
+    SondeFlightCountsDto:
+      type: object
+      properties:
+        active:
+          type: number
+          example: 75
+          description: Currently active sonde flights
+        total:
+          type: number
+          example: 41200
+          description: Total sonde flights recorded
+      required:
+        - active
+        - total
+    SondeStatsDto:
+      type: object
+      properties:
+        flights:
+          $ref: '#/components/schemas/SondeFlightCountsDto'
+      required:
+        - flights
+    PlatformStatsDto:
+      type: object
+      properties:
+        stations:
+          $ref: '#/components/schemas/StationsStatsDto'
+        airframes:
+          $ref: '#/components/schemas/AirframesStatsDto'
+        marine:
+          $ref: '#/components/schemas/MarineStatsDto'
+        sonde:
+          $ref: '#/components/schemas/SondeStatsDto'
+      required:
+        - stations
+        - airframes
+        - marine
+        - sonde
+    PlatformStatsResponseDto:
+      type: object
+      properties:
+        stats:
+          $ref: '#/components/schemas/PlatformStatsDto'
+      required:
+        - stats
     CreateCheckoutDto:
       type: object
       properties: {}
@@ -3476,12 +4610,576 @@ components:
     CancelSponsorDto:
       type: object
       properties: {}
+    DecodeCoverageSourceTypeDto:
+      type: object
+      properties:
+        source_type:
+          type: string
+          example: acars
+        messages:
+          type: number
+          example: 1250340
+        decodings:
+          type: number
+          example: 980210
+        positions:
+          type: number
+          example: 145200
+        position_pct:
+          type: number
+          example: 11.6
+          description: Percentage of messages with a position
+      required:
+        - source_type
+        - messages
+        - decodings
+        - positions
+        - position_pct
+    DecodeCoverageDecoderDto:
+      type: object
+      properties:
+        decoder_name:
+          type: string
+          example: libacars
+        decoder_type:
+          type: string
+          example: acars
+        count:
+          type: number
+          example: 532010
+      required:
+        - decoder_name
+        - decoder_type
+        - count
+    DecodeCoverageResponseDto:
+      type: object
+      properties:
+        total_messages:
+          type: number
+          example: 2500000
+        total_decodings:
+          type: number
+          example: 1800000
+        messages_with_decodings:
+          type: number
+          example: 1650000
+        coverage_pct:
+          type: number
+          example: 66
+          description: Percentage of messages with at least one decoding
+        positions_total:
+          type: number
+          example: 210400
+        position_rate_pct:
+          type: number
+          example: 8.4
+          description: Percentage of messages that carry a position
+        decoder_types:
+          type: number
+          example: 6
+        by_source_type:
+          type: array
+          items:
+            $ref: '#/components/schemas/DecodeCoverageSourceTypeDto'
+        by_decoder:
+          type: array
+          items:
+            $ref: '#/components/schemas/DecodeCoverageDecoderDto'
+      required:
+        - total_messages
+        - total_decodings
+        - messages_with_decodings
+        - coverage_pct
+        - positions_total
+        - position_rate_pct
+        - decoder_types
+        - by_source_type
+        - by_decoder
+    DecodeLabelEntryDto:
+      type: object
+      properties:
+        label:
+          type: string
+          example: H1
+        total:
+          type: number
+          example: 84200
+        decoded:
+          type: number
+          example: 61300
+        undecoded:
+          type: number
+          example: 22900
+        coverage_pct:
+          type: number
+          example: 72.8
+        decoders_used:
+          example:
+            - libacars
+            - acarsdec
+          type: array
+          items:
+            type: string
+      required:
+        - label
+        - total
+        - decoded
+        - undecoded
+        - coverage_pct
+        - decoders_used
+    DecodeLabelCoverageResponseDto:
+      type: object
+      properties:
+        labels:
+          type: array
+          items:
+            $ref: '#/components/schemas/DecodeLabelEntryDto'
+      required:
+        - labels
+    DecodePositionEntryDto:
+      type: object
+      properties:
+        message_id:
+          type: number
+          example: 1048576
+        lat:
+          type: number
+          example: 37.6189
+        lon:
+          type: number
+          example: -122.375
+        alt:
+          type: number
+          example: 35000
+          nullable: true
+        source_type:
+          type: string
+          example: acars
+        tail:
+          type: string
+          example: N12345
+          nullable: true
+        flight:
+          type: string
+          example: UAL123
+          nullable: true
+        decoder:
+          type: string
+          example: libacars
+        timestamp:
+          type: string
+          example: '2026-06-05T12:34:56.000Z'
+      required:
+        - message_id
+        - lat
+        - lon
+        - alt
+        - source_type
+        - tail
+        - flight
+        - decoder
+        - timestamp
+    DecodePositionsResponseDto:
+      type: object
+      properties:
+        positions:
+          type: array
+          items:
+            $ref: '#/components/schemas/DecodePositionEntryDto'
+      required:
+        - positions
     FlagStationDto:
       type: object
       properties: {}
+    StationRankEntryDto:
+      type: object
+      properties:
+        rank:
+          type: number
+          example: 1
+        stationId:
+          type: number
+          example: 1024
+        stationIdent:
+          type: string
+          example: KSFO-1
+        countryCode:
+          type: string
+          example: US
+        flagEmoji:
+          type: string
+          example: 🇺🇸
+        sourceType:
+          type: string
+          example: acars
+        userId:
+          type: string
+          example: a1b2c3d4-0000-0000-0000-000000000001
+          nullable: true
+        username:
+          type: string
+          example: kevin
+          nullable: true
+        count:
+          type: number
+          example: 184230
+          description: >-
+            Primary ranking value for this entry (message count, distinct count, or composite score
+            depending on category).
+        messagesCount:
+          type: number
+          example: 184230
+        entitiesCount:
+          type: number
+          example: 4210
+        tracksCount:
+          type: number
+          example: 3120
+        maxDistanceNm:
+          type: number
+          example: 312.4
+        activeStreakDays:
+          type: number
+          example: 42
+        uptimePercent:
+          type: number
+          example: 98
+        coverageAreaSqNm:
+          type: number
+          example: 1250.5
+        uniqueFrequencies:
+          type: number
+          example: 12
+        peakHour:
+          type: number
+          example: 14
+      required:
+        - rank
+        - stationId
+        - stationIdent
+        - countryCode
+        - flagEmoji
+        - sourceType
+        - userId
+        - username
+        - count
+    UserRankEntryDto:
+      type: object
+      properties:
+        rank:
+          type: number
+          example: 1
+        userId:
+          type: string
+          example: a1b2c3d4-0000-0000-0000-000000000001
+        username:
+          type: string
+          example: kevin
+        gravatarUrl:
+          type: string
+          example: https://www.gravatar.com/avatar/abcdef0123456789?s=100
+        stationCount:
+          type: number
+          example: 3
+        count:
+          type: number
+          example: 412300
+          description: >-
+            Primary ranking value for this user (summed count or composite score depending on
+            category).
+        messagesCount:
+          type: number
+          example: 412300
+        entitiesCount:
+          type: number
+          example: 8210
+        tracksCount:
+          type: number
+          example: 6120
+        maxDistanceNm:
+          type: number
+          example: 312.4
+        bestStreakDays:
+          type: number
+          example: 42
+        avgUptimePercent:
+          type: number
+          example: 96
+      required:
+        - rank
+        - userId
+        - username
+        - gravatarUrl
+        - stationCount
+        - count
+    LeaderboardMetaDto:
+      type: object
+      properties:
+        updatedAt:
+          type: string
+          example: '2026-06-05T12:00:00.000Z'
+        computeDurationMs:
+          type: number
+          example: 1842
+          description: Computation duration in milliseconds
+        aircraftStationCount:
+          type: number
+          example: 980
+        marineStationCount:
+          type: number
+          example: 240
+        totalStationCount:
+          type: number
+          example: 1220
+      required:
+        - updatedAt
+        - computeDurationMs
+        - aircraftStationCount
+        - marineStationCount
+        - totalStationCount
+    LeaderboardResponseDto:
+      type: object
+      properties:
+        updatedAt:
+          type: string
+          example: '2026-06-05T12:00:00.000Z'
+        domain:
+          type: string
+          example: aircraft
+          enum:
+            - aircraft
+            - marine
+            - combined
+        view:
+          type: string
+          example: station
+          enum:
+            - station
+            - user
+        category:
+          type: string
+          example: messages
+          description: >-
+            Ranking category. Valid values depend on the domain (e.g. messages, airframes, flights,
+            vessels, voyages, entities, tracks, composite).
+        timeframe:
+          type: string
+          example: 30d
+          enum:
+            - 24h
+            - 30d
+            - all-time
+        entries:
+          type: array
+          description: >-
+            Ranked entries. Station views return StationRankEntryDto items; user views return
+            UserRankEntryDto items.
+          items:
+            oneOf:
+              - $ref: '#/components/schemas/StationRankEntryDto'
+              - $ref: '#/components/schemas/UserRankEntryDto'
+      required:
+        - updatedAt
+        - domain
+        - view
+        - category
+        - timeframe
+        - entries
     UpdateDmNotificationPreferenceDto:
       type: object
       properties: {}
+    FrequencyUsageSummaryDto:
+      type: object
+      properties:
+        period:
+          type: string
+          example: day
+          enum:
+            - day
+            - week
+            - month
+            - year
+        periodStart:
+          type: string
+          example: '2026-06-05T00:00:00.000Z'
+        periodEnd:
+          type: string
+          example: '2026-06-06T00:00:00.000Z'
+        calculatedAt:
+          type: string
+          example: '2026-06-05T12:00:00.000Z'
+        messageCount:
+          type: number
+          example: 1850320
+        stationFrequencyCount:
+          type: number
+          example: 4210
+        frequencyCountryCount:
+          type: number
+          example: 920
+        protocolCount:
+          type: number
+          example: 5
+        countryCount:
+          type: number
+          example: 84
+      required:
+        - period
+        - periodStart
+        - periodEnd
+        - calculatedAt
+        - messageCount
+        - stationFrequencyCount
+        - frequencyCountryCount
+        - protocolCount
+        - countryCount
+    FrequencyUsageProtocolFilterDto:
+      type: object
+      properties:
+        protocol:
+          type: string
+          example: acars
+        messageCount:
+          type: number
+          example: 920310
+      required:
+        - protocol
+        - messageCount
+    FrequencyUsageCountryFilterDto:
+      type: object
+      properties:
+        countryCode:
+          type: string
+          example: US
+        countryName:
+          type: string
+          example: United States
+        messageCount:
+          type: number
+          example: 740120
+      required:
+        - countryCode
+        - countryName
+        - messageCount
+    FrequencyUsageFiltersDto:
+      type: object
+      properties:
+        protocols:
+          type: array
+          items:
+            $ref: '#/components/schemas/FrequencyUsageProtocolFilterDto'
+        countries:
+          type: array
+          items:
+            $ref: '#/components/schemas/FrequencyUsageCountryFilterDto'
+      required:
+        - protocols
+        - countries
+    FrequencyUsageRowDto:
+      type: object
+      properties:
+        period:
+          type: string
+          example: day
+        periodStart:
+          type: string
+          example: '2026-06-05T00:00:00.000Z'
+        periodEnd:
+          type: string
+          example: '2026-06-06T00:00:00.000Z'
+        calculatedAt:
+          type: string
+          example: '2026-06-05T12:00:00.000Z'
+        protocol:
+          type: string
+          example: acars
+        countryCode:
+          type: string
+          example: US
+        countryName:
+          type: string
+          example: United States
+        frequency:
+          type: string
+          example: '131.550'
+        messageCount:
+          type: number
+          example: 18240
+        stationCount:
+          type: number
+          example: 42
+      required:
+        - period
+        - periodStart
+        - periodEnd
+        - calculatedAt
+        - protocol
+        - countryCode
+        - countryName
+        - frequency
+        - messageCount
+        - stationCount
+    FrequencyUsageResponseDto:
+      type: object
+      properties:
+        period:
+          type: string
+          example: day
+          enum:
+            - day
+            - week
+            - month
+            - year
+        periodStart:
+          type: string
+          example: '2026-06-05T00:00:00.000Z'
+          nullable: true
+        periodEnd:
+          type: string
+          example: '2026-06-06T00:00:00.000Z'
+          nullable: true
+        calculatedAt:
+          type: string
+          example: '2026-06-05T12:00:00.000Z'
+          nullable: true
+        summary:
+          type: array
+          items:
+            $ref: '#/components/schemas/FrequencyUsageSummaryDto'
+        filters:
+          $ref: '#/components/schemas/FrequencyUsageFiltersDto'
+        rows:
+          type: array
+          items:
+            $ref: '#/components/schemas/FrequencyUsageRowDto'
+      required:
+        - period
+        - periodStart
+        - periodEnd
+        - calculatedAt
+        - summary
+        - filters
+        - rows
+    ApiError:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          example: 429
+        message:
+          description: Error message, or an array of validation messages.
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+          example: Too Many Requests
+        error:
+          type: string
+          example: Too Many Requests
+        timestamp:
+          type: string
+          format: date-time
 externalDocs:
   description: Airframes Docs
   url: https://docs.airframes.io/api

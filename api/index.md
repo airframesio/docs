@@ -31,6 +31,7 @@ See [Pricing](./pricing.md) for current access tiers.
 Our API provides access to:
 
 - **Flights** - Active, live and historical flights, with events, messages and position trails
+- **Routes** - Flown tracks and great-circle routes (`/airframes/flights/{id}/route`, `/airframes/routes`)
 - **Messages** - ACARS messages, OOOI reports, and aircraft communications
 - **ACARS / VDL / HFDL** - Protocol-specific message and ground-station data
 - **Decode** - On-demand decoding of raw ACARS payloads
@@ -55,6 +56,7 @@ path** and should be preferred for new integrations.
 1. Browse the [Interactive API Reference](/api-reference) or the [OpenAPI specification](./openapi.yaml) for detailed endpoint documentation
 2. Contact us for API access and authentication credentials
 3. Start making requests to the REST endpoints under `/v1`
+4. For live data, see [Realtime / Streaming](./realtime.md)
 
 ## Base URLs
 
