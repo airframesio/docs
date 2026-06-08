@@ -51,6 +51,30 @@ All endpoints are served under the **`/v1`** prefix (for example
 endpoints also respond without the prefix, but **`/v1` is the documented, stable
 path** and should be preferred for new integrations.
 
+## Conventions
+
+- **Authentication is optional on public data endpoints** — they work
+  anonymously, but sending your API key (`Authorization: Bearer …` or
+  `X-API-KEY`) applies your tier's higher rate limits and attributes usage to
+  your account.
+- **Pagination** — list endpoints accept `limit`/`offset` (or `page`/`limit`, or
+  cursor `before_id`) and return `X-Total-Count` / `X-Result-Count` /
+  `X-Page` / `X-Per-Page` / `X-Total-Pages` headers.
+- **Time ranges** — time-filtered endpoints accept `since` / `until` (ISO-8601).
+- **Rate limits** — `X-RateLimit-Limit` / `X-RateLimit-Remaining` /
+  `X-RateLimit-Reset` (and `Retry-After` on `429`). Every response includes an
+  `X-Request-ID`.
+- **Conditional requests** — responses carry an `ETag`; send it back as
+  `If-None-Match` to get a `304 Not Modified` and save bandwidth.
+- **Errors** use a consistent shape: `{ statusCode, message, error, timestamp }`.
+
+## Tooling
+
+The [OpenAPI specification](./openapi.yaml) can be imported directly into
+**Postman**, **Insomnia**, or any OpenAPI 3 client to generate a ready-to-use
+request collection, or fed to an OpenAPI code generator to produce a client SDK
+in your language.
+
 ## Getting Started
 
 1. Browse the [Interactive API Reference](/api-reference) or the [OpenAPI specification](./openapi.yaml) for detailed endpoint documentation

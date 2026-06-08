@@ -14,7 +14,7 @@ paths:
             All health indicators are up. Returns a Terminus health-check result with status "ok"
             and per-indicator details (e.g. db_master, redis, api_memory_heap, api_memory_rss,
             api_disk_space).
-        '429': &ref_0
+        '429': &ref_1
           description: >-
             Rate limit exceeded (60 requests/min per client IP by default; some endpoints override
             this). See the X-RateLimit-* and Retry-After headers.
@@ -35,7 +35,7 @@ paths:
               description: Seconds until the window resets.
               schema:
                 type: integer
-          content: &ref_3
+          content: &ref_0
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
@@ -62,7 +62,13 @@ paths:
       responses:
         '201':
           description: The decoded ACARS message payload. Structure varies by label and message content.
-        '429': *ref_0
+        '401': &ref_2
+          description: Authentication required or the credentials are invalid.
+          content: *ref_0
+        '429': *ref_1
+      security:
+        - api-key: []
+        - bearer: []
       summary: Decode an ACARS message
       tags:
         - ACARS
@@ -100,9 +106,13 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Airline'
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
+      security: &ref_3
+        - api-key: []
+        - bearer: []
       summary: List airlines
-      tags: &ref_1
+      tags: &ref_4
         - Airlines
   /v1/airlines/{id}:
     get:
@@ -123,9 +133,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Airline'
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
+      security: *ref_3
       summary: Get airline by ID
-      tags: *ref_1
+      tags: *ref_4
   /v1/airlines/icao/{icao}:
     get:
       description: >-
@@ -147,9 +159,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Airline'
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
+      security: *ref_3
       summary: Get airline by ICAO code
-      tags: *ref_1
+      tags: *ref_4
   /v1/airlines/iata/{iata}:
     get:
       description: >-
@@ -173,9 +187,11 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Airline'
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
+      security: *ref_3
       summary: List airlines by IATA code
-      tags: *ref_1
+      tags: *ref_4
   /v1/airframes/routes:
     get:
       description: >-
@@ -216,11 +232,15 @@ paths:
                 $ref: '#/components/schemas/GreatCircleRouteResponseDto'
         '400':
           description: Missing `from`/`to`.
+        '401': *ref_2
         '404':
           description: Unknown airport.
-        '429': *ref_0
+        '429': *ref_1
+      security: &ref_5
+        - api-key: []
+        - bearer: []
       summary: Great-circle route between two airports
-      tags: &ref_2
+      tags: &ref_6
         - Routes
   /v1/airframes/flights/{id}/route:
     get:
@@ -266,11 +286,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/FlightRouteResponseDto'
+        '401': *ref_2
         '404':
           description: Flight not found.
-        '429': *ref_0
+        '429': *ref_1
+      security: *ref_5
       summary: Route for a flight
-      tags: *ref_2
+      tags: *ref_6
   /v1/flights:
     get:
       description: >-
@@ -294,9 +316,9 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Flight'
-        '429': *ref_0
+        '429': *ref_1
       summary: List recent flights
-      tags: &ref_4
+      tags: &ref_7
         - Flights
   /v1/flights/active:
     get:
@@ -329,15 +351,13 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Flight'
-        '401': &ref_5
-          description: Authentication required or the credentials are invalid.
-          content: *ref_3
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
       security:
         - api-key: []
         - bearer: []
       summary: List active flights
-      tags: *ref_4
+      tags: *ref_7
   /v1/flights/active/{id}:
     get:
       description: >-
@@ -359,9 +379,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Flight'
-        '429': *ref_0
+        '429': *ref_1
       summary: Get an active flight by id
-      tags: *ref_4
+      tags: *ref_7
   /v1/flights/live:
     get:
       description: >-
@@ -392,13 +412,13 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/LiveFlightDto'
-        '401': *ref_5
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
       security:
         - api-key: []
         - bearer: []
       summary: List live flights from cache
-      tags: *ref_4
+      tags: *ref_7
   /v1/flights/live/{cacheId}:
     get:
       description: >-
@@ -423,13 +443,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/LiveFlightDto'
-        '401': *ref_5
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
       security:
         - api-key: []
         - bearer: []
       summary: Get a live flight with trail
-      tags: *ref_4
+      tags: *ref_7
   /v1/flights/{id}/messages:
     get:
       description: >-
@@ -474,9 +494,9 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Message'
-        '429': *ref_0
+        '429': *ref_1
       summary: List messages for a flight
-      tags: *ref_4
+      tags: *ref_7
   /v1/flights/{id}/events:
     get:
       description: >-
@@ -500,9 +520,9 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/FlightEvent'
-        '429': *ref_0
+        '429': *ref_1
       summary: List events for a flight
-      tags: *ref_4
+      tags: *ref_7
   /v1/flights/{id}/positions:
     get:
       description: >-
@@ -534,9 +554,9 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/FlightPosition'
-        '429': *ref_0
+        '429': *ref_1
       summary: List positions for a flight
-      tags: *ref_4
+      tags: *ref_7
   /v1/flights/{id}:
     get:
       description: >-
@@ -569,9 +589,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Flight'
-        '429': *ref_0
+        '429': *ref_1
       summary: Get flight detail by id
-      tags: *ref_4
+      tags: *ref_7
   /v1/flights/bbox/{xmin},{ymin},{xmax},{ymax}:
     get:
       description: >-
@@ -616,13 +636,13 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Flight'
-        '401': *ref_5
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
       security:
         - api-key: []
         - bearer: []
       summary: List flights within a bounding box
-      tags: *ref_4
+      tags: *ref_7
   /v1/airframes:
     get:
       description: >-
@@ -673,9 +693,13 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Airframe'
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
+      security: &ref_8
+        - api-key: []
+        - bearer: []
       summary: List airframes
-      tags: &ref_6
+      tags: &ref_9
         - Airframes
   /v1/airframes/{id}:
     get:
@@ -696,9 +720,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Airframe'
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
+      security: *ref_8
       summary: Get airframe by ID
-      tags: *ref_6
+      tags: *ref_9
   /v1/airframes/tail/{tail}:
     get:
       description: >-
@@ -720,9 +746,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Airframe'
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
+      security: *ref_8
       summary: Get airframe by tail number
-      tags: *ref_6
+      tags: *ref_9
   /v1/airframes/icao/{icao}:
     get:
       description: >-
@@ -744,9 +772,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Airframe'
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
+      security: *ref_8
       summary: Get airframe by ICAO code
-      tags: *ref_6
+      tags: *ref_9
   /v1/airframes/iata/{iata}:
     get:
       description: Returns a single airframe matching the given IATA code. Result is cached for 1 hour.
@@ -766,9 +796,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Airframe'
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
+      security: *ref_8
       summary: Get airframe by IATA code
-      tags: *ref_6
+      tags: *ref_9
   /v1/airports:
     get:
       description: Returns a paginated list of airports, ICAO-ordered. Results are cached for 6 hours.
@@ -797,9 +829,15 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Airport'
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
+      security: &ref_10
+        - &ref_12
+          api-key: []
+        - &ref_13
+          bearer: []
       summary: List airports
-      tags: &ref_7
+      tags: &ref_11
         - Airports
   /v1/airports/{id}:
     get:
@@ -824,9 +862,11 @@ paths:
                 $ref: '#/components/schemas/Airport'
         '400':
           description: The provided ID is not a valid UUID.
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
+      security: *ref_10
       summary: Get airport by ID
-      tags: *ref_7
+      tags: *ref_11
   /v1/airports/icao/{icao}:
     get:
       description: >-
@@ -848,9 +888,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Airport'
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
+      security: *ref_10
       summary: Get airport by ICAO code
-      tags: *ref_7
+      tags: *ref_11
   /v1/airports/iata/{iata}:
     get:
       description: >-
@@ -872,9 +914,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Airport'
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
+      security: *ref_10
       summary: Get airport by IATA code
-      tags: *ref_7
+      tags: *ref_11
   /v1/airports/ident/{ident}:
     get:
       description: >-
@@ -896,9 +940,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Airport'
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
+      security: *ref_10
       summary: Get airport by ident
-      tags: *ref_7
+      tags: *ref_11
   /v1/airports/type/{type}:
     get:
       description: Returns all airports matching the given airport type. Results are cached for 6 hours.
@@ -920,9 +966,11 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Airport'
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
+      security: *ref_10
       summary: List airports by type
-      tags: *ref_7
+      tags: *ref_11
   /v1/airports/bbox/{xmin},{ymin},{xmax},{ymax}:
     get:
       description: >-
@@ -968,9 +1016,11 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Airport'
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
+      security: *ref_10
       summary: List airports within a bounding box
-      tags: *ref_7
+      tags: *ref_11
   /v1/airports/{icao}/flights:
     get:
       description: >-
@@ -994,13 +1044,15 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Flight'
-        '401': *ref_5
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
       security:
+        - *ref_12
+        - *ref_13
         - api-key: []
         - bearer: []
       summary: List flights for an airport
-      tags: *ref_7
+      tags: *ref_11
   /v1/hfdl/ground-stations:
     get:
       description: >-
@@ -1014,7 +1066,11 @@ paths:
           description: >-
             JSON-encoded string containing a "ground_stations" array, each entry with id, name,
             active frequencies, and last_updated.
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
+      security:
+        - api-key: []
+        - bearer: []
       summary: List HFDL ground stations with active frequencies
       tags:
         - HFDL
@@ -1041,9 +1097,15 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/MarineVoyage'
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
+      security: &ref_17
+        - &ref_14
+          api-key: []
+        - &ref_15
+          bearer: []
       summary: List marine voyages
-      tags: &ref_8
+      tags: &ref_16
         - Marine
   /v1/marine/voyages/active:
     get:
@@ -1061,13 +1123,15 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/MarineVoyage'
-        '401': *ref_5
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
       security:
+        - *ref_14
+        - *ref_15
         - api-key: []
         - bearer: []
       summary: List active marine voyages
-      tags: *ref_8
+      tags: *ref_16
   /v1/marine/voyages/{id}:
     get:
       description: Returns a single marine voyage by its unique identifier.
@@ -1087,9 +1151,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/MarineVoyage'
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
+      security: *ref_17
       summary: Get a marine voyage by ID
-      tags: *ref_8
+      tags: *ref_16
   /v1/marine/voyages/{id}/positions:
     get:
       description: >-
@@ -1122,9 +1188,11 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/MarineVoyagePosition'
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
+      security: *ref_17
       summary: Get position reports for a marine voyage
-      tags: *ref_8
+      tags: *ref_16
   /v1/marine/voyages/{id}/messages:
     get:
       description: >-
@@ -1155,9 +1223,11 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/MarineMessage'
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
+      security: *ref_17
       summary: Get AIS messages for a marine voyage
-      tags: *ref_8
+      tags: *ref_16
   /v1/marine/voyages/bbox/{xmin},{ymin},{xmax},{ymax}:
     get:
       description: >-
@@ -1203,13 +1273,15 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/MarineVoyage'
-        '401': *ref_5
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
       security:
+        - *ref_14
+        - *ref_15
         - api-key: []
         - bearer: []
       summary: List marine voyages within a bounding box
-      tags: *ref_8
+      tags: *ref_16
   /v1/marine/vessels/{mmsi}:
     get:
       description: >-
@@ -1231,9 +1303,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/MarineVessel'
+        '401': *ref_2
         '404':
           description: No marine vessel found for the given MMSI.
-        '429': *ref_0
+        '429': *ref_1
+      security:
+        - api-key: []
+        - bearer: []
       summary: Get a marine vessel by MMSI
       tags:
         - Marine
@@ -1374,13 +1450,13 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Message'
-        '401': *ref_5
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
       security:
         - api-key: []
         - bearer: []
       summary: List messages
-      tags: &ref_9
+      tags: &ref_18
         - Messages
   /v1/messages/{id}:
     get:
@@ -1403,9 +1479,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Message'
-        '429': *ref_0
+        '429': *ref_1
       summary: Get a message by ID
-      tags: *ref_9
+      tags: *ref_18
   /v1/messages/ar_uuid/{id}:
     get:
       description: >-
@@ -1427,9 +1503,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Message'
-        '429': *ref_0
+        '429': *ref_1
       summary: Get a message by Airframes UUID (ar_uuid)
-      tags: *ref_9
+      tags: *ref_18
   /v1/sonde/flights:
     get:
       description: >-
@@ -1453,9 +1529,15 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/SondeFlight'
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
+      security: &ref_22
+        - &ref_19
+          api-key: []
+        - &ref_20
+          bearer: []
       summary: List sonde flights
-      tags: &ref_10
+      tags: &ref_21
         - Sonde
   /v1/sonde/flights/active:
     get:
@@ -1473,13 +1555,15 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/SondeFlight'
-        '401': *ref_5
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
       security:
+        - *ref_19
+        - *ref_20
         - api-key: []
         - bearer: []
       summary: List active sonde flights
-      tags: *ref_10
+      tags: *ref_21
   /v1/sonde/flights/{id}:
     get:
       description: Returns a single weather balloon flight by its unique identifier.
@@ -1499,9 +1583,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SondeFlight'
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
+      security: *ref_22
       summary: Get a sonde flight by ID
-      tags: *ref_10
+      tags: *ref_21
   /v1/sonde/flights/{id}/positions:
     get:
       description: >-
@@ -1534,9 +1620,11 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/SondeFlightPosition'
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
+      security: *ref_22
       summary: List position reports for a sonde flight
-      tags: *ref_10
+      tags: *ref_21
   /v1/sonde/flights/{id}/messages:
     get:
       description: >-
@@ -1567,9 +1655,11 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/SondeMessage'
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
+      security: *ref_22
       summary: List telemetry messages for a sonde flight
-      tags: *ref_10
+      tags: *ref_21
   /v1/sonde/flights/bbox/{xmin},{ymin},{xmax},{ymax}:
     get:
       description: >-
@@ -1615,13 +1705,15 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/SondeFlight'
-        '401': *ref_5
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
       security:
+        - *ref_19
+        - *ref_20
         - api-key: []
         - bearer: []
       summary: List sonde flights within a bounding box
-      tags: *ref_10
+      tags: *ref_21
   /v1/sonde/sites:
     get:
       description: >-
@@ -1645,9 +1737,13 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/SondeSite'
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
+      security: &ref_23
+        - api-key: []
+        - bearer: []
       summary: List sonde launch sites
-      tags: &ref_11
+      tags: &ref_24
         - Sonde
   /v1/sonde/sites/{id}:
     get:
@@ -1668,11 +1764,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SondeSite'
+        '401': *ref_2
         '404':
           description: No sonde launch site exists with the given ID.
-        '429': *ref_0
+        '429': *ref_1
+      security: *ref_23
       summary: Get a sonde launch site by ID
-      tags: *ref_11
+      tags: *ref_24
   /v1/sonde/sondes/{serial}:
     get:
       description: Returns a single radiosonde (weather balloon transmitter) by its serial number.
@@ -1692,9 +1790,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Sonde'
+        '401': *ref_2
         '404':
           description: No radiosonde exists with the given serial number.
-        '429': *ref_0
+        '429': *ref_1
+      security:
+        - api-key: []
+        - bearer: []
       summary: Get a radiosonde by serial number
       tags:
         - Sonde
@@ -1716,9 +1818,13 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Station'
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
+      security: &ref_25
+        - api-key: []
+        - bearer: []
       summary: List all stations
-      tags: &ref_12
+      tags: &ref_26
         - Stations
   /v1/stations/{id}:
     get:
@@ -1744,9 +1850,11 @@ paths:
                 $ref: '#/components/schemas/Station'
         '400':
           description: The station ID is malformed (must be a positive integer).
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
+      security: *ref_25
       summary: Get a station by numeric ID
-      tags: *ref_12
+      tags: *ref_26
   /v1/stations/counts_24_hours:
     get:
       description: >-
@@ -1760,9 +1868,11 @@ paths:
           description: >-
             Array of computed objects with station_id, ident, fuzzed_latitude, fuzzed_longitude, and
             messages_count (count as a string).
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
+      security: *ref_25
       summary: List stations with 24-hour message counts
-      tags: *ref_12
+      tags: *ref_26
   /v1/stations/ident/{ident}:
     get:
       description: >-
@@ -1784,9 +1894,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Station'
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
+      security: *ref_25
       summary: Get a station by ident
-      tags: *ref_12
+      tags: *ref_26
   /v1/stations/{id}/coverage:
     get:
       description: >-
@@ -1815,11 +1927,13 @@ paths:
           description: GeoJSON FeatureCollection with the coverage polygon.
         '400':
           description: Invalid station ID or invalid time filter.
+        '401': *ref_2
         '404':
           description: Station not found.
-        '429': *ref_0
+        '429': *ref_1
+      security: *ref_25
       summary: Get station coverage polygon
-      tags: *ref_12
+      tags: *ref_26
   /v1/acars/stats:
     get:
       description: >-
@@ -1834,7 +1948,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AcarsStatsResponseDto'
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
+      security:
+        - api-key: []
+        - bearer: []
       summary: Get ACARS statistics
       tags:
         - Stats
@@ -1855,13 +1973,13 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Flight'
-        '401': *ref_5
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
       security:
         - api-key: []
         - bearer: []
       summary: List active flights
-      tags: &ref_13
+      tags: &ref_27
         - Flights
   /v1/airframes/flights/{id}:
     get:
@@ -1882,13 +2000,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Flight'
-        '401': *ref_5
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
       security:
         - api-key: []
         - bearer: []
       summary: Get a flight by id
-      tags: *ref_13
+      tags: *ref_27
   /v1/airframes/flights/bbox/{xmin},{ymin},{xmax},{ymax}:
     get:
       description: >-
@@ -1933,13 +2051,13 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Flight'
-        '401': *ref_5
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
       security:
         - api-key: []
         - bearer: []
       summary: List flights within a bounding box
-      tags: *ref_13
+      tags: *ref_27
   /v1/airframes/flights/active/arrdep:
     get:
       description: >-
@@ -1956,9 +2074,9 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Flight'
-        '429': *ref_0
+        '429': *ref_1
       summary: List active flights with arrival/departure data
-      tags: *ref_13
+      tags: *ref_27
   /v1/stats:
     get:
       description: >-
@@ -1973,7 +2091,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PlatformStatsResponseDto'
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
+      security:
+        - api-key: []
+        - bearer: []
       summary: Get platform statistics
       tags:
         - Stats
@@ -2013,7 +2135,11 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Flight'
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
+      security:
+        - api-key: []
+        - bearer: []
       summary: Get nearby aircraft for a Tidbyt display
       tags:
         - Tidbyt
@@ -2027,9 +2153,13 @@ paths:
       responses:
         '200':
           description: All VDL ground stations as a serialized JSON object.
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
+      security: &ref_28
+        - api-key: []
+        - bearer: []
       summary: List all VDL ground stations
-      tags: &ref_14
+      tags: &ref_29
         - VDL
   /v1/vdl/stations/geojson:
     get:
@@ -2041,9 +2171,11 @@ paths:
       responses:
         '200':
           description: A GeoJSON FeatureCollection of VDL ground stations (Point features).
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
+      security: *ref_28
       summary: List all VDL ground stations as GeoJSON
-      tags: *ref_14
+      tags: *ref_29
   /v1/vdl/stations/{id}:
     get:
       description: >-
@@ -2061,9 +2193,11 @@ paths:
       responses:
         '200':
           description: The VDL ground station with the given ID.
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
+      security: *ref_28
       summary: Get a VDL ground station by ID
-      tags: *ref_14
+      tags: *ref_29
   /v1/decode/coverage:
     get:
       operationId: getCoverage
@@ -2075,9 +2209,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DecodeCoverageResponseDto'
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
+      security: &ref_30
+        - api-key: []
+        - bearer: []
       summary: Overall decode coverage statistics
-      tags: &ref_15
+      tags: &ref_31
         - Decode
   /v1/decode/coverage/labels:
     get:
@@ -2090,9 +2228,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DecodeLabelCoverageResponseDto'
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
+      security: *ref_30
       summary: Per-label decode coverage
-      tags: *ref_15
+      tags: *ref_31
   /v1/decode/positions/recent:
     get:
       operationId: getRecentPositions
@@ -2132,9 +2272,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DecodePositionsResponseDto'
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
+      security: *ref_30
       summary: Recent decoded positions for map display
-      tags: *ref_15
+      tags: *ref_31
   /v1/leaderboard/v2/meta:
     get:
       description: >-
@@ -2150,9 +2292,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/LeaderboardMetaDto'
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
+      security: &ref_32
+        - api-key: []
+        - bearer: []
       summary: Get leaderboard metadata
-      tags: &ref_16
+      tags: &ref_33
         - Leaderboard
   /v1/leaderboard/v2/performance/{view}:
     get:
@@ -2174,9 +2320,11 @@ paths:
           description: Computed performance object, or {} if no data is available.
         '400':
           description: Invalid view value.
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
+      security: *ref_32
       summary: Get performance leaderboard
-      tags: *ref_16
+      tags: *ref_33
   /v1/leaderboard/v2/hall-of-fame/months:
     get:
       description: >-
@@ -2187,9 +2335,11 @@ paths:
       responses:
         '200':
           description: 'Object of the form { months: ["2026-02", ...] }.'
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
+      security: *ref_32
       summary: List hall-of-fame months
-      tags: *ref_16
+      tags: *ref_33
   /v1/leaderboard/v2/hall-of-fame:
     get:
       description: >-
@@ -2210,9 +2360,11 @@ paths:
           description: Hall-of-fame object with champions and flounders for the month.
         '400':
           description: month is not in YYYY-MM format.
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
+      security: *ref_32
       summary: Get hall of fame
-      tags: *ref_16
+      tags: *ref_33
   /v1/leaderboard/v2/flounders:
     get:
       description: >-
@@ -2224,9 +2376,11 @@ paths:
       responses:
         '200':
           description: Object of the form { month, picks }.
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
+      security: *ref_32
       summary: Get current flounders
-      tags: *ref_16
+      tags: *ref_33
   /v1/leaderboard/v2/achievements/{userId}:
     get:
       description: >-
@@ -2245,9 +2399,11 @@ paths:
       responses:
         '200':
           description: Object of the form { userId, achievements }.
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
+      security: *ref_32
       summary: Get a user's achievements
-      tags: *ref_16
+      tags: *ref_33
   /v1/leaderboard/v2/{domain}/{view}/{category}/{timeframe}:
     get:
       description: >-
@@ -2298,9 +2454,11 @@ paths:
                 $ref: '#/components/schemas/LeaderboardResponseDto'
         '400':
           description: Invalid domain, view, category, or timeframe.
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
+      security: *ref_32
       summary: Get a leaderboard ranking
-      tags: *ref_16
+      tags: *ref_33
   /v1/leaderboard/v2/awards/trigger:
     post:
       description: >-
@@ -2327,9 +2485,11 @@ paths:
           description: Result of the award processing run.
         '400':
           description: month is missing or not in YYYY-MM format.
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
+      security: *ref_32
       summary: Trigger award processing for a month
-      tags: *ref_16
+      tags: *ref_33
   /v1/leaderboard/v2/awards/diagnose-flounders:
     get:
       description: >-
@@ -2347,9 +2507,11 @@ paths:
       responses:
         '200':
           description: Diagnostic object describing flounder award computation.
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
+      security: *ref_32
       summary: Diagnose flounder award computation
-      tags: *ref_16
+      tags: *ref_33
   /v1/leaderboard/v2/awards/materialize-daily-counts:
     post:
       description: >-
@@ -2367,9 +2529,11 @@ paths:
       responses:
         '201':
           description: Result of the materialization run.
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
+      security: *ref_32
       summary: Materialize daily counts for awards
-      tags: *ref_16
+      tags: *ref_33
   /v1/leaderboard/current:
     get:
       description: >-
@@ -2381,9 +2545,11 @@ paths:
       responses:
         '200':
           description: Legacy-shaped leaderboard object with current, next, and previous fields.
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
+      security: *ref_32
       summary: Get current leaderboard (legacy)
-      tags: *ref_16
+      tags: *ref_33
   /v1/leaderboard/{date}:
     get:
       description: >-
@@ -2402,9 +2568,11 @@ paths:
       responses:
         '200':
           description: Legacy-shaped leaderboard object (same as /leaderboard/current).
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
+      security: *ref_32
       summary: Get leaderboard by date (legacy)
-      tags: *ref_16
+      tags: *ref_33
   /v1/stats/frequency-usage:
     get:
       description: >-
@@ -2449,7 +2617,11 @@ paths:
                 $ref: '#/components/schemas/FrequencyUsageResponseDto'
         '400':
           description: Invalid period or invalid country code.
-        '429': *ref_0
+        '401': *ref_2
+        '429': *ref_1
+      security:
+        - api-key: []
+        - bearer: []
       summary: Get frequency usage statistics
       tags:
         - Stats
