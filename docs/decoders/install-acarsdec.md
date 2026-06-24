@@ -51,7 +51,7 @@ acarsdec --output json:udp:host=feed.acars.io,port=5550 -i MY-STATION-ACARS --rt
 |--------|-------------|
 | `--rtlsdr <device> f1 f2 ...` | RTL-SDR device number followed by frequencies (MHz) |
 | `--airspy <device> f1 f2 ...` | Airspy device number followed by frequencies |
-| `-output <format>` | Output format: see `--output help` for details |
+| `--output <format>` | Output format: see `--output help` for details |
 | `-i <station_id>` | Station identifier included in output messages |
 | `-g <gain>` | Tuner gain in dB (leave unset for AGC - not recommended) |
 | `-p <ppm>` | Frequency correction in PPM |
