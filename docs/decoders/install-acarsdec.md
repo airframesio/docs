@@ -29,55 +29,45 @@ sudo ldconfig
 ### Build acarsdec
 
 ```bash
-git clone https://github.com/TLeconte/acarsdec.git
+git clone https://github.com/f00b4r0/acarsdec.git
 cd acarsdec
 mkdir build && cd build
-cmake .. -Drtl=ON
+cmake ..
 make
 sudo make install
 ```
-
-Build options for other SDR hardware:
-- Airspy: `cmake .. -Dairspy=ON`
-- SDRplay: `cmake .. -Dsdrplay=ON`
-- SoapySDR: `cmake .. -Dsoapy=ON`
 
 ## Configuration
 
 ### Basic usage
 
 ```bash
-acarsdec -o 4 -j feed.airframes.io:5550 -i MY-STATION-ACARS -r 0 130.025 130.450 131.125 131.550
+acarsdec --output json:udp:host=feed.acars.io,port=5550 -i MY-STATION-ACARS --rtlsdr 0 130.025 130.450 131.125 131.550
 ```
 
 ### Key command-line options
 
 | Option | Description |
 |--------|-------------|
-| `-r <device> f1 f2 ...` | RTL-SDR device number followed by frequencies (MHz) |
-| `-s <device> f1 f2 ...` | Airspy device number followed by frequencies |
-| `-o <level>` | Output format: `0` none, `1` one-line, `2` full (default), `3` monitor, `4` JSON, `5` route JSON |
-| `-j <host:port>` | Send JSON messages via UDP to the specified destination |
+| `--rtlsdr <device> f1 f2 ...` | RTL-SDR device number followed by frequencies (MHz) |
+| `--airspy <device> f1 f2 ...` | Airspy device number followed by frequencies |
+| `--output <format>` | Output format: see `--output help` for details |
 | `-i <station_id>` | Station identifier included in output messages |
-| `-g <gain>` | Tuner gain in dB (use `-10` or values over `52` for AGC) |
+| `-g <gain>` | Tuner gain in dB (leave unset for AGC - not recommended) |
 | `-p <ppm>` | Frequency correction in PPM |
 | `-A` | Only display aircraft (downlink) messages, not uplink |
 | `-e` | Exclude empty messages |
-| `-l <logfile>` | Log to file instead of stdout |
-| `-H` | Rotate log file hourly |
-| `-D` | Rotate log file daily |
 
 ### Feeding to Airframes
 
-To feed VHF ACARS data to Airframes, use the `-j` flag with JSON output (`-o 4`):
+To feed VHF ACARS data to Airframes, use the `--output json:udp:host=` format:
 
 ```bash
-acarsdec -o 4 -j feed.airframes.io:5550 -i MY-STATION-ACARS -g 42 -r 0 130.025 130.450 131.125 131.550
+acarsdec --output json:udp:host=feed.acars.io,port=5550 -i MY-STATION-ACARS -g 42 --rtlsdr 0 130.025 130.450 131.125 131.550
 ```
 
 **Important parameters for feeding:**
-- `-o 4` enables JSON output (required for Airframes)
-- `-j feed.airframes.io:5550` sends data to the Airframes ACARS ingest (UDP port 5550)
+- `--output json:udp:host=feed.acars.io,port=5550` enables JSON output (required for Airframes) and sends data to the Airframes ACARS ingest (UDP port 5550)
 - `-i MY-STATION-ACARS` identifies your station (see [Station ID format](#station-id-format) below)
 
 ### Station ID format
@@ -158,7 +148,7 @@ After=network.target
 
 [Service]
 Type=simple
-ExecStart=/usr/local/bin/acarsdec -o 4 -j feed.airframes.io:5550 -i MY-STATION-ACARS -g 42 -r 0 130.025 130.450 131.125 131.550
+ExecStart=/usr/local/bin/acarsdec --output json:udp:host=feed.acars.io,port=5550 -i MY-STATION-ACARS -g 42 --rtlsdr 0 130.025 130.450 131.125 131.550
 Restart=always
 RestartSec=5
 
