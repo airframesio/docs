@@ -4,8 +4,9 @@ paths:
     get:
       description: >-
         Runs liveness and readiness checks for the API: PostgreSQL connectivity, Redis connectivity,
-        process heap and RSS memory usage, and (in production) disk space. Returns an aggregated
-        health report.
+        and (in production) disk space. Process heap and RSS memory usage are reported as
+        diagnostics but never fail the check; threshold crossings surface as a "warning" field and a
+        logged warning.
       operationId: check
       parameters: []
       responses:
@@ -1316,10 +1317,10 @@ paths:
   /v1/messages:
     get:
       description: >-
-        Returns a paginated list of decoded aviation messages (ACARS, VDL, HFDL, etc.) matching the
-        supplied query parameters. Authentication is optional: providing a valid JWT or API key
-        honors authenticated rate limits, but anonymous requests are also permitted. This endpoint
-        is not cached due to the large number of possible query-parameter combinations.
+        Returns matching aviation messages in descending ingestion-ID order. Time windows use record
+        creation (archive) time, not the receiver-reported timestamp; late arrivals can have older
+        event times. Use before_id with a fixed until bound for traversal. Authentication changes
+        rate limits, not query membership. This list endpoint is not cached.
       operationId: findAll
       parameters:
         - name: until
@@ -1343,10 +1344,25 @@ paths:
           schema:
             example: TURBULENCE
             type: string
+        - name: icao_direction
+          required: false
+          in: query
+          description: >-
+            Endpoint matched by icao: either (default), from (origin only), or to (destination
+            only). Does not filter the protocol link_direction field.
+          schema:
+            enum:
+              - either
+              - from
+              - to
+            type: string
         - name: icao
           required: false
           in: query
-          description: ICAO hex code; matched case-insensitively (ILIKE) on from_hex.
+          description: >-
+            Case-insensitive hex-address filter matching either endpoint by default, including
+            aircraft-directed uplinks. Use icao_direction for an explicit endpoint. SQL patterns
+            using % and _ are also supported.
           schema:
             example: a1b2c3
             type: string
@@ -1411,8 +1427,8 @@ paths:
           required: false
           in: query
           description: >-
-            ISO-8601 date/time lower bound; only messages created at or after this instant are
-            returned. Defaults to now minus one day. Overridden by timeframe when both are supplied.
+            ISO-8601 lower archive-time bound; messages created strictly after this instant are
+            returned. Defaults to now minus one day. Overridden by timeframe.
           schema:
             example: '2026-06-01T00:00:00Z'
             type: string
@@ -2673,21 +2689,6 @@ components:
       in: header
       name: x-api-key
   schemas:
-    RegisterDto:
-      type: object
-      properties: {}
-    ConfirmDto:
-      type: object
-      properties: {}
-    ResendConfirmationDto:
-      type: object
-      properties: {}
-    ResetPasswordDto:
-      type: object
-      properties: {}
-    ResetPasswordConfirmDto:
-      type: object
-      properties: {}
     DecodeAcarsDto:
       type: object
       properties:
@@ -2702,9 +2703,6 @@ components:
       required:
         - label
         - text
-    UpdateSponsorDto:
-      type: object
-      properties: {}
     LeaderboardRank:
       type: object
       properties: {}
@@ -3341,8 +3339,12 @@ components:
         timestamp:
           format: date-time
           type: string
-          description: Timestamp at which the message was received/decoded.
+          description: >-
+            Receiver-reported message time when preserved by the decoder. May be null when unknown.
+            Legacy records may contain a processing-time fallback; creation time is the
+            archive/query time, and these fields do not prove an end-to-end delay.
           example: '2026-06-05T12:34:56.000Z'
+          nullable: true
         tail:
           type: string
           description: Aircraft tail (registration) number.
@@ -3440,7 +3442,6 @@ components:
         - linkDirection
         - fromHex
         - toHex
-        - timestamp
         - tail
         - flightNumber
         - channel
@@ -4586,33 +4587,6 @@ components:
         - serial
         - createdAt
         - updatedAt
-    UpdatePrivacyDto:
-      type: object
-      properties: {}
-    CreateApiKeyDto:
-      type: object
-      properties: {}
-    UpsertIntegrationDto:
-      type: object
-      properties: {}
-    CreateNotificationDto:
-      type: object
-      properties: {}
-    UpdateNotificationDto:
-      type: object
-      properties: {}
-    UpdateStationAlertPreferencesDto:
-      type: object
-      properties: {}
-    UpdateStationOutageSettingDto:
-      type: object
-      properties: {}
-    CreateWebhookDto:
-      type: object
-      properties: {}
-    UpdateWebhookDto:
-      type: object
-      properties: {}
     AcarsLabelDto:
       type: object
       properties:
@@ -4807,15 +4781,6 @@ components:
           $ref: '#/components/schemas/PlatformStatsDto'
       required:
         - stats
-    CreateCheckoutDto:
-      type: object
-      properties: {}
-    CreateSponsorCheckoutDto:
-      type: object
-      properties: {}
-    CancelSponsorDto:
-      type: object
-      properties: {}
     DecodeCoverageSourceTypeDto:
       type: object
       properties:
@@ -4994,9 +4959,6 @@ components:
             $ref: '#/components/schemas/DecodePositionEntryDto'
       required:
         - positions
-    FlagStationDto:
-      type: object
-      properties: {}
     StationRankEntryDto:
       type: object
       properties:
@@ -5191,9 +5153,6 @@ components:
         - category
         - timeframe
         - entries
-    UpdateDmNotificationPreferenceDto:
-      type: object
-      properties: {}
     FrequencyUsageSummaryDto:
       type: object
       properties:
