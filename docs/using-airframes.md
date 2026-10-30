@@ -23,6 +23,23 @@ You can filter messages by text content, flight number, tail number, or message 
 
 The [Historical Messages](https://app.airframes.io/messages/historical) page lets you search through past messages with the same filtering options. This is useful for researching specific flights, aircraft, or events.
 
+### Brief interruptions and maintenance
+
+Live views reconnect automatically after a temporary network interruption. When
+planned handoffs are enabled, the website can reconnect after a short randomized
+delay during a deployment. Your page stays open; a full-page reload is not needed.
+The connection indicator may briefly show disconnected while the new connection
+is established. Logging out or entering a sign-in page stops the live connection.
+
+After successful chat authentication, the updated client refreshes conversations,
+unread activity, presence and the open conversation. If that refresh fails, a
+warning asks you to reopen the conversation to try again. Live feed events missed
+while disconnected are not automatically replayed. Use historical search for
+persisted messages rather than expecting the live display to fill every gap.
+
+If the connection stays offline, see [live connection troubleshooting](/docs/troubleshooting#live-website-connection).
+Developers can follow the [API reconnect guide](/api/realtime#reconnecting-and-planned-maintenance).
+
 ## Flights
 
 The [Flights](https://app.airframes.io/flights) page shows active flights that have been seen via ACARS data. Unlike ADS-B-based flight trackers, Airframes tracks flights based on their ACARS communications — this means you can see flights that are communicating over HFDL or satellite links even when they're over oceans and outside ADS-B coverage.

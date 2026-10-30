@@ -6,6 +6,27 @@ sidebar_position: 6
 
 Common issues and solutions for setting up and running an Airframes feeder station.
 
+## Live website connection
+
+A brief disconnected indication during maintenance or a network change normally
+recovers automatically. Keep the page open for a few seconds. If it stays offline:
+
+- Check that your network permits WebSocket connections to `ws.airframes.io`.
+- Return to the tab after a network interruption. Ordinary network failures use
+  automatic retry backoff; repeatedly clicking or refreshing is unnecessary.
+- If your session expired, sign in again. An authentication or access rejection
+  deliberately stops retries until access/credentials are resolved.
+- If chat warns that recent activity could not be refreshed, reopen the
+  conversation to retry its persisted history. Avoid resending a message merely
+  because the live connection dropped; it might already have been accepted.
+- For persistent failures, contact support with the time, page and visible error.
+  Never share passwords, JWTs or API keys.
+
+Reconnection does not replay missed live events or change a feeder decoder's
+configuration. [Historical search](/docs/using-airframes#historical-search) can
+help find persisted messages. For custom clients, see the
+[streaming and reconnect reference](/api/realtime#reconnecting-and-planned-maintenance).
+
 ## SDR and Hardware
 
 ### SDR not detected
