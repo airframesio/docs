@@ -51,7 +51,9 @@ socket.on('feed:message', (message) => {
 Subscribe to a sampled stream of all messages across the network:
 
 ```js
-socket.emit('messages:sniff');
+socket.on('connect', () => {
+  socket.emit('messages:sniff'); // restore this subscription after every reconnect
+});
 socket.on('messages:sniff:started', ({ browserId }) => {});
 socket.on('message', (message) => {
   // a Message object, enriched with station/airframe/flight
@@ -67,12 +69,19 @@ socket.on('message', (message) => {
 Subscribe to live activity for a specific station:
 
 ```js
-socket.emit('station:monitor:start', 123);          // stationId
+let monitoredStationId = 123;
+socket.on('connect', () => {
+  if (monitoredStationId !== null) socket.emit('station:monitor:start', monitoredStationId);
+});
 socket.on('station:monitor:started', ({ station }) => {});
 socket.on('station:monitor:data', ({ station, stationId, newMessages }) => {
   // newMessages: Message[]
 });
-socket.emit('station:monitor:stop', 123);
+// Call when the visitor stops monitoring:
+function stopMonitoring() {
+  if (monitoredStationId !== null) socket.emit('station:monitor:stop', monitoredStationId);
+  monitoredStationId = null;
+}
 ```
 
 ## Event reference
@@ -81,6 +90,8 @@ socket.emit('station:monitor:stop', 123);
 
 | Event | Payload | Notes |
 |-------|---------|-------|
+| `server:reconnect` | `{ version: 1, deploymentId, reason: 'deployment', retryAfterMs, jitterMs }` | optional planned handoff; see below |
+| `auth:error` | `{ message }` | access revoked/unavailable; stop and resolve authentication |
 | `feed:authenticated` | `{ userId, username, stations[] }` | after API-key auth |
 | `feed:message` | `Message` | your stations' messages (unsampled) |
 | `message` | `Message` | global firehose (sampled); also delivered to the `messages:sniff` room |
@@ -110,3 +121,121 @@ WebSocket events are rate-limited per connection: **10 subscribe-type events /
 minute** (`messages:sniff`, `station:monitor:*`) and **30 chat sends / minute**.
 Exceeding a limit emits an `error` (or `chat:error`) with
 `{ message: 'Rate limit exceeded' }`.
+
+## Reconnecting and planned maintenance
+
+Keep Socket.IO automatic reconnection enabled. A network interruption or transport
+closure can then recover with its usual backoff. The endpoint stays
+`wss://ws.airframes.io`; a deployment notice never supplies a new URL or credentials.
+
+When planned handoffs are enabled on a worker, it sends **`server:reconnect`** before
+closing its remaining transports. Supporting this optional event spreads reconnects
+across a short window. A worker without this capability sends no notice; normal
+transport reconnection still applies. Clients that disable automatic reconnection
+must implement their own recovery. A server cannot force them to reconnect.
+
+Example notice (milliseconds):
+
+```json
+{
+  "version": 1,
+  "deploymentId": "e249a5a6-2b62-4a12-99dc-b084c8086daa",
+  "reason": "deployment",
+  "retryAfterMs": 500,
+  "jitterMs": 5000
+}
+```
+
+Wait `retryAfterMs + random(0..jitterMs)` before disconnecting and explicitly
+connecting again. Treat the deployment ID as an opaque deduplication token, not a
+release version. Validate the event version, reason, finite nonnegative integer
+delays and their bounds before acting. The reference client caps each delay at
+10 seconds, the total at 20 seconds, and accepts at most one notice per 30 seconds.
+It cancels pending work on disconnect, logout, authentication failure and disposal.
+Ordinary transport retries remain owned by Socket.IO.
+
+### Reference JavaScript client
+
+[Download the reconnect controller](/examples/planned-reconnect.mjs) and copy it
+into your client project alongside this code. It uses `socket.io-client` v4.
+Keep credentials in your existing secure configuration; never commit or log keys.
+
+```js
+import { io } from 'socket.io-client';
+import { createPlannedReconnect } from './planned-reconnect.mjs';
+
+const socket = io('wss://ws.airframes.io', {
+  autoConnect: false,
+  transports: ['websocket'],
+  reconnection: true,
+  reconnectionDelay: 1000,
+  reconnectionDelayMax: 5000,
+  // Read the CURRENT credential on every handshake, including automatic retries.
+  auth: (callback) => callback({ apiKey: readCurrentApiKey() }),
+});
+const reconnect = createPlannedReconnect(socket);
+
+// Register listeners once, outside `connect`, to avoid duplicate deliveries.
+socket.on('feed:message', handleStationMessage);
+socket.on('connect', () => {
+  showConnectionStatus('Connected');
+  // Restore only subscriptions the visitor still wants (10 subscribe events/min).
+  // Own-station API-key feed rooms are restored by the authenticated handshake.
+});
+socket.on('feed:authenticated', () => {
+  void refreshRelevantSnapshots().catch(showRefreshError);
+});
+socket.on('feed:error', (error) => {
+  reconnect.stop();
+  showAuthenticationError(error.message); // obtain corrected credentials first
+});
+socket.on('auth:error', (error) => showAuthenticationError(error.message));
+socket.on('disconnect', () => showConnectionStatus('Disconnected'));
+socket.on('connect_error', (error) => {
+  showConnectionStatus(socket.active ? 'Reconnecting…' : 'Sign in or check credentials');
+});
+
+reconnect.start();
+// On logout/route teardown: reconnect.stop();
+// After an explicit credential replacement:
+// reconnect.credentialsChanged(true); reconnect.start();
+// On final teardown: reconnect.dispose();
+```
+
+The application functions in this example (`readCurrentApiKey`, message handlers,
+snapshot refresh and status/error rendering) are yours to supply. For JWT chat
+clients, read the current `token` in the auth callback and wait for
+`chat:authenticated` before doing authenticated work. The gateway restores chat
+membership after validating the JWT. Refresh conversation lists, unread counts,
+presence and the open conversation to reconcile missed activity.
+
+### Authentication failures are different
+
+Socket.IO does **not** automatically reconnect after `io server disconnect`,
+`io client disconnect`, or a middleware authentication denial (`socket.active`
+is false). Do not turn those into unconditional retry loops: account access may
+have been revoked. The reference controller blocks subsequent route/visibility
+starts after access denial until an explicit credential change. Display a useful
+status and resolve credentials/access first. Handle `auth:error`, `feed:error`
+and `chat:error` without logging secrets. A normal chat rate-limit error is not a
+reason to retry authentication.
+
+### Delivery and missed messages
+
+A reconnect restores a connection, not a replay. Socket.IO delivers events at
+most once by default; live events emitted while disconnected can be missed.
+Airframes currently uses the Redis PUB/SUB adapter, which does not support
+Socket.IO connection-state recovery. Do not assume a session ID resumes rooms,
+authentication or missed packets. Re-authenticate, restore explicit subscriptions
+on each `connect`, and fetch relevant persisted data through REST after successful
+authentication. Deduplicate snapshots and live messages using stable message IDs.
+Do not automatically resend a chat message or other mutation unless you can prove
+it was not accepted or have an idempotency mechanism.
+
+The global stream remains sampled, including after reconnect. For workflows that
+require complete capture, use an appropriate persisted-data integration; a browser
+live stream is not a durable queue.
+
+References: [Socket.IO disconnect behavior](https://socket.io/docs/v4/client-socket-instance/#disconnect),
+[delivery guarantees](https://socket.io/docs/v4/delivery-guarantees/), and
+[connection-state recovery compatibility](https://socket.io/docs/v4/connection-state-recovery/).
