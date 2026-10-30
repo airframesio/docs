@@ -32,6 +32,12 @@ export function createPlannedReconnect(socket, random = Math.random) {
     timer = undefined;
   }
 
+  function stop() {
+    desired = false;
+    cancel();
+    socket.disconnect();
+  }
+
   function onNotice(value) {
     if (
       !desired ||
@@ -90,11 +96,7 @@ export function createPlannedReconnect(socket, random = Math.random) {
       if (!accessDenied && !socket.connected && !socket.active)
         socket.connect();
     },
-    stop() {
-      desired = false;
-      cancel();
-      socket.disconnect();
-    },
+    stop,
     credentialsChanged(hasToken) {
       cancel();
       accessDenied = false;
@@ -103,7 +105,7 @@ export function createPlannedReconnect(socket, random = Math.random) {
       else if (desired) socket.connect();
     },
     dispose() {
-      this.stop();
+      stop();
       socket.off("server:reconnect", onNotice);
       socket.off("disconnect", onDisconnect);
       socket.off("auth:error", onAuthError);
