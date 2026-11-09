@@ -14,7 +14,7 @@ Workspaces keep a company's subscription, API credentials, shared usage and memb
 
 Existing users receive one Personal Workspace with full Owner access. It points to the same plan, Stripe subscription/customer, keys, custom limits and usage history you already have. No replacement subscription, copied key or reset usage counter is created. Existing API credentials and account settings continue to work. New accounts receive their Personal Workspace automatically.
 
-A company Workspace starts separately, on the Free plan. Creating one does not move or cancel a Personal subscription. Subscribing in its Billing section buys that company's plan; Stripe asks you to confirm the price. Members and company keys share its minute, hour and daily allowances. Company keys and usage remain with the company if their creator leaves or deletes their Personal account.
+A company Workspace starts separately, on the Free plan. Creating one does not move or cancel a Personal subscription. An Owner or Billing member can start its first Pro or Business subscription through Checkout in the company's Billing section, with a monthly or annual interval; Stripe asks you to confirm the price. Checkout requires no current subscription or unresolved Checkout session. Changes to an existing plan and custom agreements require support. Members and company keys share its minute, hour and daily allowances. Company keys and usage remain with the company if their creator leaves or deletes their Personal account.
 
 ## Member roles
 
@@ -27,7 +27,7 @@ A company Workspace starts separately, on the Free plan. Creating one does not m
 | Grant or change Owner/Billing access | Yes | No | No | No |
 | View invoices and manage billing | Yes | No | Yes | No |
 
-These roles do not grant Airframes Tower staff access. Server checks use current membership, not saved token role claims. An active Owner must remain: promote another active member before the final Owner leaves or deletes their account. Company closure and first-release plan changes require [support](mailto:kevin@airframes.io).
+These roles do not grant Airframes Tower staff access. Server checks use current membership, not saved token role claims. An active Owner must remain: promote another active member before the final Owner leaves or deletes their account. Company closure and changes to an existing subscription require [support](mailto:kevin@airframes.io).
 
 ## Invitations
 
@@ -84,7 +84,7 @@ The company counter store is durable and separate from the existing Personal cac
 
 ## Billing and account deletion
 
-Only Owners and Billing members see financial details. The first release uses a dedicated Stripe Portal for invoices, payment methods and standard subscription cancellation; plan changes require support. Custom agreements show their subscription/payment status, including `past_due`, and offer invoices/payment details plus a contact link. Their Portal cannot change or cancel the contract, and a late-payment status does not remove contractual access.
+Only Owners and Billing members see financial details. Initial Pro or Business signup uses Checkout as described above. The first release uses a dedicated Stripe Portal for invoices, payment methods and standard subscription cancellation; changes to an existing plan require support. Custom agreements show their subscription/payment status, including `past_due`, and offer invoices/payment details plus a contact link. Their Portal cannot change or cancel the contract, and a late-payment status does not remove contractual access.
 
 If a checkout/provider request loses its acknowledgement, do not start a second payment. Airframes retains an operation receipt and requires verification before another billing write. This prevents an unknown outcome from becoming a duplicate subscription.
 
