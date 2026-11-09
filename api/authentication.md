@@ -16,7 +16,7 @@ All API requests require an API key passed via the `Authorization` header:
 Authorization: Bearer YOUR_API_KEY
 ```
 
-API keys are tied to your Airframes account and determine your access tier and rate limits.
+Personal API keys are tied to your existing Airframes account and its limits. Proposed [company Workspace keys](./workspaces.md) instead belong to the company and share its quotas; they do not act as human accounts.
 
 ## Obtaining an API Key
 
@@ -37,8 +37,13 @@ Rate limits depend on your access tier:
 
 | Tier | Rate Limit | Notes |
 |------|-----------|-------|
-| Feeder (Free) | 60 requests/minute | For personal and non-commercial use |
-| Paid | Varies by plan | Contact us for details |
+| Free | 10/min, 100/hour, 500/day | Personal default or a new company Workspace |
+| Pro / Feeder Pro | 200/min, 5,000/hour, 50,000/day | Feeder Pro remains a Personal entitlement |
+| Business | 500/min, 25,000/hour, 250,000/day | One shared allowance per commercial subject |
+| Custom | Contract overrides; Business defaults until configured | Contact Airframes about the agreement |
+| Enterprise | No plan-window cap | Usage is still recorded |
+
+The anonymous per-IP protection is separate from authenticated plan quotas. A UTC calendar-month usage total is reported without adding a monthly cap. View current limits in account settings; company Workspace usage is shared across members and keys.
 
 When you exceed your rate limit, the API returns `429 Too Many Requests` with a `Retry-After` header indicating when you can resume.
 
