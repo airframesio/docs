@@ -49,7 +49,17 @@ Authorization: Bearer YOUR_COMPANY_KEY
 X-API-KEY: YOUR_COMPANY_KEY
 ```
 
-The key selects its own Workspace. Do not send a different Workspace selection header. Company keys authorize configured **GET/HEAD aviation data reads**, not account settings, key creation, invitations, billing, Tower, or station ownership changes. Available scopes are `read`, `flights:read` and `stations:read`.
+The key selects its own Workspace. Do not send a different Workspace selection header. Company keys authorize configured **GET/HEAD data reads**, not account settings, key creation, invitations, billing, Tower, or station ownership changes.
+
+Choose the smallest scope that covers the routes your integration needs:
+
+| Scope | Permitted route families |
+| --- | --- |
+| `read` | All supported company data families: `/airframes`, `/airports`, `/airlines`, `/flights`, `/messages`, `/stations`, `/hfdl`, `/vdl`, `/frequency-usage`, `/routes`, `/vessels`, `/voyages` and `/sondes`. Includes both narrower scopes below. |
+| `flights:read` | `/flights` and its subpaths only. Does not include `/messages` or flight-related routes under `/airframes`. |
+| `stations:read` | `/stations` and its subpaths only. Does not grant station management or station-specific WebSocket feed access. |
+
+These rules apply with or without the `/v1` prefix, to existing GET/HEAD endpoints in each family. Multiple scopes combine their allowed routes; adding narrower scopes to `read` gives no additional access. For example, `GET /v1/messages` requires `read`, while `GET /v1/flights/FLIGHT_ID` accepts either `flights:read` or `read`. `GET /v1/airframes/flights/FLIGHT_ID/route` requires `read` because its route family is `/airframes`. Scopes do not bypass an endpoint's other access checks or authorize writes.
 
 Company service keys do not authorize station-specific WebSocket feed rooms in this release, because those stations remain Personal. Keep using your Personal credential and its station ownership for that feed. Public live WebSocket behavior is unchanged.
 
