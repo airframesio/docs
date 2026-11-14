@@ -46,10 +46,12 @@ Our API provides access to:
 
 ## Versioning
 
-All endpoints are served under the **`/v1`** prefix (for example
+Data endpoints are served under the **`/v1`** prefix (for example
 `https://api.airframes.io/v1/flights`). For backward compatibility the same
-endpoints also respond without the prefix, but **`/v1` is the documented, stable
-path** and should be preferred for new integrations.
+data endpoints also respond without the prefix, but **`/v1` is the documented, stable
+path** and should be preferred for new integrations. Workspace management routes
+do not use this prefix; use `/workspaces`, not `/v1/workspaces`. See
+[Workspaces](./workspaces.md#selecting-company-quotas-with-a-user-session).
 
 ## Conventions
 
