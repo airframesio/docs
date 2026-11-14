@@ -14,7 +14,7 @@ The Airframes REST API provides access to aggregated and processed aviation data
 
 ## Authentication & Access
 
-All API requests require an API key. See the [Authentication](./authentication.md) page for details on obtaining and using API keys.
+Public aviation data endpoints allow anonymous access with per-IP safeguards. Personal API keys apply your account's limits; proposed company Workspace keys apply the company's shared limits. Proposed `/workspaces` management endpoints instead require a user session JWT from Airframes sign-in and do not accept API keys. See [Authentication](./authentication.md) for credentials and [Workspaces](./workspaces.md) for management permissions.
 
 There are two classifications of authorized API users:
 
@@ -46,10 +46,12 @@ Our API provides access to:
 
 ## Versioning
 
-All endpoints are served under the **`/v1`** prefix (for example
+Data endpoints are served under the **`/v1`** prefix (for example
 `https://api.airframes.io/v1/flights`). For backward compatibility the same
-endpoints also respond without the prefix, but **`/v1` is the documented, stable
-path** and should be preferred for new integrations.
+data endpoints also respond without the prefix, but **`/v1` is the documented, stable
+path** and should be preferred for new integrations. Workspace management routes
+do not use this prefix; use `/workspaces`, not `/v1/workspaces`. See
+[Workspaces](./workspaces.md#selecting-company-quotas-with-a-user-session).
 
 ## Conventions
 
