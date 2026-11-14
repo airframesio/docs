@@ -8,7 +8,7 @@ sidebar_position: 5
 Streaming subscriptions are being rolled out. Limits may change before general availability.
 :::
 
-Subscribe to live messages from across the Airframes network, filtered to what you care about. The same subscriptions, limits and filters are available over **WebSocket** (Socket.IO) and **MQTT**.
+Subscribe to live messages from across the Airframes network, filtered to what you care about. The same subscriptions and limits are available over **WebSocket** (Socket.IO) and **MQTT**. Station, aircraft, label and message-type filters work on both; airline, flight and region filters are WebSocket only.
 
 For messages from your own stations only, see [Realtime / Streaming](./realtime.md).
 
@@ -101,7 +101,8 @@ A message that matches several of your subscriptions is delivered once, with eve
 
 Available on Business and Enterprise.
 
-- **Host and port:** published here when MQTT subscriptions launch.
+- **Host and port:** published here when MQTT subscriptions launch. The examples below use `MQTT_HOST` as a placeholder.
+- **Encryption:** connect over TLS. Your API key is the password, so never send it over a plain connection.
 - **Password:** your API key. Any username is accepted.
 - **Protocol:** MQTT 3.1.1, QoS 0, clean sessions only. Publishing is not allowed.
 
@@ -111,7 +112,7 @@ Messages are published on:
 airframes/v1/messages/{sourceType}/{station}/{tail}/{label}
 ```
 
-Every level is upper-case, and a missing value is `-`. Filter with the usual MQTT wildcards:
+The `airframes/v1/messages` prefix is lower-case and topic matching is case-sensitive. The four variable levels (`{sourceType}`, `{station}`, `{tail}`, `{label}`) are upper-case, and a missing value is `-`. Filter with the usual MQTT wildcards:
 
 | Topic filter | Receives | Plans |
 |---|---|---|
@@ -122,11 +123,13 @@ Every level is upper-case, and a missing value is `-`. Filter with the usual MQT
 | `airframes/v1/messages/#` | Everything | Enterprise |
 
 ```bash
-mosquitto_sub -h mqtt.airframes.io -u feed -P "YOUR_API_KEY" \
+# 8883 is the standard MQTT-over-TLS port; --capath enables certificate checks.
+mosquitto_sub -h MQTT_HOST -p 8883 --capath /etc/ssl/certs \
+  -u feed -P "YOUR_API_KEY" \
   -t "airframes/v1/messages/+/+/N123AB/#"
 ```
 
-A subscription your plan does not allow is refused (SUBACK failure). The reason is sent to your connection on the topic `airframes/v1/notices`, which also carries `stream:throttled` notices. These arrive without a subscription, so do not subscribe to that topic; handle it in your message callback.
+A subscription your plan does not allow is refused (SUBACK failure). The reason is sent to your connection on the topic `airframes/v1/notices`, which also carries `stream:throttled` notices. The gateway publishes these straight to your connection rather than through a subscription, and a subscription to that topic is refused. Clients such as mqtt.js hand them to the normal message callback. If your client library discards messages that match none of its subscriptions, you will not see notices, so rely on the SUBACK result to detect a refusal.
 
 Airline, flight and region filters are available over WebSocket only, because they are not part of the topic.
 
