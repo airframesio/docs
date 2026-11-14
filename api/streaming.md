@@ -138,7 +138,7 @@ Airline, flight and region filters are available over WebSocket only, because th
 Streaming is **live and at most once**.
 
 - Nothing is stored for you while you are disconnected, and there is no replay.
-- If messages arrive faster than your plan's rate, the extra messages are dropped, and you receive a `stream:throttled` notice at most once every ten seconds with the count.
+- If messages arrive faster than your plan's rate, the extra messages are dropped, and a `stream:throttled` notice with the count is sent at most once every ten seconds. Over MQTT this notice arrives on `airframes/v1/notices` as described above, so a client that discards unmatched messages will not see it.
 - If your client stops reading for about 30 seconds, it is disconnected with `slow_consumer`.
 - A plan change applies within a few minutes without a reconnect. On a downgrade, subscriptions your new plan does not allow are removed and you are told which.
 
