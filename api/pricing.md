@@ -10,16 +10,18 @@ Pricing tiers are being finalized. The information below reflects the current pl
 
 ## Feeder Access (Free)
 
-Active feeders who consistently contribute data to Airframes receive free API access. This is our way of giving back to the people who make Airframes possible.
+Active feeders who meet the eligibility criteria receive Personal Feeder Pro access at no charge. This is our way of giving back to the people who make Airframes possible.
 
 **Requirements:**
 - An active feeder station on Airframes
-- Consistent feeding over at least 7 days
+- Contributions on at least 20 distinct UTC calendar days in the rolling 30-day window from eligible stations
 
 **Includes:**
-- 60 requests per minute
+- 200 requests per minute, 5,000 per hour and 50,000 per day
 - Access to messages, flights, aircraft, and station endpoints
 - Personal and non-commercial use
+
+An account that has not earned Feeder Pro retains Free limits of 10 requests per minute, 100 per hour and 500 per day. Feeder Pro remains a Personal entitlement and does not upgrade a company Workspace. See [Authentication](./authentication.md#rate-limits) for the full tier limits.
 
 ## Commercial Access
 
