@@ -8,6 +8,53 @@ paths:
       operationId: ready
       parameters: []
       responses:
+        '200':
+          description: >-
+            Dependency checks passed and this worker is not draining. Includes health indicators and
+            WebSocket reconnection capability/state; enabled may be false on a non-WS worker.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - status
+                  - websocket
+                properties:
+                  status:
+                    type: string
+                    enum:
+                      - ok
+                  info:
+                    type: object
+                    additionalProperties: true
+                  error:
+                    type: object
+                    additionalProperties: true
+                  details:
+                    type: object
+                    additionalProperties: true
+                  websocket:
+                    type: object
+                    required:
+                      - protocolVersion
+                      - enabled
+                      - state
+                      - acceptingConnections
+                    properties:
+                      protocolVersion:
+                        type: integer
+                        enum:
+                          - 1
+                      enabled:
+                        type: boolean
+                      state:
+                        type: string
+                        enum:
+                          - accepting
+                      acceptingConnections:
+                        type: boolean
+                        enum:
+                          - true
         '429': &ref_0
           description: >-
             Rate limit exceeded (60 requests/min per client IP by default; some endpoints override

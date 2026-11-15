@@ -55,11 +55,11 @@ Choose the smallest scope that covers the routes your integration needs:
 
 | Scope | Permitted route families |
 | --- | --- |
-| `read` | All supported company data families: `/airframes`, `/airports`, `/airlines`, `/flights`, `/messages`, `/stations`, `/hfdl`, `/vdl`, `/frequency-usage`, `/routes`, `/vessels`, `/voyages` and `/sondes`. Includes both narrower scopes below. |
+| `read` | All supported company data families: `/airframes`, `/airports`, `/airlines`, `/flights`, `/messages`, `/stations`, `/hfdl`, `/vdl`, `/decode`, `/stats` (including `/stats/frequency-usage`), `/leaderboard`, `/marine/vessels`, `/marine/voyages`, `/sonde/flights`, `/sonde/sites`, `/sonde/sondes`, `/acars/stats` and `/tidbyt/nearby`. Includes both narrower scopes below. |
 | `flights:read` | `/flights` and its subpaths only. Does not include `/messages` or flight-related routes under `/airframes`. |
 | `stations:read` | `/stations` and its subpaths only. Does not grant station management or station-specific WebSocket feed access. |
 
-These rules apply with or without the `/v1` prefix, to existing GET/HEAD endpoints in each family. Multiple scopes combine their allowed routes; adding narrower scopes to `read` gives no additional access. For example, `GET /v1/messages` requires `read`, while `GET /v1/flights/FLIGHT_ID` accepts either `flights:read` or `read`. `GET /v1/airframes/flights/FLIGHT_ID/route` requires `read` because its route family is `/airframes`. Scopes do not bypass an endpoint's other access checks or authorize writes.
+These rules apply with or without the `/v1` prefix, to existing GET/HEAD endpoints in each family. Multiple scopes combine their allowed routes; adding narrower scopes to `read` gives no additional access. For example, `GET /v1/messages` requires `read`, while `GET /v1/flights/FLIGHT_ID` accepts either `flights:read` or `read`. `GET /v1/airframes/flights/FLIGHT_ID/route` requires `read` because its route family is `/airframes`. Health and maintenance routes, including all of `/leaderboard/v2/awards`, are excluded even when they use GET. Scopes do not bypass an endpoint's other access checks or authorize writes.
 
 Company service keys authorize HTTP data only in this release. They cannot authenticate WebSocket or MQTT streaming, including station-specific feed rooms, and do not consume Personal streaming leases or usage. Keep using Personal credentials, plans and station ownership for streaming. Selecting company HTTP quotas does not select a company streaming plan. The Workspace feature does not change the public live stream's existing sign-in or visitor-challenge requirements.
 
