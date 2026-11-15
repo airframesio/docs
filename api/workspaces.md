@@ -61,7 +61,7 @@ Choose the smallest scope that covers the routes your integration needs:
 
 These rules apply with or without the `/v1` prefix, to existing GET/HEAD endpoints in each family. Multiple scopes combine their allowed routes; adding narrower scopes to `read` gives no additional access. For example, `GET /v1/messages` requires `read`, while `GET /v1/flights/FLIGHT_ID` accepts either `flights:read` or `read`. `GET /v1/airframes/flights/FLIGHT_ID/route` requires `read` because its route family is `/airframes`. Scopes do not bypass an endpoint's other access checks or authorize writes.
 
-Company service keys do not authorize station-specific WebSocket feed rooms in this release, because those stations remain Personal. Keep using your Personal credential and its station ownership for that feed. Public live WebSocket behavior is unchanged.
+Company service keys authorize HTTP data only in this release. They cannot authenticate WebSocket or MQTT streaming, including station-specific feed rooms, and do not consume Personal streaming leases or usage. Keep using Personal credentials, plans and station ownership for streaming. Selecting company HTTP quotas does not select a company streaming plan. The Workspace feature does not change the public live stream's existing sign-in or visitor-challenge requirements.
 
 ## Selecting company quotas with a user session
 
