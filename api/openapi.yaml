@@ -3272,6 +3272,12 @@ components:
           type: number
           description: Last known ground track / heading, in degrees.
           example: 271
+        messagesCount:
+          type: number
+          description: >-
+            Number of messages received for this flight. Updated in batches, so it can trail the
+            newest messages by up to a minute.
+          example: 42
         positions:
           description: Recorded positions for this flight.
           type: array
@@ -3295,6 +3301,7 @@ components:
         - designator
         - number
         - status
+        - messagesCount
         - createdAt
         - updatedAt
     Message:
