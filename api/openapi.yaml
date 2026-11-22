@@ -8,7 +8,7 @@ paths:
       operationId: ready
       parameters: []
       responses:
-        '429': &ref_0
+        '429': &ref_1
           description: >-
             Rate limit exceeded (60 requests/min per client IP by default; some endpoints override
             this). See the X-RateLimit-* and Retry-After headers.
@@ -29,14 +29,14 @@ paths:
               description: Seconds until the window resets.
               schema:
                 type: integer
-          content: &ref_2
+          content: &ref_5
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
         '503':
           description: Dependencies unavailable or worker draining.
       summary: Dependency health and worker readiness
-      tags: &ref_1
+      tags: &ref_4
         - Health
   /v1/health:
     get:
@@ -50,16 +50,117 @@ paths:
       responses:
         '200':
           description: >-
+            The Health Check is successful
+
+
             All health indicators are up. Returns a Terminus health-check result with status "ok"
             and per-indicator details (e.g. db_master, redis, api_memory_heap, api_memory_rss,
             api_disk_space).
-        '429': *ref_0
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  info:
+                    type: object
+                    example: &ref_0
+                      database:
+                        status: up
+                    additionalProperties:
+                      type: object
+                      required:
+                        - status
+                      properties:
+                        status:
+                          type: string
+                      additionalProperties: true
+                    nullable: true
+                  error:
+                    type: object
+                    example: {}
+                    additionalProperties:
+                      type: object
+                      required:
+                        - status
+                      properties:
+                        status:
+                          type: string
+                      additionalProperties: true
+                    nullable: true
+                  details:
+                    type: object
+                    example: *ref_0
+                    additionalProperties:
+                      type: object
+                      required:
+                        - status
+                      properties:
+                        status:
+                          type: string
+                      additionalProperties: true
+        '429': *ref_1
         '503':
           description: >-
+            The Health Check is not successful
+
+
             One or more health indicators are down. Public error details are sanitized; indicator
             outcomes and timing are recorded in internal logs and token-protected metrics.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  info:
+                    type: object
+                    example:
+                      database: &ref_2
+                        status: up
+                    additionalProperties:
+                      type: object
+                      required:
+                        - status
+                      properties:
+                        status:
+                          type: string
+                      additionalProperties: true
+                    nullable: true
+                  error:
+                    type: object
+                    example:
+                      redis: &ref_3
+                        status: down
+                        message: Could not connect
+                    additionalProperties:
+                      type: object
+                      required:
+                        - status
+                      properties:
+                        status:
+                          type: string
+                      additionalProperties: true
+                    nullable: true
+                  details:
+                    type: object
+                    example:
+                      database: *ref_2
+                      redis: *ref_3
+                    additionalProperties:
+                      type: object
+                      required:
+                        - status
+                      properties:
+                        status:
+                          type: string
+                      additionalProperties: true
       summary: Service health check
-      tags: *ref_1
+      tags: *ref_4
   /v1/acars/decode:
     post:
       description: >-
@@ -76,10 +177,10 @@ paths:
       responses:
         '201':
           description: The decoded ACARS message payload. Structure varies by label and message content.
-        '401': &ref_3
+        '401': &ref_6
           description: Authentication required or the credentials are invalid.
-          content: *ref_2
-        '429': *ref_0
+          content: *ref_5
+        '429': *ref_1
       security:
         - api-key: []
         - bearer: []
@@ -120,13 +221,13 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Airline'
-        '401': *ref_3
-        '429': *ref_0
-      security: &ref_4
+        '401': *ref_6
+        '429': *ref_1
+      security: &ref_7
         - api-key: []
         - bearer: []
       summary: List airlines
-      tags: &ref_5
+      tags: &ref_8
         - Airlines
   /v1/airlines/{id}:
     get:
@@ -147,11 +248,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Airline'
-        '401': *ref_3
-        '429': *ref_0
-      security: *ref_4
+        '401': *ref_6
+        '429': *ref_1
+      security: *ref_7
       summary: Get airline by ID
-      tags: *ref_5
+      tags: *ref_8
   /v1/airlines/icao/{icao}:
     get:
       description: >-
@@ -173,11 +274,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Airline'
-        '401': *ref_3
-        '429': *ref_0
-      security: *ref_4
+        '401': *ref_6
+        '429': *ref_1
+      security: *ref_7
       summary: Get airline by ICAO code
-      tags: *ref_5
+      tags: *ref_8
   /v1/airlines/iata/{iata}:
     get:
       description: >-
@@ -201,11 +302,11 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Airline'
-        '401': *ref_3
-        '429': *ref_0
-      security: *ref_4
+        '401': *ref_6
+        '429': *ref_1
+      security: *ref_7
       summary: List airlines by IATA code
-      tags: *ref_5
+      tags: *ref_8
   /v1/airframes/routes:
     get:
       description: >-
@@ -246,15 +347,15 @@ paths:
                 $ref: '#/components/schemas/GreatCircleRouteResponseDto'
         '400':
           description: Missing `from`/`to`.
-        '401': *ref_3
+        '401': *ref_6
         '404':
           description: Unknown airport.
-        '429': *ref_0
-      security: &ref_6
+        '429': *ref_1
+      security: &ref_9
         - api-key: []
         - bearer: []
       summary: Great-circle route between two airports
-      tags: &ref_7
+      tags: &ref_10
         - Routes
   /v1/airframes/flights/{id}/route:
     get:
@@ -300,13 +401,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/FlightRouteResponseDto'
-        '401': *ref_3
+        '401': *ref_6
         '404':
           description: Flight not found.
-        '429': *ref_0
-      security: *ref_6
+        '429': *ref_1
+      security: *ref_9
       summary: Route for a flight
-      tags: *ref_7
+      tags: *ref_10
   /v1/flights:
     get:
       description: >-
@@ -330,9 +431,9 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Flight'
-        '429': *ref_0
+        '429': *ref_1
       summary: List recent flights
-      tags: &ref_8
+      tags: &ref_11
         - Flights
   /v1/flights/active:
     get:
@@ -365,13 +466,13 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Flight'
-        '401': *ref_3
-        '429': *ref_0
+        '401': *ref_6
+        '429': *ref_1
       security:
         - api-key: []
         - bearer: []
       summary: List active flights
-      tags: *ref_8
+      tags: *ref_11
   /v1/flights/active/{id}:
     get:
       description: >-
@@ -393,9 +494,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Flight'
-        '429': *ref_0
+        '429': *ref_1
       summary: Get an active flight by id
-      tags: *ref_8
+      tags: *ref_11
   /v1/flights/live:
     get:
       description: >-
@@ -426,13 +527,13 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/LiveFlightDto'
-        '401': *ref_3
-        '429': *ref_0
+        '401': *ref_6
+        '429': *ref_1
       security:
         - api-key: []
         - bearer: []
       summary: List live flights from cache
-      tags: *ref_8
+      tags: *ref_11
   /v1/flights/live/{cacheId}:
     get:
       description: >-
@@ -457,13 +558,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/LiveFlightDto'
-        '401': *ref_3
-        '429': *ref_0
+        '401': *ref_6
+        '429': *ref_1
       security:
         - api-key: []
         - bearer: []
       summary: Get a live flight with trail
-      tags: *ref_8
+      tags: *ref_11
   /v1/flights/{id}/messages:
     get:
       description: >-
@@ -508,9 +609,9 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Message'
-        '429': *ref_0
+        '429': *ref_1
       summary: List messages for a flight
-      tags: *ref_8
+      tags: *ref_11
   /v1/flights/{id}/events:
     get:
       description: >-
@@ -534,9 +635,9 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/FlightEvent'
-        '429': *ref_0
+        '429': *ref_1
       summary: List events for a flight
-      tags: *ref_8
+      tags: *ref_11
   /v1/flights/{id}/positions:
     get:
       description: >-
@@ -568,9 +669,9 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/FlightPosition'
-        '429': *ref_0
+        '429': *ref_1
       summary: List positions for a flight
-      tags: *ref_8
+      tags: *ref_11
   /v1/flights/{id}:
     get:
       description: >-
@@ -603,9 +704,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Flight'
-        '429': *ref_0
+        '429': *ref_1
       summary: Get flight detail by id
-      tags: *ref_8
+      tags: *ref_11
   /v1/flights/bbox/{xmin},{ymin},{xmax},{ymax}:
     get:
       description: >-
@@ -650,13 +751,13 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Flight'
-        '401': *ref_3
-        '429': *ref_0
+        '401': *ref_6
+        '429': *ref_1
       security:
         - api-key: []
         - bearer: []
       summary: List flights within a bounding box
-      tags: *ref_8
+      tags: *ref_11
   /v1/airframes:
     get:
       description: >-
@@ -707,13 +808,13 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Airframe'
-        '401': *ref_3
-        '429': *ref_0
-      security: &ref_9
+        '401': *ref_6
+        '429': *ref_1
+      security: &ref_12
         - api-key: []
         - bearer: []
       summary: List airframes
-      tags: &ref_10
+      tags: &ref_13
         - Airframes
   /v1/airframes/{id}:
     get:
@@ -734,11 +835,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Airframe'
-        '401': *ref_3
-        '429': *ref_0
-      security: *ref_9
+        '401': *ref_6
+        '429': *ref_1
+      security: *ref_12
       summary: Get airframe by ID
-      tags: *ref_10
+      tags: *ref_13
   /v1/airframes/tail/{tail}:
     get:
       description: >-
@@ -760,11 +861,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Airframe'
-        '401': *ref_3
-        '429': *ref_0
-      security: *ref_9
+        '401': *ref_6
+        '429': *ref_1
+      security: *ref_12
       summary: Get airframe by tail number
-      tags: *ref_10
+      tags: *ref_13
   /v1/airframes/icao/{icao}:
     get:
       description: >-
@@ -786,11 +887,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Airframe'
-        '401': *ref_3
-        '429': *ref_0
-      security: *ref_9
+        '401': *ref_6
+        '429': *ref_1
+      security: *ref_12
       summary: Get airframe by ICAO code
-      tags: *ref_10
+      tags: *ref_13
   /v1/airframes/iata/{iata}:
     get:
       description: Returns a single airframe matching the given IATA code. Result is cached for 1 hour.
@@ -810,11 +911,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Airframe'
-        '401': *ref_3
-        '429': *ref_0
-      security: *ref_9
+        '401': *ref_6
+        '429': *ref_1
+      security: *ref_12
       summary: Get airframe by IATA code
-      tags: *ref_10
+      tags: *ref_13
   /v1/airports:
     get:
       description: Returns a paginated list of airports, ICAO-ordered. Results are cached for 6 hours.
@@ -843,15 +944,15 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Airport'
-        '401': *ref_3
-        '429': *ref_0
-      security: &ref_11
-        - &ref_13
+        '401': *ref_6
+        '429': *ref_1
+      security: &ref_14
+        - &ref_16
           api-key: []
-        - &ref_14
+        - &ref_17
           bearer: []
       summary: List airports
-      tags: &ref_12
+      tags: &ref_15
         - Airports
   /v1/airports/{id}:
     get:
@@ -876,11 +977,11 @@ paths:
                 $ref: '#/components/schemas/Airport'
         '400':
           description: The provided ID is not a valid UUID.
-        '401': *ref_3
-        '429': *ref_0
-      security: *ref_11
+        '401': *ref_6
+        '429': *ref_1
+      security: *ref_14
       summary: Get airport by ID
-      tags: *ref_12
+      tags: *ref_15
   /v1/airports/icao/{icao}:
     get:
       description: >-
@@ -902,11 +1003,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Airport'
-        '401': *ref_3
-        '429': *ref_0
-      security: *ref_11
+        '401': *ref_6
+        '429': *ref_1
+      security: *ref_14
       summary: Get airport by ICAO code
-      tags: *ref_12
+      tags: *ref_15
   /v1/airports/iata/{iata}:
     get:
       description: >-
@@ -928,11 +1029,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Airport'
-        '401': *ref_3
-        '429': *ref_0
-      security: *ref_11
+        '401': *ref_6
+        '429': *ref_1
+      security: *ref_14
       summary: Get airport by IATA code
-      tags: *ref_12
+      tags: *ref_15
   /v1/airports/ident/{ident}:
     get:
       description: >-
@@ -954,11 +1055,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Airport'
-        '401': *ref_3
-        '429': *ref_0
-      security: *ref_11
+        '401': *ref_6
+        '429': *ref_1
+      security: *ref_14
       summary: Get airport by ident
-      tags: *ref_12
+      tags: *ref_15
   /v1/airports/type/{type}:
     get:
       description: Returns all airports matching the given airport type. Results are cached for 6 hours.
@@ -980,11 +1081,11 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Airport'
-        '401': *ref_3
-        '429': *ref_0
-      security: *ref_11
+        '401': *ref_6
+        '429': *ref_1
+      security: *ref_14
       summary: List airports by type
-      tags: *ref_12
+      tags: *ref_15
   /v1/airports/bbox/{xmin},{ymin},{xmax},{ymax}:
     get:
       description: >-
@@ -1030,11 +1131,11 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Airport'
-        '401': *ref_3
-        '429': *ref_0
-      security: *ref_11
+        '401': *ref_6
+        '429': *ref_1
+      security: *ref_14
       summary: List airports within a bounding box
-      tags: *ref_12
+      tags: *ref_15
   /v1/airports/{icao}/flights:
     get:
       description: >-
@@ -1058,15 +1159,15 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Flight'
-        '401': *ref_3
-        '429': *ref_0
+        '401': *ref_6
+        '429': *ref_1
       security:
-        - *ref_13
-        - *ref_14
+        - *ref_16
+        - *ref_17
         - api-key: []
         - bearer: []
       summary: List flights for an airport
-      tags: *ref_12
+      tags: *ref_15
   /v1/hfdl/ground-stations:
     get:
       description: >-
@@ -1081,8 +1182,8 @@ paths:
           description: >-
             JSON-encoded string containing a "ground_stations" array, each entry with id, name,
             active frequencies, and last_updated.
-        '401': *ref_3
-        '429': *ref_0
+        '401': *ref_6
+        '429': *ref_1
       security:
         - api-key: []
         - bearer: []
@@ -1112,15 +1213,15 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/MarineVoyage'
-        '401': *ref_3
-        '429': *ref_0
-      security: &ref_18
-        - &ref_15
+        '401': *ref_6
+        '429': *ref_1
+      security: &ref_21
+        - &ref_18
           api-key: []
-        - &ref_16
+        - &ref_19
           bearer: []
       summary: List marine voyages
-      tags: &ref_17
+      tags: &ref_20
         - Marine
   /v1/marine/voyages/active:
     get:
@@ -1138,15 +1239,15 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/MarineVoyage'
-        '401': *ref_3
-        '429': *ref_0
+        '401': *ref_6
+        '429': *ref_1
       security:
-        - *ref_15
-        - *ref_16
+        - *ref_18
+        - *ref_19
         - api-key: []
         - bearer: []
       summary: List active marine voyages
-      tags: *ref_17
+      tags: *ref_20
   /v1/marine/voyages/{id}:
     get:
       description: Returns a single marine voyage by its unique identifier.
@@ -1166,11 +1267,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/MarineVoyage'
-        '401': *ref_3
-        '429': *ref_0
-      security: *ref_18
+        '401': *ref_6
+        '429': *ref_1
+      security: *ref_21
       summary: Get a marine voyage by ID
-      tags: *ref_17
+      tags: *ref_20
   /v1/marine/voyages/{id}/positions:
     get:
       description: >-
@@ -1203,11 +1304,11 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/MarineVoyagePosition'
-        '401': *ref_3
-        '429': *ref_0
-      security: *ref_18
+        '401': *ref_6
+        '429': *ref_1
+      security: *ref_21
       summary: Get position reports for a marine voyage
-      tags: *ref_17
+      tags: *ref_20
   /v1/marine/voyages/{id}/messages:
     get:
       description: >-
@@ -1238,11 +1339,11 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/MarineMessage'
-        '401': *ref_3
-        '429': *ref_0
-      security: *ref_18
+        '401': *ref_6
+        '429': *ref_1
+      security: *ref_21
       summary: Get AIS messages for a marine voyage
-      tags: *ref_17
+      tags: *ref_20
   /v1/marine/voyages/bbox/{xmin},{ymin},{xmax},{ymax}:
     get:
       description: >-
@@ -1288,15 +1389,15 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/MarineVoyage'
-        '401': *ref_3
-        '429': *ref_0
+        '401': *ref_6
+        '429': *ref_1
       security:
-        - *ref_15
-        - *ref_16
+        - *ref_18
+        - *ref_19
         - api-key: []
         - bearer: []
       summary: List marine voyages within a bounding box
-      tags: *ref_17
+      tags: *ref_20
   /v1/marine/vessels/{mmsi}:
     get:
       description: >-
@@ -1318,14 +1419,59 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/MarineVessel'
-        '401': *ref_3
+        '401': *ref_6
         '404':
           description: No marine vessel found for the given MMSI.
-        '429': *ref_0
+        '429': *ref_1
       security:
         - api-key: []
         - bearer: []
       summary: Get a marine vessel by MMSI
+      tags:
+        - Marine
+  /v1/marine/stations/{uuid}/messages:
+    get:
+      description: >-
+        Returns the newest AIS messages a station received in the last few days, newest first, each
+        with its vessel and the decoded AIS fields in `details`.
+      operationId: findStationMessages
+      parameters:
+        - name: uuid
+          required: true
+          in: path
+          description: The station UUID.
+          schema:
+            example: 4f1c2d3e-5a6b-4c7d-8e9f-0a1b2c3d4e5f
+            type: string
+        - name: limit
+          required: false
+          in: query
+          description: Maximum number of messages (1 to 200, default 50).
+          schema:
+            example: 50
+            type: string
+        - name: days
+          required: false
+          in: query
+          description: How many days back to look (1 to 7, default 2).
+          schema:
+            example: 2
+            type: string
+      responses:
+        '200':
+          description: Recent AIS messages for the station.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MarineMessage'
+        '401': *ref_6
+        '429': *ref_1
+      security:
+        - api-key: []
+        - bearer: []
+      summary: List recent AIS messages received by a station
       tags:
         - Marine
   /v1/messages:
@@ -1508,13 +1654,13 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Message'
-        '401': *ref_3
-        '429': *ref_0
+        '401': *ref_6
+        '429': *ref_1
       security:
         - api-key: []
         - bearer: []
       summary: List messages
-      tags: &ref_19
+      tags: &ref_22
         - Messages
   /v1/messages/{id}:
     get:
@@ -1537,9 +1683,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Message'
-        '429': *ref_0
+        '429': *ref_1
       summary: Get a message by ID
-      tags: *ref_19
+      tags: *ref_22
   /v1/messages/ar_uuid/{id}:
     get:
       description: >-
@@ -1561,9 +1707,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Message'
-        '429': *ref_0
+        '429': *ref_1
       summary: Get a message by Airframes UUID (ar_uuid)
-      tags: *ref_19
+      tags: *ref_22
   /v1/sonde/flights:
     get:
       description: >-
@@ -1587,15 +1733,15 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/SondeFlight'
-        '401': *ref_3
-        '429': *ref_0
-      security: &ref_23
-        - &ref_20
+        '401': *ref_6
+        '429': *ref_1
+      security: &ref_26
+        - &ref_23
           api-key: []
-        - &ref_21
+        - &ref_24
           bearer: []
       summary: List sonde flights
-      tags: &ref_22
+      tags: &ref_25
         - Sonde
   /v1/sonde/flights/active:
     get:
@@ -1613,15 +1759,15 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/SondeFlight'
-        '401': *ref_3
-        '429': *ref_0
+        '401': *ref_6
+        '429': *ref_1
       security:
-        - *ref_20
-        - *ref_21
+        - *ref_23
+        - *ref_24
         - api-key: []
         - bearer: []
       summary: List active sonde flights
-      tags: *ref_22
+      tags: *ref_25
   /v1/sonde/flights/{id}:
     get:
       description: Returns a single weather balloon flight by its unique identifier.
@@ -1641,11 +1787,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SondeFlight'
-        '401': *ref_3
-        '429': *ref_0
-      security: *ref_23
+        '401': *ref_6
+        '429': *ref_1
+      security: *ref_26
       summary: Get a sonde flight by ID
-      tags: *ref_22
+      tags: *ref_25
   /v1/sonde/flights/{id}/positions:
     get:
       description: >-
@@ -1678,11 +1824,11 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/SondeFlightPosition'
-        '401': *ref_3
-        '429': *ref_0
-      security: *ref_23
+        '401': *ref_6
+        '429': *ref_1
+      security: *ref_26
       summary: List position reports for a sonde flight
-      tags: *ref_22
+      tags: *ref_25
   /v1/sonde/flights/{id}/messages:
     get:
       description: >-
@@ -1713,11 +1859,11 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/SondeMessage'
-        '401': *ref_3
-        '429': *ref_0
-      security: *ref_23
+        '401': *ref_6
+        '429': *ref_1
+      security: *ref_26
       summary: List telemetry messages for a sonde flight
-      tags: *ref_22
+      tags: *ref_25
   /v1/sonde/flights/bbox/{xmin},{ymin},{xmax},{ymax}:
     get:
       description: >-
@@ -1763,15 +1909,15 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/SondeFlight'
-        '401': *ref_3
-        '429': *ref_0
+        '401': *ref_6
+        '429': *ref_1
       security:
-        - *ref_20
-        - *ref_21
+        - *ref_23
+        - *ref_24
         - api-key: []
         - bearer: []
       summary: List sonde flights within a bounding box
-      tags: *ref_22
+      tags: *ref_25
   /v1/sonde/sites:
     get:
       description: >-
@@ -1795,13 +1941,13 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/SondeSite'
-        '401': *ref_3
-        '429': *ref_0
-      security: &ref_24
+        '401': *ref_6
+        '429': *ref_1
+      security: &ref_27
         - api-key: []
         - bearer: []
       summary: List sonde launch sites
-      tags: &ref_25
+      tags: &ref_28
         - Sonde
   /v1/sonde/sites/{id}:
     get:
@@ -1822,13 +1968,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SondeSite'
-        '401': *ref_3
+        '401': *ref_6
         '404':
           description: No sonde launch site exists with the given ID.
-        '429': *ref_0
-      security: *ref_24
+        '429': *ref_1
+      security: *ref_27
       summary: Get a sonde launch site by ID
-      tags: *ref_25
+      tags: *ref_28
   /v1/sonde/sondes/{serial}:
     get:
       description: Returns a single radiosonde (weather balloon transmitter) by its serial number.
@@ -1848,10 +1994,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Sonde'
-        '401': *ref_3
+        '401': *ref_6
         '404':
           description: No radiosonde exists with the given serial number.
-        '429': *ref_0
+        '429': *ref_1
       security:
         - api-key: []
         - bearer: []
@@ -1876,13 +2022,13 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Station'
-        '401': *ref_3
-        '429': *ref_0
-      security: &ref_26
+        '401': *ref_6
+        '429': *ref_1
+      security: &ref_29
         - api-key: []
         - bearer: []
       summary: List all stations
-      tags: &ref_27
+      tags: &ref_30
         - Stations
   /v1/stations/{id}:
     get:
@@ -1908,11 +2054,11 @@ paths:
                 $ref: '#/components/schemas/Station'
         '400':
           description: The station ID is malformed (must be a positive integer).
-        '401': *ref_3
-        '429': *ref_0
-      security: *ref_26
+        '401': *ref_6
+        '429': *ref_1
+      security: *ref_29
       summary: Get a station by numeric ID
-      tags: *ref_27
+      tags: *ref_30
   /v1/stations/counts_24_hours:
     get:
       description: >-
@@ -1926,11 +2072,11 @@ paths:
           description: >-
             Array of computed objects with station_id, ident, fuzzed_latitude, fuzzed_longitude, and
             messages_count (count as a string).
-        '401': *ref_3
-        '429': *ref_0
-      security: *ref_26
+        '401': *ref_6
+        '429': *ref_1
+      security: *ref_29
       summary: List stations with 24-hour message counts
-      tags: *ref_27
+      tags: *ref_30
   /v1/stations/ident/{ident}:
     get:
       description: >-
@@ -1952,11 +2098,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Station'
-        '401': *ref_3
-        '429': *ref_0
-      security: *ref_26
+        '401': *ref_6
+        '429': *ref_1
+      security: *ref_29
       summary: Get a station by ident
-      tags: *ref_27
+      tags: *ref_30
   /v1/stations/{id}/coverage:
     get:
       description: >-
@@ -1985,13 +2131,13 @@ paths:
           description: GeoJSON FeatureCollection with the coverage polygon.
         '400':
           description: Invalid station ID or invalid time filter.
-        '401': *ref_3
+        '401': *ref_6
         '404':
           description: Station not found.
-        '429': *ref_0
-      security: *ref_26
+        '429': *ref_1
+      security: *ref_29
       summary: Get station coverage polygon
-      tags: *ref_27
+      tags: *ref_30
   /v1/acars/stats:
     get:
       description: >-
@@ -2006,8 +2152,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AcarsStatsResponseDto'
-        '401': *ref_3
-        '429': *ref_0
+        '401': *ref_6
+        '429': *ref_1
       security:
         - api-key: []
         - bearer: []
@@ -2031,13 +2177,13 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Flight'
-        '401': *ref_3
-        '429': *ref_0
+        '401': *ref_6
+        '429': *ref_1
       security:
         - api-key: []
         - bearer: []
       summary: List active flights
-      tags: &ref_28
+      tags: &ref_31
         - Flights
   /v1/airframes/flights/{id}:
     get:
@@ -2058,13 +2204,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Flight'
-        '401': *ref_3
-        '429': *ref_0
+        '401': *ref_6
+        '429': *ref_1
       security:
         - api-key: []
         - bearer: []
       summary: Get a flight by id
-      tags: *ref_28
+      tags: *ref_31
   /v1/airframes/flights/bbox/{xmin},{ymin},{xmax},{ymax}:
     get:
       description: >-
@@ -2109,13 +2255,13 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Flight'
-        '401': *ref_3
-        '429': *ref_0
+        '401': *ref_6
+        '429': *ref_1
       security:
         - api-key: []
         - bearer: []
       summary: List flights within a bounding box
-      tags: *ref_28
+      tags: *ref_31
   /v1/airframes/flights/active/arrdep:
     get:
       description: >-
@@ -2132,9 +2278,9 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Flight'
-        '429': *ref_0
+        '429': *ref_1
       summary: List active flights with arrival/departure data
-      tags: *ref_28
+      tags: *ref_31
   /v1/stats:
     get:
       description: >-
@@ -2149,8 +2295,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PlatformStatsResponseDto'
-        '401': *ref_3
-        '429': *ref_0
+        '401': *ref_6
+        '429': *ref_1
       security:
         - api-key: []
         - bearer: []
@@ -2193,8 +2339,8 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Flight'
-        '401': *ref_3
-        '429': *ref_0
+        '401': *ref_6
+        '429': *ref_1
       security:
         - api-key: []
         - bearer: []
@@ -2211,13 +2357,13 @@ paths:
       responses:
         '200':
           description: All VDL ground stations as a serialized JSON object.
-        '401': *ref_3
-        '429': *ref_0
-      security: &ref_29
+        '401': *ref_6
+        '429': *ref_1
+      security: &ref_32
         - api-key: []
         - bearer: []
       summary: List all VDL ground stations
-      tags: &ref_30
+      tags: &ref_33
         - VDL
   /v1/vdl/stations/geojson:
     get:
@@ -2229,11 +2375,11 @@ paths:
       responses:
         '200':
           description: A GeoJSON FeatureCollection of VDL ground stations (Point features).
-        '401': *ref_3
-        '429': *ref_0
-      security: *ref_29
+        '401': *ref_6
+        '429': *ref_1
+      security: *ref_32
       summary: List all VDL ground stations as GeoJSON
-      tags: *ref_30
+      tags: *ref_33
   /v1/vdl/stations/{id}:
     get:
       description: >-
@@ -2251,11 +2397,11 @@ paths:
       responses:
         '200':
           description: The VDL ground station with the given ID.
-        '401': *ref_3
-        '429': *ref_0
-      security: *ref_29
+        '401': *ref_6
+        '429': *ref_1
+      security: *ref_32
       summary: Get a VDL ground station by ID
-      tags: *ref_30
+      tags: *ref_33
   /v1/decode/coverage:
     get:
       operationId: getCoverage
@@ -2267,13 +2413,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DecodeCoverageResponseDto'
-        '401': *ref_3
-        '429': *ref_0
-      security: &ref_31
+        '401': *ref_6
+        '429': *ref_1
+      security: &ref_34
         - api-key: []
         - bearer: []
       summary: Overall decode coverage statistics
-      tags: &ref_32
+      tags: &ref_35
         - Decode
   /v1/decode/coverage/labels:
     get:
@@ -2286,11 +2432,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DecodeLabelCoverageResponseDto'
-        '401': *ref_3
-        '429': *ref_0
-      security: *ref_31
+        '401': *ref_6
+        '429': *ref_1
+      security: *ref_34
       summary: Per-label decode coverage
-      tags: *ref_32
+      tags: *ref_35
   /v1/decode/positions/recent:
     get:
       operationId: getRecentPositions
@@ -2330,11 +2476,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DecodePositionsResponseDto'
-        '401': *ref_3
-        '429': *ref_0
-      security: *ref_31
+        '401': *ref_6
+        '429': *ref_1
+      security: *ref_34
       summary: Recent decoded positions for map display
-      tags: *ref_32
+      tags: *ref_35
   /v1/leaderboard/v2/meta:
     get:
       description: >-
@@ -2350,13 +2496,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/LeaderboardMetaDto'
-        '401': *ref_3
-        '429': *ref_0
-      security: &ref_33
+        '401': *ref_6
+        '429': *ref_1
+      security: &ref_36
         - api-key: []
         - bearer: []
       summary: Get leaderboard metadata
-      tags: &ref_34
+      tags: &ref_37
         - Leaderboard
   /v1/leaderboard/v2/performance/{view}:
     get:
@@ -2378,11 +2524,11 @@ paths:
           description: Computed performance object, or {} if no data is available.
         '400':
           description: Invalid view value.
-        '401': *ref_3
-        '429': *ref_0
-      security: *ref_33
+        '401': *ref_6
+        '429': *ref_1
+      security: *ref_36
       summary: Get performance leaderboard
-      tags: *ref_34
+      tags: *ref_37
   /v1/leaderboard/v2/hall-of-fame/months:
     get:
       description: >-
@@ -2393,11 +2539,11 @@ paths:
       responses:
         '200':
           description: 'Object of the form { months: ["2026-02", ...] }.'
-        '401': *ref_3
-        '429': *ref_0
-      security: *ref_33
+        '401': *ref_6
+        '429': *ref_1
+      security: *ref_36
       summary: List hall-of-fame months
-      tags: *ref_34
+      tags: *ref_37
   /v1/leaderboard/v2/hall-of-fame:
     get:
       description: >-
@@ -2418,11 +2564,11 @@ paths:
           description: Hall-of-fame object with champions and flounders for the month.
         '400':
           description: month is not in YYYY-MM format.
-        '401': *ref_3
-        '429': *ref_0
-      security: *ref_33
+        '401': *ref_6
+        '429': *ref_1
+      security: *ref_36
       summary: Get hall of fame
-      tags: *ref_34
+      tags: *ref_37
   /v1/leaderboard/v2/flounders:
     get:
       description: >-
@@ -2434,11 +2580,11 @@ paths:
       responses:
         '200':
           description: Object of the form { month, picks }.
-        '401': *ref_3
-        '429': *ref_0
-      security: *ref_33
+        '401': *ref_6
+        '429': *ref_1
+      security: *ref_36
       summary: Get current flounders
-      tags: *ref_34
+      tags: *ref_37
   /v1/leaderboard/v2/achievements/{userId}:
     get:
       description: >-
@@ -2457,11 +2603,11 @@ paths:
       responses:
         '200':
           description: Object of the form { userId, achievements }.
-        '401': *ref_3
-        '429': *ref_0
-      security: *ref_33
+        '401': *ref_6
+        '429': *ref_1
+      security: *ref_36
       summary: Get a user's achievements
-      tags: *ref_34
+      tags: *ref_37
   /v1/leaderboard/v2/{domain}/{view}/{category}/{timeframe}:
     get:
       description: >-
@@ -2512,11 +2658,11 @@ paths:
                 $ref: '#/components/schemas/LeaderboardResponseDto'
         '400':
           description: Invalid domain, view, category, or timeframe.
-        '401': *ref_3
-        '429': *ref_0
-      security: *ref_33
+        '401': *ref_6
+        '429': *ref_1
+      security: *ref_36
       summary: Get a leaderboard ranking
-      tags: *ref_34
+      tags: *ref_37
   /v1/leaderboard/v2/awards/trigger:
     post:
       description: >-
@@ -2543,11 +2689,11 @@ paths:
           description: Result of the award processing run.
         '400':
           description: month is missing or not in YYYY-MM format.
-        '401': *ref_3
-        '429': *ref_0
-      security: *ref_33
+        '401': *ref_6
+        '429': *ref_1
+      security: *ref_36
       summary: Trigger award processing for a month
-      tags: *ref_34
+      tags: *ref_37
   /v1/leaderboard/v2/awards/diagnose-flounders:
     get:
       description: >-
@@ -2565,11 +2711,11 @@ paths:
       responses:
         '200':
           description: Diagnostic object describing flounder award computation.
-        '401': *ref_3
-        '429': *ref_0
-      security: *ref_33
+        '401': *ref_6
+        '429': *ref_1
+      security: *ref_36
       summary: Diagnose flounder award computation
-      tags: *ref_34
+      tags: *ref_37
   /v1/leaderboard/v2/awards/materialize-daily-counts:
     post:
       description: >-
@@ -2587,11 +2733,11 @@ paths:
       responses:
         '201':
           description: Result of the materialization run.
-        '401': *ref_3
-        '429': *ref_0
-      security: *ref_33
+        '401': *ref_6
+        '429': *ref_1
+      security: *ref_36
       summary: Materialize daily counts for awards
-      tags: *ref_34
+      tags: *ref_37
   /v1/leaderboard/current:
     get:
       description: >-
@@ -2603,11 +2749,11 @@ paths:
       responses:
         '200':
           description: Legacy-shaped leaderboard object with current, next, and previous fields.
-        '401': *ref_3
-        '429': *ref_0
-      security: *ref_33
+        '401': *ref_6
+        '429': *ref_1
+      security: *ref_36
       summary: Get current leaderboard (legacy)
-      tags: *ref_34
+      tags: *ref_37
   /v1/leaderboard/{date}:
     get:
       description: >-
@@ -2626,11 +2772,11 @@ paths:
       responses:
         '200':
           description: Legacy-shaped leaderboard object (same as /leaderboard/current).
-        '401': *ref_3
-        '429': *ref_0
-      security: *ref_33
+        '401': *ref_6
+        '429': *ref_1
+      security: *ref_36
       summary: Get leaderboard by date (legacy)
-      tags: *ref_34
+      tags: *ref_37
   /v1/stats/frequency-usage:
     get:
       description: >-
@@ -2675,8 +2821,8 @@ paths:
                 $ref: '#/components/schemas/FrequencyUsageResponseDto'
         '400':
           description: Invalid period or invalid country code.
-        '401': *ref_3
-        '429': *ref_0
+        '401': *ref_6
+        '429': *ref_1
       security:
         - api-key: []
         - bearer: []
@@ -2701,13 +2847,13 @@ paths:
       responses:
         '200':
           description: Summary of military activity.
-        '401': *ref_3
-        '429': *ref_0
-      security: &ref_35
+        '401': *ref_6
+        '429': *ref_1
+      security: &ref_38
         - api-key: []
         - bearer: []
       summary: Military activity summary
-      tags: &ref_36
+      tags: &ref_39
         - Military
   /v1/military/missions:
     get:
@@ -2797,11 +2943,11 @@ paths:
           description: '{ data, hasMore, nextBeforeId }'
         '400':
           description: Invalid filter value.
-        '401': *ref_3
-        '429': *ref_0
-      security: *ref_35
+        '401': *ref_6
+        '429': *ref_1
+      security: *ref_38
       summary: Search military mission messages
-      tags: *ref_36
+      tags: *ref_39
   /v1/military/active:
     get:
       description: >-
@@ -2819,11 +2965,11 @@ paths:
       responses:
         '200':
           description: ''
-        '401': *ref_3
-        '429': *ref_0
-      security: *ref_35
+        '401': *ref_6
+        '429': *ref_1
+      security: *ref_38
       summary: Military aircraft in flight
-      tags: *ref_36
+      tags: *ref_39
   /v1/military/aircraft/{icao}:
     get:
       description: >-
@@ -2846,11 +2992,11 @@ paths:
       responses:
         '200':
           description: ''
-        '401': *ref_3
-        '429': *ref_0
-      security: *ref_35
+        '401': *ref_6
+        '429': *ref_1
+      security: *ref_38
       summary: Military aircraft details
-      tags: *ref_36
+      tags: *ref_39
   /v1/loadsheets:
     get:
       description: >-
@@ -2948,13 +3094,13 @@ paths:
                 $ref: '#/components/schemas/LoadsheetPageDto'
         '400':
           description: Invalid filter value.
-        '401': *ref_3
-        '429': *ref_0
-      security: &ref_37
+        '401': *ref_6
+        '429': *ref_1
+      security: &ref_40
         - api-key: []
         - bearer: []
       summary: Search loadsheets
-      tags: &ref_38
+      tags: &ref_41
         - Loadsheets
   /v1/loadsheets/{id}:
     get:
@@ -2974,13 +3120,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/LoadsheetDetailDto'
-        '401': *ref_3
+        '401': *ref_6
         '404':
           description: No such loadsheet.
-        '429': *ref_0
-      security: *ref_37
+        '429': *ref_1
+      security: *ref_40
       summary: Get a loadsheet
-      tags: *ref_38
+      tags: *ref_41
   /v1/atc/facilities:
     get:
       description: >-
@@ -3060,13 +3206,13 @@ paths:
                 $ref: '#/components/schemas/AtcFacilityListDto'
         '400':
           description: Invalid filter value.
-        '401': *ref_3
-        '429': *ref_0
-      security: &ref_39
+        '401': *ref_6
+        '429': *ref_1
+      security: &ref_42
         - api-key: []
         - bearer: []
       summary: Search ATC facilities
-      tags: &ref_40
+      tags: &ref_43
         - ATC
   /v1/atc/facilities/{id}:
     get:
@@ -3097,13 +3243,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AtcFacilityDetailDto'
-        '401': *ref_3
+        '401': *ref_6
         '404':
           description: No such facility.
-        '429': *ref_0
-      security: *ref_39
+        '429': *ref_1
+      security: *ref_42
       summary: Get an ATC facility with its frequencies
-      tags: *ref_40
+      tags: *ref_43
   /v1/atc/frequencies:
     get:
       description: >-
@@ -3201,11 +3347,11 @@ paths:
                 $ref: '#/components/schemas/AtcFrequencyListDto'
         '400':
           description: Invalid filter value.
-        '401': *ref_3
-        '429': *ref_0
-      security: *ref_39
+        '401': *ref_6
+        '429': *ref_1
+      security: *ref_42
       summary: Search ATC frequencies
-      tags: *ref_40
+      tags: *ref_43
   /v1/atc/frequencies/match:
     get:
       description: >-
@@ -3263,11 +3409,94 @@ paths:
                 $ref: '#/components/schemas/AtcMatchResultDto'
         '400':
           description: Missing or invalid frequency or position.
-        '401': *ref_3
-        '429': *ref_0
-      security: *ref_39
+        '401': *ref_6
+        '429': *ref_1
+      security: *ref_42
       summary: Match a tuned frequency and location to ATC frequencies
-      tags: *ref_40
+      tags: *ref_43
+  /v1/atc/frequency-reports:
+    post:
+      description: >-
+        For receivers and feeders whose user tuned a channel that is not in /atc/frequencies. With
+        lat and lon, a published frequency within 3 kHz and 150 km is returned as status known and
+        nothing is stored. Otherwise the report is kept for staff to review and add to the next ATC
+        data build (status received). Positions are rounded to 0.1 degree. One report per reporter
+        (user, or client IP when signed out), frequency and day; repeats update it.
+      operationId: reportFrequency
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - frequency_mhz
+              properties:
+                frequency_mhz:
+                  type: number
+                  example: 123.85
+                frequency_hz:
+                  type: integer
+                  example: 123850000
+                label:
+                  type: string
+                  example: Livermore Tower
+                  maxLength: 80
+                service:
+                  type: string
+                  example: TWR
+                  enum:
+                    - TWR
+                    - APP
+                    - DEP
+                    - CTR
+                    - GND
+                    - CLD
+                    - RAMP
+                    - ATIS
+                    - AWOS
+                    - CTAF
+                    - UNICOM
+                    - AFIS
+                    - FSS
+                    - EMERG
+                    - MIL
+                    - OPS
+                    - OTHER
+                facility:
+                  type: string
+                  example: KLVK
+                  maxLength: 40
+                lat:
+                  type: number
+                  example: 37.69
+                lon:
+                  type: number
+                  example: -121.82
+                source:
+                  type: string
+                  example: airwaves-os
+                  maxLength: 40
+                client_version:
+                  type: string
+                  example: 1.0.38
+                  maxLength: 40
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AtcFrequencyReportResultDto'
+        '400':
+          description: Invalid frequency or field.
+        '401': *ref_6
+        '429':
+          description: Too many reports.
+      security: *ref_42
+      summary: Report a frequency missing from the directory
+      tags: *ref_43
   /v1/atc/frequencies/{id}:
     get:
       description: One frequency by key, including retired ones. Cached for 10 minutes.
@@ -3287,13 +3516,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AtcFrequencyDto'
-        '401': *ref_3
+        '401': *ref_6
         '404':
           description: No such frequency.
-        '429': *ref_0
-      security: *ref_39
+        '429': *ref_1
+      security: *ref_42
       summary: Get an ATC frequency
-      tags: *ref_40
+      tags: *ref_43
   /v1/atc/meta:
     get:
       description: >-
@@ -3308,11 +3537,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AtcMetaDto'
-        '401': *ref_3
-        '429': *ref_0
-      security: *ref_39
+        '401': *ref_6
+        '429': *ref_1
+      security: *ref_42
       summary: ATC dataset version and counts
-      tags: *ref_40
+      tags: *ref_43
   /v1/atc/listen-token:
     post:
       description: >-
@@ -3334,16 +3563,16 @@ paths:
       responses:
         '200':
           description: '{ token, expires_in, limits: { max_audio, max_activity } }'
-        '401': *ref_3
+        '401': *ref_6
         '403':
           description: Neither a session nor a valid visitor token
-        '429': *ref_0
+        '429': *ref_1
         '503':
           description: ATC tokens are not configured
       security:
         - bearer: []
       summary: Get a token for live ATC audio
-      tags: &ref_41
+      tags: &ref_44
         - ATC
   /v1/atc/feeds:
     get:
@@ -3364,9 +3593,9 @@ paths:
       responses:
         '200':
           description: '{ data: Feed[] }'
-        '429': *ref_0
+        '429': *ref_1
       summary: Audio feeds of a frequency
-      tags: *ref_41
+      tags: *ref_44
 info:
   title: Airframes API
   description: >-
@@ -3836,6 +4065,51 @@ components:
           type: string
           description: Event code identifying what happened.
           example: TAKEOFF
+        details:
+          type: object
+          description: >-
+            Decoded values for the event (times, airports, gate, fuel, position, weights, ...). Keys
+            depend on the code.
+          example:
+            out_time: '1432'
+            departure_airport: KSFO
+            gate: B12
+        messageId:
+          type: string
+          description: Id of the message the event was decoded from.
+          example: '5123456789'
+        title:
+          type: string
+          description: Plain-language title for the event, e.g. "Pushed back from gate".
+          example: Pushed back from gate
+        summary:
+          type: string
+          description: >-
+            One-line summary built from the decoded details, e.g. "at 14:32Z · from KSFO · gate
+            B12". Empty when nothing was decoded.
+          example: at 14:32Z · from KSFO · gate B12
+        category:
+          type: string
+          description: >-
+            Event category (gate, runway, schedule, estimate, position, loadsheet, ...), used for
+            icons and colors.
+          example: gate
+        icon:
+          type: string
+          description: Suggested icon name (Lucide icon set) for the category.
+          example: door-open
+        routine:
+          type: boolean
+          description: >-
+            True for periodic or generic reports (aircraft data, airline data). Timelines collapse
+            runs of them so milestones stand out.
+          example: false
+        copies:
+          type: number
+          description: >-
+            How many stored copies this row stands for. Copies of one report received from several
+            ground stations are merged into one event.
+          example: 1
         flight:
           description: Flight this event belongs to.
           allOf:
@@ -3952,6 +4226,11 @@ components:
           type: string
           description: Actual departure time.
           example: '2026-06-05T14:42:00.000Z'
+        departureTimeEstimated:
+          format: date-time
+          type: string
+          description: Estimated departure time (latest ETD reported by the aircraft or airline).
+          example: '2026-06-05T14:40:00.000Z'
         departureGateScheduled:
           type: string
           description: Scheduled departure gate.
@@ -3974,6 +4253,11 @@ components:
           type: string
           description: Actual arrival time.
           example: '2026-06-05T18:09:00.000Z'
+        arrivalTimeEstimated:
+          format: date-time
+          type: string
+          description: Estimated arrival time (latest ETA reported by the aircraft or airline).
+          example: '2026-06-05T18:05:00.000Z'
         arrivalGateScheduled:
           type: string
           description: Scheduled arrival gate.
@@ -4030,6 +4314,63 @@ components:
         - messagesCount
         - createdAt
         - updatedAt
+    MessageDetailPosition:
+      type: object
+      properties:
+        lat:
+          type: number
+          example: 52.513
+        lon:
+          type: number
+          example: -20.25
+        alt:
+          type: number
+          example: 35000
+          description: Feet
+      required:
+        - lat
+        - lon
+    MessageDetailField:
+      type: object
+      properties:
+        label:
+          type: string
+          example: Ground station
+        value:
+          type: string
+          example: Shannon, Ireland (7)
+      required:
+        - label
+        - value
+    MessageDetails:
+      type: object
+      properties:
+        v:
+          type: number
+          example: 1
+          description: Format version.
+        kind:
+          type: string
+          example: Performance data
+          description: >-
+            Frame kind: Squitter, Performance data, Logon confirm, Link Handoff, CPDLC, ACARS, ADS-C
+            position, ...
+        summary:
+          type: string
+          example: Performance data · 52.5130, -20.2500 · Shannon, Ireland
+          description: One line for lists.
+        position:
+          $ref: '#/components/schemas/MessageDetailPosition'
+        fields:
+          description: Ordered label/value pairs to show as a table.
+          type: array
+          items:
+            $ref: '#/components/schemas/MessageDetailField'
+      required:
+        - v
+        - kind
+        - summary
+        - fields
     Message:
       type: object
       properties:
@@ -4130,6 +4471,15 @@ components:
           type: string
           description: Decoded human-readable message text.
           example: POSITION REPORT N4012.5 W07400.3
+        details:
+          nullable: true
+          description: >-
+            What the frame says beyond its ACARS fields, written by the aggregator for HFDL, VDL2,
+            Iridium, Aero and ADS-C messages (squitters, position reports, logons, XID, CPDLC, ...).
+            Null for plain ACARS and for messages stored before the aggregator wrote details.
+          type: object
+          allOf:
+            - $ref: '#/components/schemas/MessageDetails'
         departingAirport:
           type: string
           description: Departing airport, when present in the message.
@@ -4557,6 +4907,7 @@ components:
         position:
           description: Current position of the flight, or null if no position is available.
           nullable: true
+          type: object
           allOf:
             - $ref: '#/components/schemas/LivePositionDto'
         trailCount:
@@ -4915,6 +5266,19 @@ components:
           type: string
           description: Timestamp of the AIS message as reported by the source.
           example: '2024-06-01T11:58:00.000Z'
+        nmeaContent:
+          type: string
+          description: The AIS sentence as received (one sentence per row).
+          example: '!AIVDM,1,1,,B,15M67FC000G?ufbE`FepT@3n00Sa,0*5C'
+        details:
+          nullable: true
+          description: >-
+            The decoded AIS message (type, MMSI, position, speed, course, name, destination, ...) in
+            the same shape as aircraft message details. Fragments of a multi-sentence message are
+            joined onto the first one; the later fragments have null.
+          type: object
+          allOf:
+            - $ref: '#/components/schemas/MessageDetails'
         createdAt:
           format: date-time
           type: string
@@ -4927,6 +5291,7 @@ components:
           example: '2024-06-01T11:58:01.000Z'
       required:
         - id
+        - nmeaContent
         - createdAt
         - updatedAt
     MarineVessel:
@@ -6095,14 +6460,14 @@ components:
           description: >-
             loadsheet (the weight and balance sheet), acceptance (the crew accepting one) or request
             (the crew asking for one).
-          enum: &ref_42
+          enum: &ref_45
             - loadsheet
             - acceptance
             - request
           example: loadsheet
         status:
           type: string
-          enum: &ref_43
+          enum: &ref_46
             - final
             - prelim
           example: final
@@ -6151,7 +6516,7 @@ components:
           nullable: true
         weightUnit:
           type: string
-          enum: &ref_44
+          enum: &ref_47
             - KG
             - LB
           nullable: true
@@ -6195,7 +6560,7 @@ components:
         limiting:
           type: string
           description: The maximum that limits the load.
-          enum: &ref_45
+          enum: &ref_48
             - ZFW
             - TOW
             - LAW
@@ -6327,11 +6692,11 @@ components:
           description: >-
             loadsheet (the weight and balance sheet), acceptance (the crew accepting one) or request
             (the crew asking for one).
-          enum: *ref_42
+          enum: *ref_45
           example: loadsheet
         status:
           type: string
-          enum: *ref_43
+          enum: *ref_46
           example: final
           nullable: true
         edition:
@@ -6378,7 +6743,7 @@ components:
           nullable: true
         weightUnit:
           type: string
-          enum: *ref_44
+          enum: *ref_47
           nullable: true
         zfw:
           type: number
@@ -6420,7 +6785,7 @@ components:
         limiting:
           type: string
           description: The maximum that limits the load.
-          enum: *ref_45
+          enum: *ref_48
           nullable: true
         underload:
           type: number
@@ -6527,7 +6892,7 @@ components:
           example: airport:KSFO
         type:
           type: string
-          enum: &ref_46
+          enum: &ref_49
             - airport
             - artcc
             - tracon
@@ -6598,14 +6963,14 @@ components:
           description: Live audio feeds on this facility’s frequencies.
           example: 2
         sources:
-          example: &ref_48
+          example: &ref_51
             - faa_nasr
           type: array
           items:
             type: string
         status:
           type: string
-          enum: &ref_49
+          enum: &ref_52
             - active
             - retired
           example: active
@@ -6666,7 +7031,7 @@ components:
           example: airport:KSFO
         type:
           type: string
-          enum: *ref_46
+          enum: *ref_49
           example: airport
         ident:
           type: string
@@ -6752,7 +7117,7 @@ components:
           example: AM
         service:
           type: string
-          enum: &ref_47
+          enum: &ref_50
             - TWR
             - APP
             - DEP
@@ -6779,7 +7144,7 @@ components:
             - CTAF
           items:
             type: string
-            enum: *ref_47
+            enum: *ref_50
         serviceRaw:
           description: Uses as published by the source (FAA FREQ_USE, OurAirports type).
           example:
@@ -6930,7 +7295,7 @@ components:
           example: airport:KSFO
         type:
           type: string
-          enum: *ref_46
+          enum: *ref_49
           example: airport
         ident:
           type: string
@@ -6993,13 +7358,13 @@ components:
           description: Live audio feeds on this facility’s frequencies.
           example: 2
         sources:
-          example: *ref_48
+          example: *ref_51
           type: array
           items:
             type: string
         status:
           type: string
-          enum: *ref_49
+          enum: *ref_52
           example: active
         firstSeen:
           type: string
@@ -7103,6 +7468,47 @@ components:
       required:
         - hz
         - candidates
+    AtcKnownFrequencyDto:
+      type: object
+      properties:
+        id:
+          type: string
+          example: airport:KLVK:TWR:118100
+        name:
+          type: string
+          example: Livermore Tower
+        facilityId:
+          type: string
+          example: airport:KLVK
+        distanceKm:
+          type: number
+          example: 2.4
+      required:
+        - id
+        - facilityId
+        - distanceKm
+    AtcFrequencyReportResultDto:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+            - known
+            - received
+          description: >-
+            known: the directory already has this frequency nearby (see known), nothing was stored.
+            received: stored for review.
+        frequencyMhz:
+          type: number
+          example: 123.85
+        known:
+          type: array
+          items:
+            $ref: '#/components/schemas/AtcKnownFrequencyDto'
+      required:
+        - status
+        - frequencyMhz
+        - known
     AtcDatasetDto:
       type: object
       properties:
@@ -7130,6 +7536,7 @@ components:
       properties:
         dataset:
           nullable: true
+          type: object
           allOf:
             - $ref: '#/components/schemas/AtcDatasetDto'
         facilitiesByType:
