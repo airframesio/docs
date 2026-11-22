@@ -8,13 +8,34 @@ Feeding requires that you have active reception of aviation data (coming from ai
 
 ## Airframes Installers (Recommended for Beginners)
 
-The easiest way to get started is the [Airframes Installers](https://install.airframes.sh), which provide one-command setup for ACARS, VDL2, and HFDL decoders on Linux, macOS, and Windows (via WSL):
+The easiest way to get started is the [Airframes Installers](https://install.airframes.sh), which provide one-command setup for ACARS, VDL2, and HFDL decoders on Linux, macOS, and Windows (via WSL). Run this in a terminal on the machine your SDR is plugged into:
 
 ```bash
 curl -sSL https://install.airframes.sh/installer | bash
 ```
 
 The installer will walk you through selecting your decoder type, configuring your SDR, and setting up feeding to Airframes.
+
+To skip the questions (for example over SSH without a terminal, or in a script), name the decoder: `acarsdec`, `dumpvdl2`, `dumphfdl`, `vdlm2dec`, or `all`:
+
+```bash
+curl -sSL https://install.airframes.sh/installer | bash -s -- -y acarsdec
+```
+
+Everything after `bash -s --` is passed to the installer. Useful options:
+
+| Option | What it does |
+|--------|--------------|
+| `-y` | Don't ask for confirmation |
+| `--region north_america` | Default frequencies for `north_america`, `europe`, `asia_pacific` or `global` |
+| `--sdr airspy` | SDR type: `rtlsdr` (default), `airspy` or `sdrplay` |
+| `--device 00000002` | Which RTL-SDR to use, by index or serial |
+| `--method docker` | Install with `binary` (default), `source` or `docker` |
+| `--help` | All options |
+
+### Already feeding ADS-B?
+
+If this machine already runs PiAware, readsb, FR24 or another ADS-B feeder: Airframes collects ACARS, VDL2 and HFDL messages, **not ADS-B**, so your ADS-B feeding stays as it is. Plug in a second SDR for Airframes (an unfiltered one, since ADS-B dongles are often filtered for 1090 MHz) and run the same command. The installer finds your ADS-B setup and uses the other SDR. If it picks the wrong one, pass `--device <serial>`.
 
 ## Docker with ACARS Hub (Recommended for Experienced Users)
 
@@ -37,12 +58,12 @@ Most modern decoders can feed Airframes directly without a separate feeder clien
 | VHF ACARS | UDP | feed.airframes.io | 5550 |
 | VDL2 | UDP | feed.airframes.io | 5552 |
 | VDL2 | TCP | feed.airframes.io | 5553 |
-| HFDL | UDP | feed.airframes.io | 5556 |
+| HFDL | TCP | feed.airframes.io | 5556 |
 
 See the individual decoder guides for the exact command-line flags:
 - [acarsdec](/docs/decoders/install-acarsdec) — Use `-j feed.airframes.io:5550`
 - [dumpvdl2](/docs/decoders/install-dumpvdl2) — Use `--output decoded:json:udp:address=feed.airframes.io,port=5552`
-- [dumphfdl](/docs/decoders/install-dumphfdl) — Use `--output decoded:json:udp:address=feed.airframes.io,port=5556`
+- [dumphfdl](/docs/decoders/install-dumphfdl) — Use `--output decoded:json:tcp:address=feed.airframes.io,port=5556`
 
 ## Manual Installation
 

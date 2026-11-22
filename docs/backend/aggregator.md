@@ -17,7 +17,7 @@ Feeders send decoded ACARS messages to the aggregator at `feed.airframes.io` on 
 | 5550 | VHF ACARS | UDP |
 | 5552 | VDL2 | UDP |
 | 5553 | VDL2 | TCP |
-| 5556 | HFDL | UDP/TCP |
+| 5556 | HFDL | TCP |
 
 ## Ingests
 

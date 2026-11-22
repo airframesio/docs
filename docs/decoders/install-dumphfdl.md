@@ -57,7 +57,7 @@ HFDL frequencies are specified in kHz:
 
 ```bash
 dumphfdl --soapysdr driver=rtlsdr --sample-rate 250000 \
-  --output decoded:json:udp:address=feed.airframes.io,port=5556 \
+  --output decoded:json:tcp:address=feed.airframes.io,port=5556 \
   --station-id MY-STATION-HFDL \
   8927 8912 8894 8885 8834
 ```
@@ -84,7 +84,7 @@ dumphfdl uses the same output syntax as dumpvdl2:
 ```
 
 Examples:
-- `decoded:json:udp:address=feed.airframes.io,port=5556` — Feed to Airframes
+- `decoded:json:tcp:address=feed.airframes.io,port=5556` — Feed to Airframes
 - `decoded:text:file:path=/var/log/hfdl.log,rotate=hourly` — Log to file
 - `decoded:json:zmq:mode=server,endpoint=tcp://0.0.0.0:45556` — ZeroMQ output
 
@@ -92,7 +92,7 @@ Examples:
 
 ```bash
 dumphfdl --soapysdr driver=rtlsdr --sample-rate 250000 --gain 42 \
-  --output decoded:json:udp:address=feed.airframes.io,port=5556 \
+  --output decoded:json:tcp:address=feed.airframes.io,port=5556 \
   --station-id MY-STATION-HFDL \
   8927 8912 8894 8885 8834
 ```
@@ -136,7 +136,7 @@ After=network.target
 
 [Service]
 Type=simple
-ExecStart=/usr/local/bin/dumphfdl --soapysdr driver=rtlsdr --sample-rate 250000 --gain 42 --output decoded:json:udp:address=feed.airframes.io,port=5556 --station-id MY-STATION-HFDL 8927 8912 8894 8885 8834
+ExecStart=/usr/local/bin/dumphfdl --soapysdr driver=rtlsdr --sample-rate 250000 --gain 42 --output decoded:json:tcp:address=feed.airframes.io,port=5556 --station-id MY-STATION-HFDL 8927 8912 8894 8885 8834
 Restart=always
 RestartSec=5
 
