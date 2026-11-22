@@ -12,6 +12,9 @@ messages and station activity as they happen instead of polling.
 - **Transport:** WebSocket only (`transports: ['websocket']`)
 - **Protocol:** Socket.IO (use a Socket.IO client, not a raw WebSocket)
 
+To subscribe to network-wide messages by aircraft, flight, station and more,
+over WebSocket or MQTT, see [Streaming Subscriptions](./streaming.md).
+
 ## Authenticating
 
 Pass your credentials in the Socket.IO handshake (either `auth` or `query`):
