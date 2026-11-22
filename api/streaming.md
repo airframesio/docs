@@ -10,7 +10,13 @@ Streaming subscriptions are being rolled out. Limits may change before general a
 
 Subscribe to live messages from across the Airframes network, filtered to what you care about. The same subscriptions and limits are available over **WebSocket** (Socket.IO) and **MQTT**. Station, aircraft, label and message-type filters work on both; airline, flight and region filters are WebSocket only.
 
-For messages from your own stations only, see [Realtime / Streaming](./realtime.md).
+## Your own stations are always included
+
+On every plan, including Free, you can subscribe to your own stations' messages, and it never counts against your plan. A subscription is an own-station subscription when every value in its `stations` filter is a station you own (ident or numeric id). It does not use your plan's connections, subscriptions per connection, messages per second or usage figures, and it works over WebSocket and MQTT even if your plan includes neither. Abuse limits still apply: up to 10 connections and 50 own-station subscriptions per connection.
+
+A subscription that mixes your stations with anything else, such as another station or a tail across the network, is checked against your plan as usual. If a station stops being yours, its subscriptions end with `stream:unsubscribed` and reason `not_your_station`.
+
+The original own-station WebSocket feed also still works on every plan; see [Realtime / Streaming](./realtime.md).
 
 ## What your plan includes
 
@@ -26,7 +32,7 @@ For messages from your own stations only, see [Realtime / Streaming](./realtime.
 | Full network firehose | — | — | — | ✓ |
 | Messages per second (burst) | — | 20 (100) | 100 (500) | Custom |
 
-Limits apply per account. Connections are counted across WebSocket and MQTT together.
+Limits apply per account. Connections are counted across WebSocket and MQTT together. None of these limits apply to [your own stations](#your-own-stations-are-always-included).
 
 ## Filters
 
@@ -40,7 +46,7 @@ That filter matches label `H1` or `80` messages from either of the two aircraft.
 
 | Field | Matches | Plans |
 |---|---|---|
-| `stations` | Station ident or numeric id | Pro and up |
+| `stations` | Station ident or numeric id | Pro and up, or any plan for your own stations |
 | `tails` | Aircraft registration | Pro and up |
 | `flights` | Flight number | Pro and up |
 | `icaos` | ICAO 24-bit hex address | Pro and up |
@@ -91,7 +97,7 @@ A message that matches several of your subscriptions is delivered once, with eve
 | Client → server | `stream:unsubscribe` | `{ id }` |
 | Client → server | `stream:status` | none |
 | Server → client | `stream:subscribed` | `{ id, filter, class, subscriptions, maxSubscriptions }` |
-| Server → client | `stream:unsubscribed` | `{ id, removed }`, or `{ id, reason: 'plan_changed' }` |
+| Server → client | `stream:unsubscribed` | `{ id, removed }`, or `{ id, reason }` with reason `plan_changed` or `not_your_station` |
 | Server → client | `stream:message` | `{ subscriptions: string[], message }` |
 | Server → client | `stream:status` | `{ plan, limits, delivered, dropped, subscriptions }` |
 | Server → client | `stream:throttled` | `{ dropped, droppedTotal, ratePerSecond, plan }` |
@@ -99,7 +105,7 @@ A message that matches several of your subscriptions is delivered once, with eve
 
 ## MQTT
 
-Available on Business and Enterprise.
+Available on Business and Enterprise. On any plan you can also use MQTT for [your own stations](#your-own-stations-are-always-included), with `airframes/v1/messages/+/YOUR-STATION/#` or `airframes/stations/YOUR-STATION/messages` (or `airframes/stations/+/messages` for all of them).
 
 - **Host and port:** published here when MQTT subscriptions launch. The examples below use `MQTT_HOST` as a placeholder.
 - **Encryption:** connect over TLS. Your API key is the password, so never send it over a plain connection.
@@ -117,7 +123,7 @@ The `airframes/v1/messages` prefix is lower-case and topic matching is case-sens
 | Topic filter | Receives | Plans |
 |---|---|---|
 | `airframes/v1/messages/+/+/N123AB/#` | One aircraft | Business and up |
-| `airframes/v1/messages/+/KE-KSFO1/#` | One station | Business and up |
+| `airframes/v1/messages/+/KE-KSFO1/#` | One station | Business and up, or any plan if it is your station |
 | `airframes/v1/messages/+/+/+/H1` | One label | Business and up |
 | `airframes/v1/messages/ACARS/#` | One message type | Enterprise |
 | `airframes/v1/messages/#` | Everything | Enterprise |
@@ -140,7 +146,7 @@ Streaming is **live and at most once**.
 - Nothing is stored for you while you are disconnected, and there is no replay.
 - If messages arrive faster than your plan's rate, the extra messages are dropped, and a `stream:throttled` notice with the count is sent at most once every ten seconds. Over MQTT this notice arrives on `airframes/v1/notices` as described above, so a client that discards unmatched messages will not see it.
 - If your client stops reading for about 30 seconds, it is disconnected with `slow_consumer`.
-- A plan change applies within a few minutes without a reconnect. On a downgrade, subscriptions your new plan does not allow are removed and you are told which.
+- A plan change applies within a few minutes without a reconnect. On a downgrade, subscriptions your new plan does not allow are removed and you are told which. Subscriptions to your own stations are kept.
 
 For complete capture, use the REST API or a bulk export.
 
