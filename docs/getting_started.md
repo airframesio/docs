@@ -14,10 +14,11 @@ The fastest path from unboxing to feeding:
 
 1. **Get an RTL-SDR dongle and antenna** — An [RTL-SDR Blog V4](https://www.rtl-sdr.com/rtl-sdr-blog-v-4/) or [ADSBExchange Orange SDR](/docs/hardware) and a basic VHF antenna will work.
 2. **Set up a Raspberry Pi or Linux computer** — Any Raspberry Pi 3 or newer, or an x86 Linux machine.
-3. **Run the Airframes installer:**
+3. **Run the Airframes installer** in a terminal on that machine and answer its questions:
    ```bash
    curl -sSL https://install.airframes.sh/installer | bash
    ```
+   Or name the decoder to skip the questions: `curl -sSL https://install.airframes.sh/installer | bash -s -- -y acarsdec --station-id MY-STATION`, with the Station ID from your station page on [app.airframes.io](https://app.airframes.io). On Linux it starts the decoder as a service that runs on boot. See [How to Feed](/docs/feeding/how#airframes-installers-recommended-for-beginners) for options. ADS-B? Airframes doesn't ingest it itself, but the installer can feed it to our partners Airplanes.Live and Plane Watch (pick ADS-B, or `adsb`); see [ADS-B](/docs/feeding/how#ads-b).
 4. **Verify your feed** — Visit [app.airframes.io/stations](https://app.airframes.io/stations) and search for your station ID.
 
 That's it — you're feeding!
