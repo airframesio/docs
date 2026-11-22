@@ -1071,8 +1071,9 @@ paths:
     get:
       description: >-
         Returns the fixed set of HFDL (High Frequency Data Link) ground stations, each enriched with
-        its currently active frequencies and last-updated timestamp pulled from the cache. The
-        response is a JSON-encoded string with a top-level "ground_stations" array.
+        its currently active frequencies and last-updated timestamp pulled from Redis, where the
+        aggregator records them. The response is a JSON-encoded string with a top-level
+        "ground_stations" array.
       operationId: groundStations
       parameters: []
       responses:
@@ -2841,6 +2842,338 @@ paths:
       security: *ref_35
       summary: Military aircraft details
       tags: *ref_36
+  /v1/atc/facilities:
+    get:
+      description: >-
+        Airports, ARTCCs (centers), TRACONs, flight service stations and area control centres that
+        have voice frequencies. Filters combine with AND. With near=, results are ordered by
+        distance; otherwise exact identifier matches come first, then centers, TRACONs and larger
+        airports. US data comes from the FAA NASR 28-day subscription, the rest of the world from
+        OurAirports. Cached for 5 minutes.
+      operationId: listFacilities
+      parameters:
+        - name: page
+          required: false
+          in: query
+          description: 1-based page. Default 1.
+          schema:
+            example: '1'
+        - name: limit
+          required: false
+          in: query
+          description: 1 to 500. Default 100.
+          schema:
+            example: '100'
+        - name: has_frequencies
+          required: false
+          in: query
+          description: false includes facilities without active frequencies. Default true.
+          schema:
+            example: 'true'
+        - name: status
+          required: false
+          in: query
+          description: active (default), retired or all.
+          schema:
+            example: active
+        - name: bbox
+          required: false
+          in: query
+          description: minLon,minLat,maxLon,maxLat.
+          schema:
+            example: '-123,37,-121.5,38.2'
+        - name: radius_nm
+          required: false
+          in: query
+          description: Radius for near=, nautical miles, up to 500. Default 50.
+          schema:
+            example: '50'
+        - name: near
+          required: false
+          in: query
+          description: lat,lon. Adds distanceKm and distanceNm.
+          schema:
+            example: 37.62,-122.38
+        - name: country
+          required: false
+          in: query
+          description: ISO 3166-1 alpha-2 country code.
+          schema:
+            example: US
+        - name: type
+          required: false
+          in: query
+          description: 'Comma-separated: airport, artcc, tracon, fss, acc, fir, oceanic, other.'
+          schema:
+            example: airport,tracon
+        - name: q
+          required: false
+          in: query
+          description: Identifier (ident, ICAO, IATA, FAA LID; exact) or part of the name or city.
+          schema:
+            example: SFO
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AtcFacilityListDto'
+        '400':
+          description: Invalid filter value.
+        '401': *ref_3
+        '429': *ref_0
+      security: &ref_37
+        - api-key: []
+        - bearer: []
+      summary: Search ATC facilities
+      tags: &ref_38
+        - ATC
+  /v1/atc/facilities/{id}:
+    get:
+      description: >-
+        One facility by key, with its frequencies (primary service order) and, for airports, the
+        frequencies of other facilities that serve it (servedBy, e.g. TRACON approach). Cached for
+        10 minutes.
+      operationId: getFacility
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Facility key, type:ident.
+          schema:
+            example: airport:KSFO
+            type: string
+        - name: include_retired
+          required: false
+          in: query
+          description: true also lists retired frequencies.
+          schema:
+            example: 'false'
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AtcFacilityDetailDto'
+        '401': *ref_3
+        '404':
+          description: No such facility.
+        '429': *ref_0
+      security: *ref_37
+      summary: Get an ATC facility with its frequencies
+      tags: *ref_38
+  /v1/atc/frequencies:
+    get:
+      description: >-
+        Voice frequencies (tower, ground, clearance, approach and departure, center, ATIS/AWOS,
+        CTAF/UNICOM, FSS, ...). Filters combine with AND. Each frequency carries a stable key, its
+        carrier frequency, primary and all services, transmitter sites, served airports, the stream
+        policy and the live feed count. Cached for 5 minutes.
+      operationId: listFrequencies
+      parameters:
+        - name: page
+          required: false
+          in: query
+          description: 1-based page. Default 1.
+          schema:
+            example: '1'
+        - name: limit
+          required: false
+          in: query
+          description: 1 to 500. Default 100.
+          schema:
+            example: '100'
+        - name: status
+          required: false
+          in: query
+          description: active (default), retired or all.
+          schema:
+            example: active
+        - name: q
+          required: false
+          in: query
+          description: Part of the name, callsign or sector.
+          schema:
+            example: NorCal
+        - name: band
+          required: false
+          in: query
+          description: HF, VHF or UHF.
+          schema:
+            example: VHF
+        - name: hz
+          required: false
+          in: query
+          description: Carrier frequency in Hz, matched within 3 kHz.
+          schema:
+            example: '120500000'
+        - name: mhz
+          required: false
+          in: query
+          description: Frequency in MHz (8.33 kHz channel names accepted), matched within 3 kHz.
+          schema:
+            example: '120.5'
+        - name: bbox
+          required: false
+          in: query
+          description: minLon,minLat,maxLon,maxLat.
+          schema:
+            example: '-123,37,-121.5,38.2'
+        - name: radius_nm
+          required: false
+          in: query
+          description: Radius for near=, up to 500 nm. Default 50.
+          schema:
+            example: '50'
+        - name: near
+          required: false
+          in: query
+          description: lat,lon. Orders by distance and adds distanceKm and distanceNm.
+          schema:
+            example: 37.62,-122.38
+        - name: country
+          required: false
+          in: query
+          schema:
+            example: US
+        - name: service
+          required: false
+          in: query
+          description: >-
+            Comma-separated, any of a frequency’s services: TWR, APP, DEP, CTR, GND, CLD, RAMP,
+            ATIS, AWOS, CTAF, UNICOM, AFIS, FSS, EMERG, MIL, OPS, OTHER.
+          schema:
+            example: TWR,GND
+        - name: facility_id
+          required: false
+          in: query
+          description: Facility key.
+          schema:
+            example: airport:KSFO
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AtcFrequencyListDto'
+        '400':
+          description: Invalid filter value.
+        '401': *ref_3
+        '429': *ref_0
+      security: *ref_37
+      summary: Search ATC frequencies
+      tags: *ref_38
+  /v1/atc/frequencies/match:
+    get:
+      description: >-
+        For receivers and feeders that know only what they are tuned to and where they are.
+        Candidates are frequencies within 3 kHz (8.33 kHz channels) or 5 kHz of the carrier and
+        within radius_km, or 2.5 times the service’s typical range when larger (center frequencies
+        are heard far away). Distance is to the nearest transmitter site when the frequency has
+        sites. score = exp(-distance / service range) x (1 - 0.5 x frequency offset / tolerance), x
+        0.25 for retired frequencies; confidence = score / sum of scores. Service ranges (km):
+        GND/CLD 25, RAMP 15, OPS 40, TWR/CTAF/UNICOM/AFIS/AWOS 50, ATIS 80, APP/DEP 120,
+        FSS/EMERG/MIL 150, CTR 250, other 60. The same ranking is available in SQL as
+        atc_match_frequency(hz, lat, lon, radius_km, limit).
+      operationId: match
+      parameters:
+        - name: limit
+          required: false
+          in: query
+          description: 1 to 50. Default 10.
+          schema:
+            example: '10'
+        - name: radius_km
+          required: false
+          in: query
+          description: 1 to 1000. Default 150.
+          schema:
+            example: '150'
+        - name: lon
+          required: true
+          in: query
+          schema:
+            example: '-122.4'
+        - name: lat
+          required: true
+          in: query
+          schema:
+            example: '37.7'
+        - name: hz
+          required: false
+          in: query
+          description: Tuned carrier frequency in Hz.
+          schema:
+            example: '120500000'
+        - name: mhz
+          required: false
+          in: query
+          description: Tuned frequency in MHz (8.33 kHz channel names accepted). Give mhz or hz.
+          schema:
+            example: '120.5'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AtcMatchResultDto'
+        '400':
+          description: Missing or invalid frequency or position.
+        '401': *ref_3
+        '429': *ref_0
+      security: *ref_37
+      summary: Match a tuned frequency and location to ATC frequencies
+      tags: *ref_38
+  /v1/atc/frequencies/{id}:
+    get:
+      description: One frequency by key, including retired ones. Cached for 10 minutes.
+      operationId: getFrequency
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Frequency key.
+          schema:
+            example: airport:KSFO:TWR:120500
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AtcFrequencyDto'
+        '401': *ref_3
+        '404':
+          description: No such frequency.
+        '429': *ref_0
+      security: *ref_37
+      summary: Get an ATC frequency
+      tags: *ref_38
+  /v1/atc/meta:
+    get:
+      description: >-
+        The data cycle currently loaded, when it was synced, and active counts by facility type and
+        service.
+      operationId: meta
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AtcMetaDto'
+        '401': *ref_3
+        '429': *ref_0
+      security: *ref_37
+      summary: ATC dataset version and counts
+      tags: *ref_38
 info:
   title: Airframes API
   description: >-
@@ -5549,6 +5882,638 @@ components:
         - summary
         - filters
         - rows
+    AtcFacilityDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: >-
+            Stable facility key, type:ident. Airports use the OurAirports ident (the ICAO code where
+            there is one).
+          example: airport:KSFO
+        type:
+          type: string
+          enum: &ref_39
+            - airport
+            - artcc
+            - tracon
+            - fss
+            - acc
+            - fir
+            - oceanic
+            - other
+          example: airport
+        ident:
+          type: string
+          example: KSFO
+        icao:
+          type: string
+          example: KSFO
+          nullable: true
+        iata:
+          type: string
+          example: SFO
+          nullable: true
+        faaId:
+          type: string
+          description: FAA location identifier.
+          example: SFO
+          nullable: true
+        name:
+          type: string
+          example: San Francisco International Airport
+          nullable: true
+        city:
+          type: string
+          example: San Francisco
+          nullable: true
+        region:
+          type: string
+          description: State or region code.
+          example: CA
+          nullable: true
+        country:
+          type: string
+          description: ISO 3166-1 alpha-2.
+          example: US
+          nullable: true
+        lat:
+          type: number
+          description: Latitude. For ARTCCs and TRACONs, the centre of their sites or served airports.
+          example: 37.618806
+          nullable: true
+        lon:
+          type: number
+          example: -122.375416
+          nullable: true
+        parentId:
+          type: string
+          description: Parent facility key (ARTCC or FIR), when known.
+          nullable: true
+          example: null
+        airportType:
+          type: string
+          example: large_airport
+          nullable: true
+        frequencyCount:
+          type: number
+          description: Active frequencies of this facility.
+          example: 9
+        liveFeedCount:
+          type: number
+          description: Live audio feeds on this facility’s frequencies.
+          example: 2
+        sources:
+          example: &ref_41
+            - faa_nasr
+          type: array
+          items:
+            type: string
+        status:
+          type: string
+          enum: &ref_42
+            - active
+            - retired
+          example: active
+        firstSeen:
+          type: string
+          description: First data cycle with this facility.
+          example: '2026-10-29'
+        lastSeen:
+          type: string
+          description: Latest data cycle with this facility.
+          example: '2026-10-29'
+        updatedAt:
+          type: string
+          example: '2026-11-22T11:23:00.000Z'
+        distanceKm:
+          type: number
+          description: 'Only with near=: distance in km.'
+          example: 12.4
+        distanceNm:
+          type: number
+          description: 'Only with near=: distance in nautical miles.'
+          example: 6.7
+      required:
+        - id
+        - type
+        - ident
+        - frequencyCount
+        - liveFeedCount
+        - sources
+        - status
+        - updatedAt
+    AtcFacilityListDto:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AtcFacilityDto'
+        total:
+          type: number
+          example: 1
+        page:
+          type: number
+          example: 1
+        limit:
+          type: number
+          example: 100
+      required:
+        - data
+        - total
+        - page
+        - limit
+    AtcFacilitySummaryDto:
+      type: object
+      properties:
+        id:
+          type: string
+          example: airport:KSFO
+        type:
+          type: string
+          enum: *ref_39
+          example: airport
+        ident:
+          type: string
+          example: KSFO
+        name:
+          type: string
+          example: San Francisco International Airport
+          nullable: true
+        country:
+          type: string
+          example: US
+          nullable: true
+      required:
+        - id
+        - type
+        - ident
+    AtcSiteDto:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Mount Tamalpais
+          nullable: true
+        lat:
+          type: number
+          example: 37.92
+        lon:
+          type: number
+          example: -122.6
+      required:
+        - lat
+        - lon
+    AtcFrequencyDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: >-
+            Stable frequency key, facility key:SERVICE:kHz. The kHz is the published channel (8.33
+            kHz channel names as published). Assigned once and kept even if the primary service
+            changes.
+          example: airport:KSFO:TWR:120500
+        facilityId:
+          type: string
+          example: airport:KSFO
+        facility:
+          $ref: '#/components/schemas/AtcFacilitySummaryDto'
+        frequencyMhz:
+          type: number
+          description: Carrier frequency in MHz.
+          example: 120.5
+        frequencyHz:
+          type: number
+          description: Carrier frequency in Hz (8.33 kHz channel 132.835 is 132833333).
+          example: 120500000
+        khz:
+          type: number
+          description: Published value in kHz, as used in the key.
+          example: 120500
+        channel:
+          type: string
+          description: 8.33 kHz channel name when it differs from the carrier, else null.
+          example: null
+          nullable: true
+        spacingKhz:
+          type: number
+          description: 'Channel spacing for VHF airband: 25 or 8.33.'
+          example: 25
+          nullable: true
+        band:
+          type: string
+          enum:
+            - HF
+            - VHF
+            - UHF
+          example: VHF
+        modulation:
+          type: string
+          enum:
+            - AM
+            - USB
+            - NFM
+          example: AM
+        service:
+          type: string
+          enum: &ref_40
+            - TWR
+            - APP
+            - DEP
+            - CTR
+            - GND
+            - CLD
+            - RAMP
+            - ATIS
+            - AWOS
+            - CTAF
+            - UNICOM
+            - AFIS
+            - FSS
+            - EMERG
+            - MIL
+            - OPS
+            - OTHER
+          description: Primary service.
+          example: TWR
+        services:
+          type: array
+          example:
+            - TWR
+            - CTAF
+          items:
+            type: string
+            enum: *ref_40
+        serviceRaw:
+          description: Uses as published by the source (FAA FREQ_USE, OurAirports type).
+          example:
+            - LCL/P
+            - CTAF
+          type: array
+          items:
+            type: string
+        name:
+          type: string
+          example: San Francisco Tower
+          nullable: true
+        callsign:
+          type: string
+          example: San Francisco
+          nullable: true
+        sector:
+          type: string
+          description: Sector, runway or bearing limits.
+          example: RWY 28L/R
+          nullable: true
+        altitude:
+          type: string
+          enum:
+            - low
+            - high
+            - low_high
+            - ultra_high
+          description: Center frequencies only.
+          nullable: true
+          example: null
+        hours:
+          type: string
+          example: '24'
+          nullable: true
+        remarks:
+          type: string
+          nullable: true
+          example: null
+        cpdlc:
+          type: string
+          nullable: true
+          example: null
+        tier:
+          type: string
+          enum:
+            - primary
+            - secondary
+          nullable: true
+          example: primary
+        initialContact:
+          type: boolean
+          description: Initial-contact frequency (FAA "IC").
+          example: false
+        receiveOnly:
+          type: boolean
+          description: Ground station only receives on this frequency (FAA "R" suffix).
+          example: false
+        lat:
+          type: number
+          description: Centre of the transmitter sites, else the facility position.
+          example: 37.618806
+          nullable: true
+        lon:
+          type: number
+          example: -122.375416
+          nullable: true
+        sites:
+          description: Transmitter sites (ARTCC RCAGs, FSS RCOs).
+          nullable: true
+          type: array
+          items:
+            $ref: '#/components/schemas/AtcSiteDto'
+        servedAirports:
+          description: Airports this frequency serves, for TRACON and center frequencies.
+          example: []
+          type: array
+          items:
+            type: string
+        sources:
+          example:
+            - faa_nasr
+          type: array
+          items:
+            type: string
+        status:
+          type: string
+          enum:
+            - active
+            - retired
+          example: active
+        streamable:
+          type: boolean
+          description: Whether audio of this frequency may be rebroadcast (atc_stream_policies; default true).
+          example: true
+        streamPolicyReason:
+          type: string
+          nullable: true
+          example: null
+        liveFeedCount:
+          type: number
+          example: 1
+        firstSeen:
+          type: string
+          example: '2026-10-29'
+        lastSeen:
+          type: string
+          example: '2026-10-29'
+        updatedAt:
+          type: string
+          example: '2026-11-22T11:23:00.000Z'
+        distanceKm:
+          type: number
+          description: 'Only with near=: distance in km.'
+          example: 3.1
+        distanceNm:
+          type: number
+          description: 'Only with near=: distance in nautical miles.'
+          example: 1.7
+      required:
+        - id
+        - facilityId
+        - facility
+        - frequencyMhz
+        - frequencyHz
+        - khz
+        - band
+        - modulation
+        - service
+        - services
+        - serviceRaw
+        - initialContact
+        - receiveOnly
+        - servedAirports
+        - sources
+        - status
+        - streamable
+        - liveFeedCount
+        - updatedAt
+    AtcFacilityDetailDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: >-
+            Stable facility key, type:ident. Airports use the OurAirports ident (the ICAO code where
+            there is one).
+          example: airport:KSFO
+        type:
+          type: string
+          enum: *ref_39
+          example: airport
+        ident:
+          type: string
+          example: KSFO
+        icao:
+          type: string
+          example: KSFO
+          nullable: true
+        iata:
+          type: string
+          example: SFO
+          nullable: true
+        faaId:
+          type: string
+          description: FAA location identifier.
+          example: SFO
+          nullable: true
+        name:
+          type: string
+          example: San Francisco International Airport
+          nullable: true
+        city:
+          type: string
+          example: San Francisco
+          nullable: true
+        region:
+          type: string
+          description: State or region code.
+          example: CA
+          nullable: true
+        country:
+          type: string
+          description: ISO 3166-1 alpha-2.
+          example: US
+          nullable: true
+        lat:
+          type: number
+          description: Latitude. For ARTCCs and TRACONs, the centre of their sites or served airports.
+          example: 37.618806
+          nullable: true
+        lon:
+          type: number
+          example: -122.375416
+          nullable: true
+        parentId:
+          type: string
+          description: Parent facility key (ARTCC or FIR), when known.
+          nullable: true
+          example: null
+        airportType:
+          type: string
+          example: large_airport
+          nullable: true
+        frequencyCount:
+          type: number
+          description: Active frequencies of this facility.
+          example: 9
+        liveFeedCount:
+          type: number
+          description: Live audio feeds on this facility’s frequencies.
+          example: 2
+        sources:
+          example: *ref_41
+          type: array
+          items:
+            type: string
+        status:
+          type: string
+          enum: *ref_42
+          example: active
+        firstSeen:
+          type: string
+          description: First data cycle with this facility.
+          example: '2026-10-29'
+        lastSeen:
+          type: string
+          description: Latest data cycle with this facility.
+          example: '2026-10-29'
+        updatedAt:
+          type: string
+          example: '2026-11-22T11:23:00.000Z'
+        distanceKm:
+          type: number
+          description: 'Only with near=: distance in km.'
+          example: 12.4
+        distanceNm:
+          type: number
+          description: 'Only with near=: distance in nautical miles.'
+          example: 6.7
+        frequencies:
+          type: array
+          items:
+            $ref: '#/components/schemas/AtcFrequencyDto'
+        servedBy:
+          description: Frequencies of other facilities that serve this airport (TRACON approach and departure).
+          type: array
+          items:
+            $ref: '#/components/schemas/AtcFrequencyDto'
+      required:
+        - id
+        - type
+        - ident
+        - frequencyCount
+        - liveFeedCount
+        - sources
+        - status
+        - updatedAt
+        - frequencies
+        - servedBy
+    AtcFrequencyListDto:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AtcFrequencyDto'
+        total:
+          type: number
+          example: 9
+        page:
+          type: number
+          example: 1
+        limit:
+          type: number
+          example: 100
+      required:
+        - data
+        - total
+        - page
+        - limit
+    AtcMatchCandidateDto:
+      type: object
+      properties:
+        frequency:
+          $ref: '#/components/schemas/AtcFrequencyDto'
+        distanceKm:
+          type: number
+          description: To the nearest transmitter site, else the frequency/facility position.
+          example: 3.12
+        distanceNm:
+          type: number
+          example: 1.68
+        score:
+          type: number
+          description: >-
+            exp(-distance / service range) x (1 - 0.5 x frequency offset / tolerance), x 0.25 if
+            retired. 0 to 1.
+          example: 0.94
+        confidence:
+          type: number
+          description: score / sum of all candidates’ scores; the confidences of one response add up to 1.
+          example: 0.97
+      required:
+        - frequency
+        - distanceKm
+        - distanceNm
+        - score
+        - confidence
+    AtcMatchResultDto:
+      type: object
+      properties:
+        hz:
+          type: number
+          description: The carrier frequency that was matched, in Hz.
+          example: 120500000
+        candidates:
+          type: array
+          items:
+            $ref: '#/components/schemas/AtcMatchCandidateDto'
+      required:
+        - hz
+        - candidates
+    AtcDatasetDto:
+      type: object
+      properties:
+        cycle:
+          type: string
+          example: '2026-10-29'
+        airac:
+          type: string
+          example: '2611'
+        facilities:
+          type: number
+          example: 15801
+        frequencies:
+          type: number
+          example: 37171
+        syncedAt:
+          type: string
+          example: '2026-11-22T11:23:00.000Z'
+      required:
+        - facilities
+        - frequencies
+        - syncedAt
+    AtcMetaDto:
+      type: object
+      properties:
+        dataset:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/AtcDatasetDto'
+        facilitiesByType:
+          type: object
+          example:
+            airport: 15505
+            tracon: 192
+            artcc: 28
+            fss: 75
+        frequenciesByService:
+          type: object
+          example:
+            TWR: 4175
+            APP: 4133
+            CTR: 2488
+      required:
+        - facilitiesByType
+        - frequenciesByService
     ApiError:
       type: object
       properties:

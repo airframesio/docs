@@ -58,3 +58,10 @@ Airframes also acknowledges the open source decoder projects that make ACARS rec
 * **[libacars](https://github.com/szpajder/libacars)** — ACARS message decoding library by Tomasz Lemiech, used by dumpvdl2, dumphfdl, and acarsdec
 
 These tools, built and maintained by dedicated developers, form the foundation that makes community-driven ACARS aggregation possible.
+
+## Data Sources
+
+The ATC voice frequency data behind [atc.airframes.io](https://atc.airframes.io) and the `/v1/atc` API endpoints is built from:
+
+* **[FAA NASR 28-day subscription](https://www.faa.gov/air_traffic/flight_info/aeronav/aero_data/NASR_Subscription/)** — tower, approach, center (ARTCC), flight service and airport frequencies for the United States and its territories, published by the Federal Aviation Administration
+* **[OurAirports](https://ourairports.com/)** — airport and frequency data for the rest of the world, by David Megginson and the OurAirports contributors, released into the public domain
