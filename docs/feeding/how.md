@@ -8,27 +8,46 @@ Feeding requires that you have active reception of aviation data (coming from ai
 
 ## Airframes Installers (Recommended for Beginners)
 
-The easiest way to get started is the [Airframes Installers](https://install.airframes.sh), which provide one-command setup for ACARS, VDL2, and HFDL decoders on Linux, macOS, and Windows (via WSL). Run this in a terminal on the machine your SDR is plugged into:
+The easiest way to get started is the [Airframes Installers](https://install.airframes.sh). Run this in a terminal on the machine your SDR is plugged into (Linux, macOS, or Windows via WSL):
 
 ```bash
 curl -sSL https://install.airframes.sh/installer | bash
 ```
 
-The installer will walk you through selecting your decoder type, configuring your SDR, entering your Station ID, and setting up feeding to Airframes. On Linux it can run the decoder as a systemd service that starts on boot.
+By default it sets up **[xng](https://github.com/airframesio/xng)**. One xng process gives every SDR a job (ACARS, VDL2, HFDL, AIS, airband voice or ADS-B) and feeds each mode to Airframes. The installer:
 
-To skip the questions (for example over SSH without a terminal, or in a script), name the decoder: `acarsdec`, `dumpvdl2`, `dumphfdl`, `vdlm2dec`, `all`, or `adsb` (see [ADS-B](#ads-b)):
+- signs you in with a code you enter at [app.airframes.io/device](https://app.airframes.io/device) on any phone or computer, and puts the station on your account right away
+- reads your receiver position from PiAware or readsb if they are installed, or asks for it
+- asks what each SDR should do, and leaves a dongle your ADS-B decoder already uses alone
+- offers airband channels from the Airframes ATC directory near you
+- runs xng as the `xng-station` systemd service (check it with `systemctl status xng-station`), or in Docker when the xng build doesn't run on your system, such as a 32-bit Pi
+
+The xng dashboard is at `http://<your-machine>:8080`. Your feeds show up as `STATION-ACARS`, `STATION-VDL2`, and so on.
+
+To skip the questions (for example over SSH without a terminal, or in a script), use `-y xng`. Add `--sign-in` to link the station to your account (it still shows the code and waits for you), and `--modes` to choose each SDR's job by serial or number:
+
+```bash
+curl -sSL https://install.airframes.sh/installer | bash -s -- -y xng --sign-in --modes "0=acars,1=vdl2"
+```
+
+The separate decoders are still available: pick them in the menu, or name one (`acarsdec`, `dumpvdl2`, `dumphfdl`, `vdlm2dec`, `all`):
 
 ```bash
 curl -sSL https://install.airframes.sh/installer | bash -s -- -y acarsdec --station-id MY-STATION
 ```
 
-On Linux this installs acarsdec and starts it as the `airframes-acarsdec` systemd service (check it with `systemctl status airframes-acarsdec`). Use the Station ID from your station's page on [app.airframes.io](https://app.airframes.io); without it, your feed shows up as an anonymous station.
+On Linux this installs acarsdec and starts it as the `airframes-acarsdec` systemd service. Use the Station ID from your station's page on [app.airframes.io](https://app.airframes.io); without it, your feed shows up as an anonymous station.
 
 Everything after `bash -s --` is passed to the installer. Useful options:
 
 | Option | What it does |
 |--------|--------------|
 | `-y` | Don't ask for confirmation |
+| `--sign-in` / `--no-sign-in` | xng: sign in to Airframes even with `-y`, or don't sign in |
+| `--modes "0=acars,1=vdl2"` | xng: job per SDR (by serial or number): `acars`, `vdl2`, `hfdl`, `airband`, `ais`, `adsb`, `uat`, `sonde`, `iridium` or `off` |
+| `--airband "120.500,119.100"` | xng: airband channels from the Airframes ATC directory, or `nearest` |
+| `--xng-method docker` | xng: `native` or `docker` (default: native, else Docker) |
+| `--lat 38.68 --lon -120.99` | Receiver position |
 | `--station-id MY-STATION` | Your Station ID from app.airframes.io |
 | `--region north_america` | Default frequencies for `north_america`, `europe`, `asia_pacific` or `global` |
 | `--sdr airspy` | SDR type: `rtlsdr` (default), `airspy` or `sdrplay` |

@@ -29,7 +29,7 @@ There are several ways to set up your station depending on your experience level
 
 ### Path 1: Airframes Installers (Easiest)
 
-The [Airframes Installers](https://install.airframes.sh) provide one-command setup for ACARS, VDL2, and HFDL decoders. Works on Linux, macOS, and Windows (via WSL). Best for getting started quickly.
+The [Airframes Installers](https://install.airframes.sh) provide one-command setup of xng (ACARS, VDL2, HFDL, AIS and airband voice on every SDR) or separate decoders. Works on Linux, macOS, and Windows (via WSL). Best for getting started quickly.
 
 ### Path 2: Docker with ACARS Hub
 
