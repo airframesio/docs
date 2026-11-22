@@ -12,9 +12,9 @@ Subscribe to live messages from across the Airframes network, filtered to what y
 
 ## Your own stations are always included
 
-On every plan, including Free, you can subscribe to your own stations' messages, and it never counts against your plan. A subscription is an own-station subscription when every value in its `stations` filter is a station you own (ident or numeric id). It does not use your plan's connections, subscriptions per connection, messages per second or usage figures, and it works over WebSocket and MQTT even if your plan includes neither. Abuse limits still apply: up to 10 connections and 50 own-station subscriptions per connection.
+On every plan, including Free, you can subscribe to your own stations' messages, and it never counts against your plan. A subscription is an own-station subscription when it has a `stations` filter and every value in it is a station you own (ident or numeric id). Other fields, such as `tails` or `labels`, only narrow it further, so `{ "stations": ["YOUR-STATION"], "tails": ["N123AB"] }` is still an own-station subscription. It does not use your plan's connections, subscriptions per connection, messages per second or usage figures, and it works over WebSocket and MQTT even if your plan includes neither. Abuse limits still apply: up to 10 connections and 50 own-station subscriptions per connection.
 
-A subscription that mixes your stations with anything else, such as another station or a tail across the network, is checked against your plan as usual. If a station stops being yours, its subscriptions end with `stream:unsubscribed` and reason `not_your_station`.
+A subscription whose `stations` list also names someone else's station, or that has no `stations` filter at all, is checked against your plan as usual. If a station stops being yours, its subscriptions end with `stream:unsubscribed` and reason `not_your_station`.
 
 The original own-station WebSocket feed also still works on every plan; see [Realtime / Streaming](./realtime.md).
 
@@ -127,6 +127,8 @@ The `airframes/v1/messages` prefix is lower-case and topic matching is case-sens
 | `airframes/v1/messages/+/+/+/H1` | One label | Business and up |
 | `airframes/v1/messages/ACARS/#` | One message type | Enterprise |
 | `airframes/v1/messages/#` | Everything | Enterprise |
+| `airframes/stations/YOUR-STATION/messages` | One of your own stations (same messages as the v1 topic) | Any plan, own stations only |
+| `airframes/stations/+/messages` | All of your own stations | Any plan, own stations only |
 
 ```bash
 # 8883 is the standard MQTT-over-TLS port; --capath enables certificate checks.
