@@ -18,7 +18,7 @@ The fastest path from unboxing to feeding:
    ```bash
    curl -sSL https://install.airframes.sh/installer | bash
    ```
-   Or name the decoder to skip the questions: `curl -sSL https://install.airframes.sh/installer | bash -s -- -y acarsdec`. See [How to Feed](/docs/feeding/how#airframes-installers-recommended-for-beginners) for options. Already feeding ADS-B? Airframes doesn't take ADS-B, so use a second SDR for Airframes; the installer leaves your ADS-B one alone.
+   Or name the decoder to skip the questions: `curl -sSL https://install.airframes.sh/installer | bash -s -- -y acarsdec`. See [How to Feed](/docs/feeding/how#airframes-installers-recommended-for-beginners) for options. ADS-B? Airframes doesn't ingest it itself, but the installer can feed it to our partners Airplanes.Live and Plane Watch (pick ADS-B, or `adsb`); see [ADS-B](/docs/feeding/how#ads-b).
 4. **Verify your feed** — Visit [app.airframes.io/stations](https://app.airframes.io/stations) and search for your station ID.
 
 That's it — you're feeding!

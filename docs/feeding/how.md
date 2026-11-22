@@ -16,7 +16,7 @@ curl -sSL https://install.airframes.sh/installer | bash
 
 The installer will walk you through selecting your decoder type, configuring your SDR, and setting up feeding to Airframes.
 
-To skip the questions (for example over SSH without a terminal, or in a script), name the decoder: `acarsdec`, `dumpvdl2`, `dumphfdl`, `vdlm2dec`, or `all`:
+To skip the questions (for example over SSH without a terminal, or in a script), name the decoder: `acarsdec`, `dumpvdl2`, `dumphfdl`, `vdlm2dec`, `all`, or `adsb` (see [ADS-B](#ads-b)):
 
 ```bash
 curl -sSL https://install.airframes.sh/installer | bash -s -- -y acarsdec
@@ -33,9 +33,20 @@ Everything after `bash -s --` is passed to the installer. Useful options:
 | `--method docker` | Install with `binary` (default), `source` or `docker` |
 | `--help` | All options |
 
-### Already feeding ADS-B?
+### ADS-B
 
-If this machine already runs PiAware, readsb, FR24 or another ADS-B feeder: Airframes collects ACARS, VDL2 and HFDL messages, **not ADS-B**, so your ADS-B feeding stays as it is. Plug in a second SDR for Airframes (an unfiltered one, since ADS-B dongles are often filtered for 1090 MHz) and run the same command. The installer finds your ADS-B setup and uses the other SDR. If it picks the wrong one, pass `--device <serial>`.
+Airframes doesn't ingest ADS-B itself; ADS-B goes to Airframes' partner networks, [Airplanes.Live](https://airplanes.live) and [Plane Watch](https://plane.watch). The installer sets that up too: pick **ADS-B** in the menu, or name `adsb`:
+
+```bash
+curl -sSL https://install.airframes.sh/installer | bash -s -- -y adsb --lat 38.68001 --lon -120.99436 --alt 120m
+```
+
+- **Already running PiAware, readsb, ultrafeeder or another ADS-B decoder?** The installer feeds the partners from it (port 30005) and leaves it as it is.
+- **No ADS-B decoder yet?** It installs readsb (or ADS-B Ultrafeeder with `--method docker`) on an SDR of its own.
+- Airplanes.Live is set up with their feed client, including MLAT. For Plane Watch, create a feeder at [atc.plane.watch](https://atc.plane.watch) and pass `--planewatch-key <key>` (it runs in Docker).
+- `--lat`, `--lon` and `--alt` (in `m` or `ft`) give the antenna position for MLAT; it's never shown exactly. `--mlat-name` sets the name on the MLAT map. In a terminal, the installer asks for these.
+
+ACARS, VDL2 and HFDL for Airframes need an SDR of their own (an unfiltered one, since ADS-B dongles are often filtered for 1090 MHz). On a machine that already feeds ADS-B, plug in a second SDR and pick a decoder: the installer leaves the ADS-B dongle alone. If it picks the wrong one, pass `--device <serial>`.
 
 ## Docker with ACARS Hub (Recommended for Experienced Users)
 
