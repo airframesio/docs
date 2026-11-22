@@ -1351,6 +1351,15 @@ paths:
           schema:
             example: '2026-06-01T00:00:00Z'
             type: string
+        - name: loadsheets
+          required: false
+          in: query
+          description: >-
+            true: only messages decoded as loadsheets, loadsheet acceptances or loadsheet requests
+            (see /v1/loadsheets for the decoded fields).
+          schema:
+            example: 'true'
+            type: string
         - name: missions
           required: false
           in: query
@@ -2842,6 +2851,136 @@ paths:
       security: *ref_35
       summary: Military aircraft details
       tags: *ref_36
+  /v1/loadsheets:
+    get:
+      description: >-
+        Weight and balance loadsheets (IATA AHM 517 "LOADSHEET FINAL/PRELIM") decoded from ACARS
+        messages on any label, plus crew loadsheet acceptances and requests, newest first. All
+        filters are combined with AND. Weights are as sent, in the airline's unit; airports are as
+        written on the loadsheet (IATA on most), and an airport filter matches both its IATA and
+        ICAO code.
+      operationId: getLoadsheets
+      parameters:
+        - name: before_id
+          required: false
+          in: query
+          description: 'Cursor: return rows older than this id (nextBeforeId).'
+          schema: {}
+        - name: limit
+          required: false
+          in: query
+          description: 1 to 200. Default 50.
+          schema:
+            example: '50'
+        - name: airframe_id
+          required: false
+          in: query
+          description: Airframes airframe id.
+          schema: {}
+        - name: flight_id
+          required: false
+          in: query
+          description: Airframes flight id.
+          schema: {}
+        - name: airport
+          required: false
+          in: query
+          description: Departure or arrival, IATA or ICAO.
+          schema:
+            example: EGKK
+        - name: arrival
+          required: false
+          in: query
+          schema:
+            example: VAAH
+        - name: departure
+          required: false
+          in: query
+          schema:
+            example: LGW
+        - name: tail
+          required: false
+          in: query
+          description: Registration, with or without the dash.
+          schema:
+            example: VT-ALP
+        - name: airline
+          required: false
+          in: query
+          description: >-
+            ICAO airline designator of the message's flight (IATA codes are not accepted: several
+            airlines share them).
+          schema:
+            example: AIC
+        - name: flight
+          required: false
+          in: query
+          description: Flight number as written on the loadsheet, or its start.
+          schema:
+            example: AI160
+        - name: status
+          required: false
+          in: query
+          description: Final or preliminary loadsheets only.
+          schema:
+            enum:
+              - final
+              - prelim
+            type: string
+        - name: kind
+          required: false
+          in: query
+          description: 'Comma-separated kinds: loadsheet, acceptance, request.'
+          schema:
+            example: loadsheet
+        - name: hours
+          required: false
+          in: query
+          description: Trailing window in hours, 1 to 2160 (90 days). Default 24.
+          schema:
+            example: '24'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoadsheetPageDto'
+        '400':
+          description: Invalid filter value.
+        '401': *ref_3
+        '429': *ref_0
+      security: &ref_37
+        - api-key: []
+        - bearer: []
+      summary: Search loadsheets
+      tags: &ref_38
+        - Loadsheets
+  /v1/loadsheets/{id}:
+    get:
+      description: One decoded loadsheet, acceptance or request by its id, with the full message text.
+      operationId: getLoadsheet
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            example: '1024'
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoadsheetDetailDto'
+        '401': *ref_3
+        '404':
+          description: No such loadsheet.
+        '429': *ref_0
+      security: *ref_37
+      summary: Get a loadsheet
+      tags: *ref_38
   /v1/atc/facilities:
     get:
       description: >-
@@ -2923,11 +3062,11 @@ paths:
           description: Invalid filter value.
         '401': *ref_3
         '429': *ref_0
-      security: &ref_37
+      security: &ref_39
         - api-key: []
         - bearer: []
       summary: Search ATC facilities
-      tags: &ref_38
+      tags: &ref_40
         - ATC
   /v1/atc/facilities/{id}:
     get:
@@ -2962,9 +3101,9 @@ paths:
         '404':
           description: No such facility.
         '429': *ref_0
-      security: *ref_37
+      security: *ref_39
       summary: Get an ATC facility with its frequencies
-      tags: *ref_38
+      tags: *ref_40
   /v1/atc/frequencies:
     get:
       description: >-
@@ -3064,9 +3203,9 @@ paths:
           description: Invalid filter value.
         '401': *ref_3
         '429': *ref_0
-      security: *ref_37
+      security: *ref_39
       summary: Search ATC frequencies
-      tags: *ref_38
+      tags: *ref_40
   /v1/atc/frequencies/match:
     get:
       description: >-
@@ -3126,9 +3265,9 @@ paths:
           description: Missing or invalid frequency or position.
         '401': *ref_3
         '429': *ref_0
-      security: *ref_37
+      security: *ref_39
       summary: Match a tuned frequency and location to ATC frequencies
-      tags: *ref_38
+      tags: *ref_40
   /v1/atc/frequencies/{id}:
     get:
       description: One frequency by key, including retired ones. Cached for 10 minutes.
@@ -3152,9 +3291,9 @@ paths:
         '404':
           description: No such frequency.
         '429': *ref_0
-      security: *ref_37
+      security: *ref_39
       summary: Get an ATC frequency
-      tags: *ref_38
+      tags: *ref_40
   /v1/atc/meta:
     get:
       description: >-
@@ -3171,9 +3310,63 @@ paths:
                 $ref: '#/components/schemas/AtcMetaDto'
         '401': *ref_3
         '429': *ref_0
-      security: *ref_37
+      security: *ref_39
       summary: ATC dataset version and counts
-      tags: *ref_38
+      tags: *ref_40
+  /v1/atc/listen-token:
+    post:
+      description: >-
+        Signed in (Bearer): a 10 minute token with your plan's listen limits. Signed out: send {
+        visitor_token } from POST /stream/visitor-token (single use, bound to your IP) for a 30
+        minute anonymous token that allows one audio stream. Use the token as the first message on
+        the ATC edge WebSocket and fetch a new one before it expires.
+      operationId: listenToken
+      parameters: []
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                visitor_token:
+                  type: string
+      responses:
+        '200':
+          description: '{ token, expires_in, limits: { max_audio, max_activity } }'
+        '401': *ref_3
+        '403':
+          description: Neither a session nor a valid visitor token
+        '429': *ref_0
+        '503':
+          description: ATC tokens are not configured
+      security:
+        - bearer: []
+      summary: Get a token for live ATC audio
+      tags: &ref_41
+        - ATC
+  /v1/atc/feeds:
+    get:
+      description: >-
+        Every enabled feed that carries the frequency, online first and then by quality (0 to 100).
+        Live selection happens on the ATC edge; this is the directory, updated about once a minute.
+        Feeder locations are rounded to at least 0.01°. feeder.username is null when the feeder
+        chose to hide it. transcript names the feeder-side transcription { engine, engine_version,
+        model, lang }, or is null when the feed sends no transcripts.
+      operationId: feedsForFrequency
+      parameters:
+        - name: frequency
+          required: true
+          in: query
+          description: Frequency id (e.g. 1234) or key (e.g. airport:KSFO:TWR:120500)
+          schema:
+            type: string
+      responses:
+        '200':
+          description: '{ data: Feed[] }'
+        '429': *ref_0
+      summary: Audio feeds of a frequency
+      tags: *ref_41
 info:
   title: Airframes API
   description: >-
@@ -5882,6 +6075,447 @@ components:
         - summary
         - filters
         - rows
+    LoadsheetDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Loadsheet row id (use for before_id).
+          example: '1024'
+        messageId:
+          type: string
+          description: Message id (GET /v1/messages/{id}).
+          example: '8188050583'
+        receivedAt:
+          type: string
+          description: When the message was received (UTC).
+          example: '2026-11-21T13:59:42.756Z'
+        kind:
+          type: string
+          description: >-
+            loadsheet (the weight and balance sheet), acceptance (the crew accepting one) or request
+            (the crew asking for one).
+          enum: &ref_42
+            - loadsheet
+            - acceptance
+            - request
+          example: loadsheet
+        status:
+          type: string
+          enum: &ref_43
+            - final
+            - prelim
+          example: final
+          nullable: true
+        edition:
+          type: number
+          description: Edition number (EDNO).
+          example: 1
+          nullable: true
+        issuedTime:
+          type: string
+          description: Issue time as sent, HHMM UTC.
+          example: '1359'
+          nullable: true
+        flightNumber:
+          type: string
+          description: Flight number as written on the loadsheet.
+          example: AI160
+          nullable: true
+        flightDate:
+          type: string
+          description: Flight date, YYYY-MM-DD.
+          example: '2026-11-21'
+          nullable: true
+        departure:
+          type: string
+          example: LGW
+          nullable: true
+        arrival:
+          type: string
+          example: AMD
+          nullable: true
+        registration:
+          type: string
+          description: Registration as written on the loadsheet.
+          example: VT-ALP
+          nullable: true
+        crew:
+          type: string
+          description: 'Crew: cockpit/cabin, as sent.'
+          example: 3/15
+          nullable: true
+        aircraftType:
+          type: string
+          example: B777F
+          nullable: true
+        weightUnit:
+          type: string
+          enum: &ref_44
+            - KG
+            - LB
+          nullable: true
+        zfw:
+          type: number
+          description: Zero fuel weight.
+          example: 214843
+          nullable: true
+        zfwMax:
+          type: number
+          example: 237682
+          nullable: true
+        tof:
+          type: number
+          description: Takeoff fuel.
+          example: 73700
+          nullable: true
+        tow:
+          type: number
+          description: Takeoff weight.
+          example: 288543
+          nullable: true
+        towMax:
+          type: number
+          example: 312967
+          nullable: true
+        tif:
+          type: number
+          description: Trip fuel.
+          example: 61677
+          nullable: true
+        law:
+          type: number
+          description: Landing weight.
+          example: 226866
+          nullable: true
+        lawMax:
+          type: number
+          example: 251290
+          nullable: true
+        limiting:
+          type: string
+          description: The maximum that limits the load.
+          enum: &ref_45
+            - ZFW
+            - TOW
+            - LAW
+          nullable: true
+        underload:
+          type: number
+          example: 22839
+          nullable: true
+        dow:
+          type: number
+          description: Dry operating weight.
+          example: 172827
+          nullable: true
+        doi:
+          type: number
+          description: Dry operating index.
+          example: -28.7
+          nullable: true
+        macZfw:
+          type: number
+          description: Center of gravity at ZFW, % MAC.
+          example: 32.5
+          nullable: true
+        macTow:
+          type: number
+          description: Center of gravity at TOW, % MAC.
+          example: 35
+          nullable: true
+        macLaw:
+          type: number
+          description: Center of gravity at LAW, % MAC.
+          example: 32.3
+          nullable: true
+        paxBreakdown:
+          type: string
+          description: Passengers by class or zone, as sent.
+          example: 4/33/302
+          nullable: true
+        paxTotal:
+          type: number
+          example: 342
+          nullable: true
+        infants:
+          type: number
+          example: 3
+          nullable: true
+        tob:
+          type: number
+          description: Total on board, crew included.
+          nullable: true
+        notoc:
+          type: boolean
+          description: Special load notification (NOTOC) on board.
+          nullable: true
+        label:
+          type: string
+          example: RA
+          nullable: true
+        sourceType:
+          type: string
+          example: vdl
+          nullable: true
+        flightId:
+          type: string
+          nullable: true
+        airframeId:
+          type: number
+          nullable: true
+        tail:
+          type: string
+          description: Aircraft registration from the message or airframe.
+          example: VT-ALP
+          nullable: true
+        icao:
+          type: string
+          description: 24-bit ICAO address of the airframe.
+          nullable: true
+        airlineIcao:
+          type: string
+          description: ICAO designator of the flight's airline.
+          example: AIC
+          nullable: true
+        airlineName:
+          type: string
+          example: Air India
+          nullable: true
+        stationIdent:
+          type: string
+          nullable: true
+      required:
+        - id
+        - messageId
+        - receivedAt
+        - kind
+    LoadsheetPageDto:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/LoadsheetDto'
+        hasMore:
+          type: boolean
+          description: More rows match than were returned.
+        nextBeforeId:
+          type: string
+          description: Pass as before_id for the next page.
+          nullable: true
+      required:
+        - data
+        - hasMore
+    LoadsheetDetailDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Loadsheet row id (use for before_id).
+          example: '1024'
+        messageId:
+          type: string
+          description: Message id (GET /v1/messages/{id}).
+          example: '8188050583'
+        receivedAt:
+          type: string
+          description: When the message was received (UTC).
+          example: '2026-11-21T13:59:42.756Z'
+        kind:
+          type: string
+          description: >-
+            loadsheet (the weight and balance sheet), acceptance (the crew accepting one) or request
+            (the crew asking for one).
+          enum: *ref_42
+          example: loadsheet
+        status:
+          type: string
+          enum: *ref_43
+          example: final
+          nullable: true
+        edition:
+          type: number
+          description: Edition number (EDNO).
+          example: 1
+          nullable: true
+        issuedTime:
+          type: string
+          description: Issue time as sent, HHMM UTC.
+          example: '1359'
+          nullable: true
+        flightNumber:
+          type: string
+          description: Flight number as written on the loadsheet.
+          example: AI160
+          nullable: true
+        flightDate:
+          type: string
+          description: Flight date, YYYY-MM-DD.
+          example: '2026-11-21'
+          nullable: true
+        departure:
+          type: string
+          example: LGW
+          nullable: true
+        arrival:
+          type: string
+          example: AMD
+          nullable: true
+        registration:
+          type: string
+          description: Registration as written on the loadsheet.
+          example: VT-ALP
+          nullable: true
+        crew:
+          type: string
+          description: 'Crew: cockpit/cabin, as sent.'
+          example: 3/15
+          nullable: true
+        aircraftType:
+          type: string
+          example: B777F
+          nullable: true
+        weightUnit:
+          type: string
+          enum: *ref_44
+          nullable: true
+        zfw:
+          type: number
+          description: Zero fuel weight.
+          example: 214843
+          nullable: true
+        zfwMax:
+          type: number
+          example: 237682
+          nullable: true
+        tof:
+          type: number
+          description: Takeoff fuel.
+          example: 73700
+          nullable: true
+        tow:
+          type: number
+          description: Takeoff weight.
+          example: 288543
+          nullable: true
+        towMax:
+          type: number
+          example: 312967
+          nullable: true
+        tif:
+          type: number
+          description: Trip fuel.
+          example: 61677
+          nullable: true
+        law:
+          type: number
+          description: Landing weight.
+          example: 226866
+          nullable: true
+        lawMax:
+          type: number
+          example: 251290
+          nullable: true
+        limiting:
+          type: string
+          description: The maximum that limits the load.
+          enum: *ref_45
+          nullable: true
+        underload:
+          type: number
+          example: 22839
+          nullable: true
+        dow:
+          type: number
+          description: Dry operating weight.
+          example: 172827
+          nullable: true
+        doi:
+          type: number
+          description: Dry operating index.
+          example: -28.7
+          nullable: true
+        macZfw:
+          type: number
+          description: Center of gravity at ZFW, % MAC.
+          example: 32.5
+          nullable: true
+        macTow:
+          type: number
+          description: Center of gravity at TOW, % MAC.
+          example: 35
+          nullable: true
+        macLaw:
+          type: number
+          description: Center of gravity at LAW, % MAC.
+          example: 32.3
+          nullable: true
+        paxBreakdown:
+          type: string
+          description: Passengers by class or zone, as sent.
+          example: 4/33/302
+          nullable: true
+        paxTotal:
+          type: number
+          example: 342
+          nullable: true
+        infants:
+          type: number
+          example: 3
+          nullable: true
+        tob:
+          type: number
+          description: Total on board, crew included.
+          nullable: true
+        notoc:
+          type: boolean
+          description: Special load notification (NOTOC) on board.
+          nullable: true
+        label:
+          type: string
+          example: RA
+          nullable: true
+        sourceType:
+          type: string
+          example: vdl
+          nullable: true
+        flightId:
+          type: string
+          nullable: true
+        airframeId:
+          type: number
+          nullable: true
+        tail:
+          type: string
+          description: Aircraft registration from the message or airframe.
+          example: VT-ALP
+          nullable: true
+        icao:
+          type: string
+          description: 24-bit ICAO address of the airframe.
+          nullable: true
+        airlineIcao:
+          type: string
+          description: ICAO designator of the flight's airline.
+          example: AIC
+          nullable: true
+        airlineName:
+          type: string
+          example: Air India
+          nullable: true
+        stationIdent:
+          type: string
+          nullable: true
+        text:
+          type: string
+          description: Full message text.
+          nullable: true
+      required:
+        - id
+        - messageId
+        - receivedAt
+        - kind
     AtcFacilityDto:
       type: object
       properties:
@@ -5893,7 +6527,7 @@ components:
           example: airport:KSFO
         type:
           type: string
-          enum: &ref_39
+          enum: &ref_46
             - airport
             - artcc
             - tracon
@@ -5964,14 +6598,14 @@ components:
           description: Live audio feeds on this facility’s frequencies.
           example: 2
         sources:
-          example: &ref_41
+          example: &ref_48
             - faa_nasr
           type: array
           items:
             type: string
         status:
           type: string
-          enum: &ref_42
+          enum: &ref_49
             - active
             - retired
           example: active
@@ -6032,7 +6666,7 @@ components:
           example: airport:KSFO
         type:
           type: string
-          enum: *ref_39
+          enum: *ref_46
           example: airport
         ident:
           type: string
@@ -6118,7 +6752,7 @@ components:
           example: AM
         service:
           type: string
-          enum: &ref_40
+          enum: &ref_47
             - TWR
             - APP
             - DEP
@@ -6145,7 +6779,7 @@ components:
             - CTAF
           items:
             type: string
-            enum: *ref_40
+            enum: *ref_47
         serviceRaw:
           description: Uses as published by the source (FAA FREQ_USE, OurAirports type).
           example:
@@ -6296,7 +6930,7 @@ components:
           example: airport:KSFO
         type:
           type: string
-          enum: *ref_39
+          enum: *ref_46
           example: airport
         ident:
           type: string
@@ -6359,13 +6993,13 @@ components:
           description: Live audio feeds on this facility’s frequencies.
           example: 2
         sources:
-          example: *ref_41
+          example: *ref_48
           type: array
           items:
             type: string
         status:
           type: string
-          enum: *ref_42
+          enum: *ref_49
           example: active
         firstSeen:
           type: string
