@@ -3209,8 +3209,10 @@ paths:
         '401': *ref_6
         '429': *ref_1
       security: &ref_42
-        - api-key: []
-        - bearer: []
+        - &ref_44
+          api-key: []
+        - &ref_45
+          bearer: []
       summary: Search ATC facilities
       tags: &ref_43
         - ATC
@@ -3494,7 +3496,10 @@ paths:
         '401': *ref_6
         '429':
           description: Too many reports.
-      security: *ref_42
+      security:
+        - *ref_44
+        - *ref_45
+        - {}
       summary: Report a frequency missing from the directory
       tags: *ref_43
   /v1/atc/frequencies/{id}:
@@ -3572,7 +3577,7 @@ paths:
       security:
         - bearer: []
       summary: Get a token for live ATC audio
-      tags: &ref_44
+      tags: &ref_46
         - ATC
   /v1/atc/feeds:
     get:
@@ -3595,7 +3600,7 @@ paths:
           description: '{ data: Feed[] }'
         '429': *ref_1
       summary: Audio feeds of a frequency
-      tags: *ref_44
+      tags: *ref_46
 info:
   title: Airframes API
   description: >-
@@ -6460,14 +6465,14 @@ components:
           description: >-
             loadsheet (the weight and balance sheet), acceptance (the crew accepting one) or request
             (the crew asking for one).
-          enum: &ref_45
+          enum: &ref_47
             - loadsheet
             - acceptance
             - request
           example: loadsheet
         status:
           type: string
-          enum: &ref_46
+          enum: &ref_48
             - final
             - prelim
           example: final
@@ -6516,7 +6521,7 @@ components:
           nullable: true
         weightUnit:
           type: string
-          enum: &ref_47
+          enum: &ref_49
             - KG
             - LB
           nullable: true
@@ -6560,7 +6565,7 @@ components:
         limiting:
           type: string
           description: The maximum that limits the load.
-          enum: &ref_48
+          enum: &ref_50
             - ZFW
             - TOW
             - LAW
@@ -6692,11 +6697,11 @@ components:
           description: >-
             loadsheet (the weight and balance sheet), acceptance (the crew accepting one) or request
             (the crew asking for one).
-          enum: *ref_45
+          enum: *ref_47
           example: loadsheet
         status:
           type: string
-          enum: *ref_46
+          enum: *ref_48
           example: final
           nullable: true
         edition:
@@ -6743,7 +6748,7 @@ components:
           nullable: true
         weightUnit:
           type: string
-          enum: *ref_47
+          enum: *ref_49
           nullable: true
         zfw:
           type: number
@@ -6785,7 +6790,7 @@ components:
         limiting:
           type: string
           description: The maximum that limits the load.
-          enum: *ref_48
+          enum: *ref_50
           nullable: true
         underload:
           type: number
@@ -6892,7 +6897,7 @@ components:
           example: airport:KSFO
         type:
           type: string
-          enum: &ref_49
+          enum: &ref_51
             - airport
             - artcc
             - tracon
@@ -6963,14 +6968,14 @@ components:
           description: Live audio feeds on this facility’s frequencies.
           example: 2
         sources:
-          example: &ref_51
+          example: &ref_53
             - faa_nasr
           type: array
           items:
             type: string
         status:
           type: string
-          enum: &ref_52
+          enum: &ref_54
             - active
             - retired
           example: active
@@ -7031,7 +7036,7 @@ components:
           example: airport:KSFO
         type:
           type: string
-          enum: *ref_49
+          enum: *ref_51
           example: airport
         ident:
           type: string
@@ -7117,7 +7122,7 @@ components:
           example: AM
         service:
           type: string
-          enum: &ref_50
+          enum: &ref_52
             - TWR
             - APP
             - DEP
@@ -7144,7 +7149,7 @@ components:
             - CTAF
           items:
             type: string
-            enum: *ref_50
+            enum: *ref_52
         serviceRaw:
           description: Uses as published by the source (FAA FREQ_USE, OurAirports type).
           example:
@@ -7295,7 +7300,7 @@ components:
           example: airport:KSFO
         type:
           type: string
-          enum: *ref_49
+          enum: *ref_51
           example: airport
         ident:
           type: string
@@ -7358,13 +7363,13 @@ components:
           description: Live audio feeds on this facility’s frequencies.
           example: 2
         sources:
-          example: *ref_51
+          example: *ref_53
           type: array
           items:
             type: string
         status:
           type: string
-          enum: *ref_52
+          enum: *ref_54
           example: active
         firstSeen:
           type: string
