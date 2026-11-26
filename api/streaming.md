@@ -60,7 +60,9 @@ A filter is judged by its most specific field. `{ "tails": ["N123AB"], "labels":
 
 ## WebSocket
 
-Connect with your API key as described in [Realtime / Streaming](./realtime.md#authenticating), then subscribe:
+Connect with your API key as described in [Realtime / Streaming](./realtime.md#authenticating), then subscribe. Airframes' own apps, such as Airframes Desktop, may connect with the signed-in session token (`auth: { token }`) instead; the account's plan applies the same way.
+
+Example with an API key:
 
 ```js
 import { io } from 'socket.io-client';
@@ -156,7 +158,7 @@ For complete capture, use the REST API or a bulk export.
 
 | Code | Meaning |
 |---|---|
-| `auth_required` | Connect with an API key first. |
+| `auth_required` | Connect with an API key (or a signed-in session) first. |
 | `plan_required` | Your plan does not include this stream. |
 | `connection_limit` | You have reached your plan's concurrent connections. |
 | `subscription_limit` | You have reached your plan's subscriptions per connection. |
