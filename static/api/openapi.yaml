@@ -4215,8 +4215,47 @@ components:
             $ref: '#/components/schemas/Message'
         status:
           type: string
-          description: Current flight status.
+          description: >-
+            Tracking status: `in-flight` while the flight is still being heard (any message or ADS-B
+            sighting in the last 10 minutes, on the ground too), `radio-silence` after that. It does
+            not say whether the aircraft has landed; use `phase` for that.
           example: in-flight
+        phase:
+          type: string
+          description: >-
+            Where the flight is in its journey, from the best evidence: OOOI events (OUT departed,
+            OFF airborne, ON landed, IN arrived), the actual times, the aircraft's own air/ground
+            bit in VDL2 frames and, failing all that, its last altitude. Null when nothing says.
+            Independent of `status`.
+          enum:
+            - on-ground
+            - departed
+            - airborne
+            - landed
+            - arrived
+          example: landed
+          nullable: true
+        phaseAt:
+          format: date-time
+          type: string
+          description: >-
+            When the evidence behind `phase` happened (UTC). Null for a phase from the last
+            altitude.
+          example: '2026-06-05T18:09:00.000Z'
+          nullable: true
+        phaseSource:
+          type: string
+          description: >-
+            What `phase` is based on: `oooi` (an OUT/OFF/ON/IN event), `times` (the actual
+            departure/arrival time), `aircraft-status` (a VDL2 air/ground frame), `position` (the
+            last altitude).
+          enum:
+            - oooi
+            - times
+            - aircraft-status
+            - position
+          example: oooi
+          nullable: true
         departingAirport:
           type: string
           description: ICAO code of the departure airport.
