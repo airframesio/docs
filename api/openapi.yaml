@@ -1250,7 +1250,9 @@ paths:
       tags: *ref_20
   /v1/marine/voyages/{id}:
     get:
-      description: Returns a single marine voyage by its unique identifier.
+      description: >-
+        Returns a single marine voyage by its unique identifier, with its vessel and its latest
+        2,000 position reports (oldest first).
       operationId: findOne
       parameters:
         - name: id
@@ -1275,8 +1277,8 @@ paths:
   /v1/marine/voyages/{id}/positions:
     get:
       description: >-
-        Returns the position reports recorded during a marine voyage, ordered chronologically
-        (oldest first). Use the limit query parameter to control how many are returned.
+        Returns the latest position reports of a marine voyage, ordered chronologically (oldest
+        first). Use the limit query parameter to control how many of the latest are returned.
       operationId: findPositions
       parameters:
         - name: id
@@ -1312,8 +1314,8 @@ paths:
   /v1/marine/voyages/{id}/messages:
     get:
       description: >-
-        Returns the AIS messages received during a marine voyage, most recent first. Use the limit
-        query parameter to control how many are returned.
+        Returns the AIS messages behind the latest position reports of a marine voyage, most recent
+        first. Use the limit query parameter to control how many are returned.
       operationId: findMessages
       parameters:
         - name: id
@@ -2402,6 +2404,104 @@ paths:
       security: *ref_32
       summary: Get a VDL ground station by ID
       tags: *ref_33
+  /v1/ads/placement:
+    get:
+      description: >-
+        Used by Airframes Desktop and mobile. Returns one card per requested slot, or an empty list
+        when the caller should not see ads: paid plans, Feeder Pro, Squawk sponsors, staff, a failed
+        sign-in, or while ads are off. Country targeting uses the Cloudflare country of the request;
+        the IP is not kept.
+      operationId: getAdPlacement
+      parameters:
+        - name: slots
+          required: true
+          in: query
+          description: 'Comma-separated: flights-list, flight-page, messages, sidebar'
+          schema:
+            example: flights-list,sidebar
+            type: string
+        - name: platform
+          required: true
+          in: query
+          description: desktop, macos, windows, linux, ios or android
+          schema:
+            example: macos
+            type: string
+        - name: lang
+          required: false
+          in: query
+          schema:
+            example: en
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AdPlacementDto'
+        '429': *ref_1
+      summary: Sponsored cards for the Airframes apps
+      tags: &ref_34
+        - Ads
+  /v1/ads/events:
+    post:
+      description: >-
+        A view is sent when a card has been at least half visible for one second, a click when it is
+        tapped. Each token counts once per type.
+      operationId: recordAdEvents
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdEventsBodyDto'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdEventsResultDto'
+        '429': *ref_1
+      summary: Count views and clicks of sponsored cards
+      tags: *ref_34
+  /v1/ads/pricing:
+    get:
+      description: >-
+        Prepaid impression packs. Impressions are spread over the chosen slots, so the campaign
+        price per 1,000 is the average of their prices, less the best volume discount that applies.
+      operationId: getAdPricing
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdPricingDto'
+        '429': *ref_1
+      summary: Advertising prices
+      tags: *ref_34
+  /v1/ads/assets/{id}:
+    get:
+      operationId: getAdAsset
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            format: uuid
+            type: string
+      responses:
+        '200':
+          description: ''
+        '429': *ref_1
+      summary: A sponsored card image
+      tags: *ref_34
   /v1/decode/coverage:
     get:
       operationId: getCoverage
@@ -2415,11 +2515,11 @@ paths:
                 $ref: '#/components/schemas/DecodeCoverageResponseDto'
         '401': *ref_6
         '429': *ref_1
-      security: &ref_34
+      security: &ref_35
         - api-key: []
         - bearer: []
       summary: Overall decode coverage statistics
-      tags: &ref_35
+      tags: &ref_36
         - Decode
   /v1/decode/coverage/labels:
     get:
@@ -2434,9 +2534,9 @@ paths:
                 $ref: '#/components/schemas/DecodeLabelCoverageResponseDto'
         '401': *ref_6
         '429': *ref_1
-      security: *ref_34
+      security: *ref_35
       summary: Per-label decode coverage
-      tags: *ref_35
+      tags: *ref_36
   /v1/decode/positions/recent:
     get:
       operationId: getRecentPositions
@@ -2478,9 +2578,9 @@ paths:
                 $ref: '#/components/schemas/DecodePositionsResponseDto'
         '401': *ref_6
         '429': *ref_1
-      security: *ref_34
+      security: *ref_35
       summary: Recent decoded positions for map display
-      tags: *ref_35
+      tags: *ref_36
   /v1/leaderboard/v2/meta:
     get:
       description: >-
@@ -2498,11 +2598,11 @@ paths:
                 $ref: '#/components/schemas/LeaderboardMetaDto'
         '401': *ref_6
         '429': *ref_1
-      security: &ref_36
+      security: &ref_37
         - api-key: []
         - bearer: []
       summary: Get leaderboard metadata
-      tags: &ref_37
+      tags: &ref_38
         - Leaderboard
   /v1/leaderboard/v2/performance/{view}:
     get:
@@ -2526,9 +2626,9 @@ paths:
           description: Invalid view value.
         '401': *ref_6
         '429': *ref_1
-      security: *ref_36
+      security: *ref_37
       summary: Get performance leaderboard
-      tags: *ref_37
+      tags: *ref_38
   /v1/leaderboard/v2/hall-of-fame/months:
     get:
       description: >-
@@ -2541,9 +2641,9 @@ paths:
           description: 'Object of the form { months: ["2026-02", ...] }.'
         '401': *ref_6
         '429': *ref_1
-      security: *ref_36
+      security: *ref_37
       summary: List hall-of-fame months
-      tags: *ref_37
+      tags: *ref_38
   /v1/leaderboard/v2/hall-of-fame:
     get:
       description: >-
@@ -2566,9 +2666,9 @@ paths:
           description: month is not in YYYY-MM format.
         '401': *ref_6
         '429': *ref_1
-      security: *ref_36
+      security: *ref_37
       summary: Get hall of fame
-      tags: *ref_37
+      tags: *ref_38
   /v1/leaderboard/v2/flounders:
     get:
       description: >-
@@ -2582,9 +2682,9 @@ paths:
           description: Object of the form { month, picks }.
         '401': *ref_6
         '429': *ref_1
-      security: *ref_36
+      security: *ref_37
       summary: Get current flounders
-      tags: *ref_37
+      tags: *ref_38
   /v1/leaderboard/v2/achievements/{userId}:
     get:
       description: >-
@@ -2605,9 +2705,9 @@ paths:
           description: Object of the form { userId, achievements }.
         '401': *ref_6
         '429': *ref_1
-      security: *ref_36
+      security: *ref_37
       summary: Get a user's achievements
-      tags: *ref_37
+      tags: *ref_38
   /v1/leaderboard/v2/{domain}/{view}/{category}/{timeframe}:
     get:
       description: >-
@@ -2660,9 +2760,9 @@ paths:
           description: Invalid domain, view, category, or timeframe.
         '401': *ref_6
         '429': *ref_1
-      security: *ref_36
+      security: *ref_37
       summary: Get a leaderboard ranking
-      tags: *ref_37
+      tags: *ref_38
   /v1/leaderboard/v2/awards/trigger:
     post:
       description: >-
@@ -2691,9 +2791,9 @@ paths:
           description: month is missing or not in YYYY-MM format.
         '401': *ref_6
         '429': *ref_1
-      security: *ref_36
+      security: *ref_37
       summary: Trigger award processing for a month
-      tags: *ref_37
+      tags: *ref_38
   /v1/leaderboard/v2/awards/diagnose-flounders:
     get:
       description: >-
@@ -2713,9 +2813,9 @@ paths:
           description: Diagnostic object describing flounder award computation.
         '401': *ref_6
         '429': *ref_1
-      security: *ref_36
+      security: *ref_37
       summary: Diagnose flounder award computation
-      tags: *ref_37
+      tags: *ref_38
   /v1/leaderboard/v2/awards/materialize-daily-counts:
     post:
       description: >-
@@ -2735,9 +2835,9 @@ paths:
           description: Result of the materialization run.
         '401': *ref_6
         '429': *ref_1
-      security: *ref_36
+      security: *ref_37
       summary: Materialize daily counts for awards
-      tags: *ref_37
+      tags: *ref_38
   /v1/leaderboard/current:
     get:
       description: >-
@@ -2751,9 +2851,9 @@ paths:
           description: Legacy-shaped leaderboard object with current, next, and previous fields.
         '401': *ref_6
         '429': *ref_1
-      security: *ref_36
+      security: *ref_37
       summary: Get current leaderboard (legacy)
-      tags: *ref_37
+      tags: *ref_38
   /v1/leaderboard/{date}:
     get:
       description: >-
@@ -2774,9 +2874,9 @@ paths:
           description: Legacy-shaped leaderboard object (same as /leaderboard/current).
         '401': *ref_6
         '429': *ref_1
-      security: *ref_36
+      security: *ref_37
       summary: Get leaderboard by date (legacy)
-      tags: *ref_37
+      tags: *ref_38
   /v1/stats/frequency-usage:
     get:
       description: >-
@@ -2849,11 +2949,11 @@ paths:
           description: Summary of military activity.
         '401': *ref_6
         '429': *ref_1
-      security: &ref_38
+      security: &ref_39
         - api-key: []
         - bearer: []
       summary: Military activity summary
-      tags: &ref_39
+      tags: &ref_40
         - Military
   /v1/military/missions:
     get:
@@ -2945,9 +3045,9 @@ paths:
           description: Invalid filter value.
         '401': *ref_6
         '429': *ref_1
-      security: *ref_38
+      security: *ref_39
       summary: Search military mission messages
-      tags: *ref_39
+      tags: *ref_40
   /v1/military/active:
     get:
       description: >-
@@ -2967,9 +3067,9 @@ paths:
           description: ''
         '401': *ref_6
         '429': *ref_1
-      security: *ref_38
+      security: *ref_39
       summary: Military aircraft in flight
-      tags: *ref_39
+      tags: *ref_40
   /v1/military/aircraft/{icao}:
     get:
       description: >-
@@ -2994,9 +3094,9 @@ paths:
           description: ''
         '401': *ref_6
         '429': *ref_1
-      security: *ref_38
+      security: *ref_39
       summary: Military aircraft details
-      tags: *ref_39
+      tags: *ref_40
   /v1/loadsheets:
     get:
       description: >-
@@ -3096,11 +3196,11 @@ paths:
           description: Invalid filter value.
         '401': *ref_6
         '429': *ref_1
-      security: &ref_40
+      security: &ref_41
         - api-key: []
         - bearer: []
       summary: Search loadsheets
-      tags: &ref_41
+      tags: &ref_42
         - Loadsheets
   /v1/loadsheets/{id}:
     get:
@@ -3124,9 +3224,9 @@ paths:
         '404':
           description: No such loadsheet.
         '429': *ref_1
-      security: *ref_40
+      security: *ref_41
       summary: Get a loadsheet
-      tags: *ref_41
+      tags: *ref_42
   /v1/atc/facilities:
     get:
       description: >-
@@ -3166,7 +3266,7 @@ paths:
           in: query
           description: minLon,minLat,maxLon,maxLat.
           schema:
-            example: '-123,37,-121.5,38.2'
+            example: -123,37,-121.5,38.2
         - name: radius_nm
           required: false
           in: query
@@ -3208,13 +3308,13 @@ paths:
           description: Invalid filter value.
         '401': *ref_6
         '429': *ref_1
-      security: &ref_42
-        - &ref_44
-          api-key: []
+      security: &ref_43
         - &ref_45
+          api-key: []
+        - &ref_46
           bearer: []
       summary: Search ATC facilities
-      tags: &ref_43
+      tags: &ref_44
         - ATC
   /v1/atc/facilities/{id}:
     get:
@@ -3249,9 +3349,9 @@ paths:
         '404':
           description: No such facility.
         '429': *ref_1
-      security: *ref_42
+      security: *ref_43
       summary: Get an ATC facility with its frequencies
-      tags: *ref_43
+      tags: *ref_44
   /v1/atc/frequencies:
     get:
       description: >-
@@ -3308,7 +3408,7 @@ paths:
           in: query
           description: minLon,minLat,maxLon,maxLat.
           schema:
-            example: '-123,37,-121.5,38.2'
+            example: -123,37,-121.5,38.2
         - name: radius_nm
           required: false
           in: query
@@ -3351,9 +3451,9 @@ paths:
           description: Invalid filter value.
         '401': *ref_6
         '429': *ref_1
-      security: *ref_42
+      security: *ref_43
       summary: Search ATC frequencies
-      tags: *ref_43
+      tags: *ref_44
   /v1/atc/frequencies/match:
     get:
       description: >-
@@ -3413,9 +3513,9 @@ paths:
           description: Missing or invalid frequency or position.
         '401': *ref_6
         '429': *ref_1
-      security: *ref_42
+      security: *ref_43
       summary: Match a tuned frequency and location to ATC frequencies
-      tags: *ref_43
+      tags: *ref_44
   /v1/atc/frequency-reports:
     post:
       description: >-
@@ -3497,11 +3597,11 @@ paths:
         '429':
           description: Too many reports.
       security:
-        - *ref_44
         - *ref_45
+        - *ref_46
         - {}
       summary: Report a frequency missing from the directory
-      tags: *ref_43
+      tags: *ref_44
   /v1/atc/frequencies/{id}:
     get:
       description: One frequency by key, including retired ones. Cached for 10 minutes.
@@ -3525,9 +3625,9 @@ paths:
         '404':
           description: No such frequency.
         '429': *ref_1
-      security: *ref_42
+      security: *ref_43
       summary: Get an ATC frequency
-      tags: *ref_43
+      tags: *ref_44
   /v1/atc/meta:
     get:
       description: >-
@@ -3544,9 +3644,9 @@ paths:
                 $ref: '#/components/schemas/AtcMetaDto'
         '401': *ref_6
         '429': *ref_1
-      security: *ref_42
+      security: *ref_43
       summary: ATC dataset version and counts
-      tags: *ref_43
+      tags: *ref_44
   /v1/atc/listen-token:
     post:
       description: >-
@@ -3577,7 +3677,7 @@ paths:
       security:
         - bearer: []
       summary: Get a token for live ATC audio
-      tags: &ref_46
+      tags: &ref_47
         - ATC
   /v1/atc/feeds:
     get:
@@ -3600,7 +3700,7 @@ paths:
           description: '{ data: Feed[] }'
         '429': *ref_1
       summary: Audio feeds of a frequency
-      tags: *ref_46
+      tags: *ref_47
 info:
   title: Airframes API
   description: >-
@@ -5948,6 +6048,186 @@ components:
           $ref: '#/components/schemas/PlatformStatsDto'
       required:
         - stats
+    AdCreativeDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        sponsor:
+          type: string
+          example: Acme Antennas
+          description: Shown as "Sponsored by ..."
+        headline:
+          type: string
+          example: Hear more of the sky
+          maxLength: 60
+        body:
+          type: string
+          example: A 1090/978 MHz antenna tuned for small rooftops.
+          maxLength: 140
+        cta:
+          type: string
+          example: Learn more
+          maxLength: 20
+        url:
+          type: string
+          example: https://example.com/antenna
+        imageUrl:
+          type: string
+          nullable: true
+          description: Square image served by Airframes
+        tone:
+          type: string
+          enum:
+            - brand
+            - accent
+            - info
+            - ok
+            - warn
+          nullable: true
+        house:
+          type: boolean
+          description: True for Airframes house promos
+      required:
+        - id
+        - sponsor
+        - headline
+        - body
+        - cta
+        - url
+        - house
+    AdPlacementDto:
+      type: object
+      properties:
+        slot:
+          type: string
+          enum: &ref_48
+            - flights-list
+            - flight-page
+            - messages
+            - sidebar
+        token:
+          type: string
+          description: Signed, short-lived token to send with view and click events
+        creative:
+          $ref: '#/components/schemas/AdCreativeDto'
+      required:
+        - slot
+        - token
+        - creative
+    AdEventDto:
+      type: object
+      properties:
+        token:
+          type: string
+        type:
+          type: string
+          enum:
+            - view
+            - click
+      required:
+        - token
+        - type
+    AdEventsBodyDto:
+      type: object
+      properties:
+        events:
+          maxItems: 50
+          type: array
+          items:
+            $ref: '#/components/schemas/AdEventDto'
+      required:
+        - events
+    AdEventsResultDto:
+      type: object
+      properties:
+        accepted:
+          type: number
+        rejected:
+          type: number
+          description: Invalid, expired or already counted
+      required:
+        - accepted
+        - rejected
+    AdSlotPriceDto:
+      type: object
+      properties:
+        id:
+          type: string
+          enum: *ref_48
+        name:
+          type: string
+        description:
+          type: string
+        cpmCents:
+          type: number
+          description: Price per 1,000 impressions, in cents
+        platforms:
+          type: array
+          items:
+            type: string
+            enum:
+              - desktop
+              - ios
+              - android
+      required:
+        - id
+        - name
+        - description
+        - cpmCents
+        - platforms
+    AdVolumeDiscountDto:
+      type: object
+      properties:
+        minImpressions:
+          type: number
+        percentOff:
+          type: number
+      required:
+        - minImpressions
+        - percentOff
+    AdPricingDto:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+          description: False until advertising opens
+        currency:
+          type: string
+          example: usd
+        minImpressions:
+          type: number
+        maxImpressions:
+          type: number
+        impressionStep:
+          type: number
+        minDays:
+          type: number
+        maxDays:
+          type: number
+        leadDays:
+          type: number
+          description: Days between booking and the earliest start, for review
+        slots:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdSlotPriceDto'
+        volumeDiscounts:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdVolumeDiscountDto'
+      required:
+        - enabled
+        - currency
+        - minImpressions
+        - maxImpressions
+        - impressionStep
+        - minDays
+        - maxDays
+        - leadDays
+        - slots
+        - volumeDiscounts
     DecodeCoverageSourceTypeDto:
       type: object
       properties:
@@ -6512,14 +6792,14 @@ components:
           description: >-
             loadsheet (the weight and balance sheet), acceptance (the crew accepting one) or request
             (the crew asking for one).
-          enum: &ref_47
+          enum: &ref_49
             - loadsheet
             - acceptance
             - request
           example: loadsheet
         status:
           type: string
-          enum: &ref_48
+          enum: &ref_50
             - final
             - prelim
           example: final
@@ -6568,7 +6848,7 @@ components:
           nullable: true
         weightUnit:
           type: string
-          enum: &ref_49
+          enum: &ref_51
             - KG
             - LB
           nullable: true
@@ -6612,7 +6892,7 @@ components:
         limiting:
           type: string
           description: The maximum that limits the load.
-          enum: &ref_50
+          enum: &ref_52
             - ZFW
             - TOW
             - LAW
@@ -6744,11 +7024,11 @@ components:
           description: >-
             loadsheet (the weight and balance sheet), acceptance (the crew accepting one) or request
             (the crew asking for one).
-          enum: *ref_47
+          enum: *ref_49
           example: loadsheet
         status:
           type: string
-          enum: *ref_48
+          enum: *ref_50
           example: final
           nullable: true
         edition:
@@ -6795,7 +7075,7 @@ components:
           nullable: true
         weightUnit:
           type: string
-          enum: *ref_49
+          enum: *ref_51
           nullable: true
         zfw:
           type: number
@@ -6837,7 +7117,7 @@ components:
         limiting:
           type: string
           description: The maximum that limits the load.
-          enum: *ref_50
+          enum: *ref_52
           nullable: true
         underload:
           type: number
@@ -6944,7 +7224,7 @@ components:
           example: airport:KSFO
         type:
           type: string
-          enum: &ref_51
+          enum: &ref_53
             - airport
             - artcc
             - tracon
@@ -7015,14 +7295,14 @@ components:
           description: Live audio feeds on this facility’s frequencies.
           example: 2
         sources:
-          example: &ref_53
+          example: &ref_55
             - faa_nasr
           type: array
           items:
             type: string
         status:
           type: string
-          enum: &ref_54
+          enum: &ref_56
             - active
             - retired
           example: active
@@ -7083,7 +7363,7 @@ components:
           example: airport:KSFO
         type:
           type: string
-          enum: *ref_51
+          enum: *ref_53
           example: airport
         ident:
           type: string
@@ -7169,7 +7449,7 @@ components:
           example: AM
         service:
           type: string
-          enum: &ref_52
+          enum: &ref_54
             - TWR
             - APP
             - DEP
@@ -7196,7 +7476,7 @@ components:
             - CTAF
           items:
             type: string
-            enum: *ref_52
+            enum: *ref_54
         serviceRaw:
           description: Uses as published by the source (FAA FREQ_USE, OurAirports type).
           example:
@@ -7347,7 +7627,7 @@ components:
           example: airport:KSFO
         type:
           type: string
-          enum: *ref_51
+          enum: *ref_53
           example: airport
         ident:
           type: string
@@ -7410,13 +7690,13 @@ components:
           description: Live audio feeds on this facility’s frequencies.
           example: 2
         sources:
-          example: *ref_53
+          example: *ref_55
           type: array
           items:
             type: string
         status:
           type: string
-          enum: *ref_54
+          enum: *ref_56
           example: active
         firstSeen:
           type: string
