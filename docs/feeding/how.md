@@ -75,7 +75,20 @@ Everything after `bash -s --` is passed to the installer. Useful options:
 | `--device 00000002` | Which RTL-SDR to use, by index or serial |
 | `--method docker` | Install with `binary` (default), `source` or `docker` |
 | `--no-service` | Only print the command to run, don't create a service |
+| `--report` / `--no-report` | Send the anonymous install report without asking (also with `-y`), or don't ask |
 | `--help` | All options |
+
+#### Anonymous install report
+
+At the end of a run, or when it fails, the installer shows a short report and asks whether to send it to Airframes. The answer defaults to **no**, and with `-y` it isn't sent unless you add `--report`. It helps us see which systems and SDRs the installer fails on, and at which step. The report contains only:
+
+- the installer version, operating system, distribution, CPU architecture, and whether it runs under WSL
+- what was set up (xng, separate decoders, ADS-B), the install method and the xng version
+- the SDR types (such as `rtlsdr`) and each SDR's mode (such as `acars` or `vdl2`)
+- whether you signed in (yes or no), and how long the run took
+- whether it worked, or the step it failed at (such as `xng-install-native`) and the exit code
+
+It never contains your station ID, account, hostname, SDR serial numbers, position or anything you typed. Airframes doesn't store the IP address it came from. Use `--no-report` to never be asked.
 
 ### ADS-B
 
