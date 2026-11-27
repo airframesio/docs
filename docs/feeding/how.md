@@ -30,6 +30,9 @@ The xng dashboard is at `http://<your-machine>:8080` (or the next free port, suc
 # Check the station and when Airframes last heard each feed; paste the report in Discord if you need help (it has no passwords or tokens)
 curl -sSL https://install.airframes.sh/installer | bash -s -- status
 
+# Find and repair common problems, asking before each fix (-y fixes them all)
+curl -sSL https://install.airframes.sh/installer | bash -s -- fix
+
 # Update xng to the latest release, keeping its configuration and sign-in
 curl -sSL https://install.airframes.sh/installer | bash -s -- update
 
@@ -42,6 +45,17 @@ curl -sSL https://install.airframes.sh/installer | bash -s -- auto-update on
 # Remove xng (add --purge to also remove /etc/xng and the sign-in)
 curl -sSL https://install.airframes.sh/installer | bash -s -- uninstall
 ```
+
+`fix` checks for the problems that most often stop a station, explains each one it finds and what it will change, and asks before changing anything:
+
+- xng is stopped or has failed (it starts it again), or isn't enabled to start at boot
+- the udev rule that lets xng open the SDRs is missing
+- the TV tuner (DVB-T) kernel driver isn't blocked, or is still loaded and holds an RTL-SDR
+- the clock is more than 5 minutes off, or network time sync is off
+- an SDR in `/etc/xng/station.toml` isn't plugged in because it was swapped or its serial changed: when exactly one other SDR of that kind is plugged in with no job, it gets the job (the old file is kept as `station.toml.bak`); otherwise run the installer again to choose
+- the weekly automatic update is broken (a unit is missing, the timer isn't enabled, or the last run failed)
+
+It restarts xng when a fix needs it and checks that it comes up. With `-y` it applies every fix without asking; without a terminal and without `-y` it only lists what it would change. It exits with an error when a problem is left, so you can run it from a script.
 
 To change what each SDR does, run the installer again.
 
