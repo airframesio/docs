@@ -58,6 +58,39 @@ That filter matches label `H1` or `80` messages from either of the two aircraft.
 
 A filter is judged by its most specific field. `{ "tails": ["N123AB"], "labels": ["H1"] }` is available on Pro, because it is narrowed to one aircraft. Values are case-insensitive.
 
+### Ships and balloons
+
+Subscriptions can also carry live ship positions (AIS) and weather balloon positions (radiosondes). These are WebSocket only.
+
+| Field | Matches | Plans |
+|---|---|---|
+| `voyages` | Marine voyage id (uuid, as in `/v1/marine/voyages/:id`): one ship's current voyage | Pro and up |
+| `vessels` | Marine vessel id (uuid) | Pro and up |
+| `sondeFlights` | Sonde flight id (uuid, as in `/v1/sonde/flights/:id`): one balloon flight | Pro and up |
+| `serials` | Radiosonde serial, for example `V1234567` | Pro and up |
+| `kinds` | Any of `aircraft`, `marine`, `sonde` | Same as the other fields in the filter |
+
+A filter without `kinds` carries aircraft messages only, as it always has, so existing subscriptions (including the empty filter and `region` filters) never start receiving ships or balloons. A filter that names `voyages` or `vessels` carries ships, and one that names `sondeFlights` or `serials` carries balloons. To get ships in an area, add `kinds`: `{ "kinds": ["marine"], "region": [3, 51, 5, 53] }` (Business and up, like any region filter).
+
+Ships and balloons arrive as `stream:message` too, with a `type` so they can be told apart from aircraft messages:
+
+```json
+{ "type": "marine-position", "voyageId": "5b0c6a43-…", "vesselId": "ab2d6a43-…",
+  "timestamp": "2026-11-27T12:00:01.000Z", "latitude": 51.95, "longitude": 4.05,
+  "speedOverGround": 12.3, "courseOverGround": 87.1, "trueHeading": 88,
+  "rateOfTurn": 0, "countryCode": "NL" }
+```
+
+```json
+{ "type": "sonde-position", "sondeFlightId": "c3f0a1b2-…", "serial": "V1234567",
+  "sondeType": "RS41", "timestamp": "2026-11-27T12:00:01.500Z", "latitude": 52.1,
+  "longitude": 4.9, "altitude": 18200, "velocityHorizontal": 12, "velocityVertical": 5.1,
+  "heading": 90, "temperature": -55, "humidity": 3, "pressure": 70,
+  "attribution": "Balloon data: SondeHub (CC BY-SA 2.0)" }
+```
+
+Speed is in knots, ship course and heading in degrees (null when the ship does not report them), balloon altitude in meters and velocities in m/s. Every AIS position report is streamed; a balloon's newest position arrives every few seconds. Balloon data comes from [SondeHub](https://sondehub.org) under CC BY-SA 2.0: anything that shows it must credit SondeHub.
+
 ## WebSocket
 
 Connect with your API key as described in [Realtime / Streaming](./realtime.md#authenticating), then subscribe. Airframes' own apps, such as Airframes Desktop, may connect with the signed-in session token (`auth: { token }`) instead; the account's plan applies the same way.
@@ -84,6 +117,7 @@ socket.on('stream:subscribed', ({ id, class: breadth }) => {});
 socket.on('stream:message', ({ subscriptions, message }) => {
   // subscriptions: ids of your subscriptions that matched
   // message: a Message object, same shape as GET /v1/messages/:id
+  // (or a ship or balloon position, see "Ships and balloons")
 });
 socket.on('stream:error', ({ code, message, upgradeTo }) => {});
 socket.on('stream:throttled', ({ dropped, ratePerSecond }) => {});
