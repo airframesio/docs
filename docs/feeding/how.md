@@ -33,6 +33,12 @@ curl -sSL https://install.airframes.sh/installer | bash -s -- status
 # Update xng to the latest release, keeping its configuration and sign-in
 curl -sSL https://install.airframes.sh/installer | bash -s -- update
 
+# Put a station you set up without signing in on your Airframes account
+curl -sSL https://install.airframes.sh/installer | bash -s -- sign-in
+
+# Update xng automatically every week (setup asks; "off" turns it off)
+curl -sSL https://install.airframes.sh/installer | bash -s -- auto-update on
+
 # Remove xng (add --purge to also remove /etc/xng and the sign-in)
 curl -sSL https://install.airframes.sh/installer | bash -s -- uninstall
 ```
