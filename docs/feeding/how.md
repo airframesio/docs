@@ -22,7 +22,22 @@ By default it sets up **[xng](https://github.com/airframesio/xng)**. One xng pro
 - offers airband channels from the Airframes ATC directory near you
 - runs xng as the `xng-station` systemd service (check it with `systemctl status xng-station`), or in Docker when the xng build doesn't run on your system, such as a 32-bit Pi
 
-The xng dashboard is at `http://<your-machine>:8080`. Your feeds show up as `STATION-ACARS`, `STATION-VDL2`, and so on.
+The xng dashboard is at `http://<your-machine>:8080` (or the next free port, such as 8081 on a PiAware box, where SkyAware uses 8080; the installer prints it). Your feeds show up as `STATION-ACARS`, `STATION-VDL2`, and so on. At the end, the installer checks that xng is running and shows what each SDR is decoding. If xng doesn't start, it shows the log and what usually fixes it.
+
+#### Checking, updating and removing
+
+```bash
+# Check the station; paste the report in Discord if you need help (it has no passwords or tokens)
+curl -sSL https://install.airframes.sh/installer | bash -s -- status
+
+# Update xng to the latest release, keeping its configuration and sign-in
+curl -sSL https://install.airframes.sh/installer | bash -s -- update
+
+# Remove xng (add --purge to also remove /etc/xng and the sign-in)
+curl -sSL https://install.airframes.sh/installer | bash -s -- uninstall
+```
+
+To change what each SDR does, run the installer again.
 
 To skip the questions (for example over SSH without a terminal, or in a script), use `-y xng`. Add `--sign-in` to link the station to your account (it still shows the code and waits for you), and `--modes` to choose each SDR's job by serial or number:
 
