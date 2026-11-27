@@ -16,7 +16,7 @@ curl -sSL https://install.airframes.sh/installer | bash
 
 By default it sets up **[xng](https://github.com/airframesio/xng)**. One xng process gives every SDR a job (ACARS, VDL2, HFDL, AIS, airband voice or ADS-B) and feeds each mode to Airframes. The installer:
 
-- signs you in with a code you enter at [app.airframes.io/device](https://app.airframes.io/device) on any phone or computer, and puts the station on your account right away
+- signs you in with a code you enter at [app.airframes.io/device](https://app.airframes.io/device) on any phone or computer, and puts the station on your account right away. It also shows a QR code you can scan with your phone's camera to open the sign-in page with the code filled in, and a link to your station's page on Airframes once it's registered
 - reads your receiver position from PiAware or readsb if they are installed, or asks for it
 - asks what each SDR should do, and leaves a dongle your ADS-B decoder already uses alone
 - offers airband channels from the Airframes ATC directory near you
@@ -44,6 +44,8 @@ curl -sSL https://install.airframes.sh/installer | bash -s -- uninstall
 ```
 
 To change what each SDR does, run the installer again.
+
+The QR code needs `qrencode`, which the installer tries to install. When it can't, or the terminal is too narrow for the code, the installer shows the sign-in link instead; open it on any device. Set `AIRFRAMES_NO_QR=1` to always skip the QR code. `status` also prints the link to your station's page.
 
 To skip the questions (for example over SSH without a terminal, or in a script), use `-y xng`. Add `--sign-in` to link the station to your account (it still shows the code and waits for you), and `--modes` to choose each SDR's job by serial or number:
 
