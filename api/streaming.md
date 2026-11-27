@@ -64,13 +64,13 @@ Subscriptions can also carry live ship positions (AIS) and weather balloon posit
 
 | Field | Matches | Plans |
 |---|---|---|
-| `voyages` | Marine voyage id (uuid, as in `/v1/marine/voyages/:id`): one ship's current voyage | Pro and up |
+| `voyages` | Marine voyage id, a uuid such as `5b0c6a43-8a4e-4d3e-9b51-0f3c0c3b8f11` (the `id` of `/v1/marine/voyages/:id`): one ship's current voyage | Pro and up |
 | `vessels` | Marine vessel id (uuid) | Pro and up |
-| `sondeFlights` | Sonde flight id (uuid, as in `/v1/sonde/flights/:id`): one balloon flight | Pro and up |
+| `sondeFlights` | Sonde flight id, a uuid (the `id` of `/v1/sonde/flights/:id`): one balloon flight | Pro and up |
 | `serials` | Radiosonde serial, for example `V1234567` | Pro and up |
 | `kinds` | Any of `aircraft`, `marine`, `sonde` | Same as the other fields in the filter |
 
-A filter without `kinds` carries aircraft messages only, as it always has, so existing subscriptions (including the empty filter and `region` filters) never start receiving ships or balloons. A filter that names `voyages` or `vessels` carries ships, and one that names `sondeFlights` or `serials` carries balloons. To get ships in an area, add `kinds`: `{ "kinds": ["marine"], "region": [3, 51, 5, 53] }` (Business and up, like any region filter).
+When `kinds` is left out, the fields decide: a filter that names `voyages` or `vessels` carries ships, one that names `sondeFlights` or `serials` carries balloons, and any other filter carries aircraft messages only, as it always has. So existing subscriptions (including the empty filter and `region` filters) never start receiving ships or balloons. Fields of two kinds in one filter are refused; subscribe to each kind separately. To get ships in an area, add `kinds`: `{ "kinds": ["marine"], "region": [3, 51, 5, 53] }` (Business and up, like any region filter).
 
 Ships and balloons arrive as `stream:message` too, with a `type` so they can be told apart from aircraft messages:
 
