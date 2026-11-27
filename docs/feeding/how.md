@@ -24,6 +24,23 @@ By default it sets up **[xng](https://github.com/airframesio/xng)**. One xng pro
 
 The xng dashboard is at `http://<your-machine>:8080` (or the next free port, such as 8081 on a PiAware box, where SkyAware uses 8080; the installer prints it). Your feeds show up as `STATION-ACARS`, `STATION-VDL2`, and so on. At the end, the installer checks that xng is running and shows what each SDR is decoding. If xng doesn't start, it shows the log and what usually fixes it. Before it starts, it warns if the clock is off, the disk is nearly full, or GitHub or Airframes can't be reached, and it checks each download against the release's SHA-256 checksums.
 
+#### Switching from acarsdec, dumpvdl2, dumphfdl or AIS-catcher
+
+Already feeding with separate decoders? The installer finds acarsdec, dumpvdl2, dumphfdl, vdlm2dec and AIS-catcher set up as systemd services (including the `airframes-acarsdec`-style services from earlier versions of this installer), as Docker containers (such as the SDR Enthusiasts images), or as the `docker-compose.yml` files the earlier installer wrote to `/opt/airframes/config`. It lists them and offers to switch them to xng:
+
+- each SDR keeps its job: the dongle that ran acarsdec decodes ACARS in xng, and so on
+- each feed keeps its station name (`MY-STATION-ACARS1` stays `MY-STATION-ACARS1`), so your stats and history on Airframes carry on
+- gain and frequencies carry over
+- the old decoders are stopped and kept from starting at boot, but not removed
+
+Changed your mind? This stops xng and starts the old decoders again, as they were:
+
+```bash
+curl -sSL https://install.airframes.sh/installer | bash -s -- restore-decoders
+```
+
+With `-y`, the installer switches them without asking. Add `--keep-old-decoders` to leave them running instead; xng then doesn't touch their SDRs. ACARS Hub is not switched; stop it first if xng should use its SDRs. The list of what was stopped is in `/opt/airframes/config/old-decoders.tsv`.
+
 #### Checking, updating and removing
 
 ```bash
@@ -69,6 +86,7 @@ Everything after `bash -s --` is passed to the installer. Useful options:
 | `--sign-in` / `--no-sign-in` | xng: sign in to Airframes even with `-y`, or don't sign in |
 | `--modes "0=acars,1=vdl2"` | xng: job per SDR (by serial or number): `acars`, `vdl2`, `hfdl`, `airband`, `ais`, `adsb`, `uat`, `sonde`, `iridium` or `off` |
 | `--airband "120.500,119.100"` | xng: airband channels from the Airframes ATC directory, or `nearest` |
+| `--keep-old-decoders` | xng: leave acarsdec, dumpvdl2, dumphfdl and AIS-catcher set up before running, instead of switching them to xng |
 | `--xng-method docker` | xng: `native` or `docker` (default: native, else Docker) |
 | `--lat 38.68 --lon -120.99` | Receiver position |
 | `--station-id MY-STATION` | Your Station ID from app.airframes.io |
