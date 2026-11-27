@@ -4233,6 +4233,7 @@ components:
             - airborne
             - landed
             - arrived
+            - null
           example: landed
           nullable: true
         phaseAt:
@@ -4254,6 +4255,7 @@ components:
             - times
             - aircraft-status
             - position
+            - null
           example: oooi
           nullable: true
         departingAirport:
