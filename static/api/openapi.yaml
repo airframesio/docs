@@ -4349,6 +4349,12 @@ components:
           type: string
           description: Timestamp when the flight record was last updated.
           example: '2026-06-05T18:09:00.000Z'
+        lastSource:
+          type: string
+          description: >-
+            Source type of the newest message heard for this flight in the last 30 minutes (acars,
+            vdl, hfdl, satcom...). Only set on the active flights list.
+          example: vdl
       required:
         - id
         - flight
