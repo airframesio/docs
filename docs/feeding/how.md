@@ -22,12 +22,12 @@ By default it sets up **[xng](https://github.com/airframesio/xng)**. One xng pro
 - offers airband channels from the Airframes ATC directory near you
 - runs xng as the `xng-station` systemd service (check it with `systemctl status xng-station`), or in Docker when the xng build doesn't run on your system, such as a 32-bit Pi
 
-The xng dashboard is at `http://<your-machine>:8080` (or the next free port, such as 8081 on a PiAware box, where SkyAware uses 8080; the installer prints it). Your feeds show up as `STATION-ACARS`, `STATION-VDL2`, and so on. At the end, the installer checks that xng is running and shows what each SDR is decoding. If xng doesn't start, it shows the log and what usually fixes it.
+The xng dashboard is at `http://<your-machine>:8080` (or the next free port, such as 8081 on a PiAware box, where SkyAware uses 8080; the installer prints it). Your feeds show up as `STATION-ACARS`, `STATION-VDL2`, and so on. At the end, the installer checks that xng is running and shows what each SDR is decoding. If xng doesn't start, it shows the log and what usually fixes it. Before it starts, it warns if the clock is off, the disk is nearly full, or GitHub or Airframes can't be reached, and it checks each download against the release's SHA-256 checksums.
 
 #### Checking, updating and removing
 
 ```bash
-# Check the station; paste the report in Discord if you need help (it has no passwords or tokens)
+# Check the station and when Airframes last heard each feed; paste the report in Discord if you need help (it has no passwords or tokens)
 curl -sSL https://install.airframes.sh/installer | bash -s -- status
 
 # Update xng to the latest release, keeping its configuration and sign-in
