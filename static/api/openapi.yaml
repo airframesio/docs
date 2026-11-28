@@ -2737,16 +2737,17 @@ paths:
       description: >-
         Returns a computed leaderboard ranking for the given domain, view, category and timeframe.
         Valid categories depend on the domain (aircraft: messages/airframes/flights/composite;
-        marine: messages/vessels/voyages/composite; combined: messages/entities/tracks/composite).
-        Served pre-gzipped from cache when the client supports gzip; otherwise as JSON. Returns a {
-        status: "computing" } placeholder when data is not yet ready. Cached for 60 seconds (10
-        seconds while computing).
+        marine: messages/vessels/voyages/composite; atc: transmissions/airtime/channels/composite,
+        airtime in seconds; combined: messages/entities/tracks/composite, where ATC transmissions
+        count as messages and ATC channels as entities). Served pre-gzipped from cache when the
+        client supports gzip; otherwise as JSON. Returns a { status: "computing" } placeholder when
+        data is not yet ready. Cached for 60 seconds (10 seconds while computing).
       operationId: getLeaderboard
       parameters:
         - name: domain
           required: true
           in: path
-          description: Data domain. One of 'aircraft', 'marine', or 'combined'.
+          description: Data domain. One of 'aircraft', 'marine', 'atc' (ATC airband feeders), or 'combined'.
           schema:
             example: aircraft
             type: string
@@ -3879,8 +3880,8 @@ components:
           example: KSEA-1
         type:
           type: string
-          description: Station type classification.
-          example: ground
+          description: 'Station type: airframes (aircraft data), marine (AIS) or atc (ATC airband voice feeder).'
+          example: airframes
         ipAddress:
           type: string
           description: Source IP address of the station. Masked when serialized to API consumers.
@@ -3903,6 +3904,18 @@ components:
           type: number
           description: Lifetime message count, hydrated from stationMessageCount after load.
           example: 1582940
+        atc:
+          type: object
+          description: >-
+            ATC stations (type atc) only: channels the feeder streams, channels live now, whether it
+            is connected, and transmissions heard (all-time and last 24 hours). Set on user profile
+            station lists.
+          example:
+            feeds: 19
+            liveFeeds: 19
+            connected: true
+            transmissions: 48210
+            transmissions24h: 3120
         airframes:
           description: Airframes this station has received messages from.
           type: array
@@ -6702,17 +6715,20 @@ components:
           type: number
           example: 184230
           description: >-
-            Primary ranking value for this entry (message count, distinct count, or composite score
-            depending on category).
+            Primary ranking value for this entry (message count, distinct count, transmissions,
+            airtime seconds, channels, or composite score depending on domain and category).
         messagesCount:
           type: number
           example: 184230
+          description: 'Composite breakdown: messages (atc domain: transmissions).'
         entitiesCount:
           type: number
           example: 4210
+          description: 'Composite breakdown: airframes, vessels or entities (atc domain: airtime seconds).'
         tracksCount:
           type: number
           example: 3120
+          description: 'Composite breakdown: flights, voyages or tracks (atc domain: channels).'
         maxDistanceNm:
           type: number
           example: 312.4
@@ -6806,6 +6822,10 @@ components:
         marineStationCount:
           type: number
           example: 240
+        atcStationCount:
+          type: number
+          example: 12
+          description: ATC stations ranked.
         totalStationCount:
           type: number
           example: 1220
