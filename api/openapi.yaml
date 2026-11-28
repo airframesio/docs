@@ -5495,6 +5495,27 @@ components:
           type: string
           description: Current status of the voyage.
           example: active
+        destination:
+          type: string
+          description: Destination as reported by the crew in AIS static data (free text, often a UN/LOCODE).
+          example: NLRTM
+        arrivalTimeScheduled:
+          format: date-time
+          type: string
+          description: Estimated time of arrival reported in AIS static data (UTC).
+          example: '2024-06-03T14:00:00.000Z'
+        arrivalPortScheduledId:
+          type: string
+          description: Id of the port matched to the reported destination.
+          example: 5f0c1c2e-4b1a-4c55-9d1e-8a0b9a3f6e21
+        draught:
+          type: number
+          description: Current draught in meters reported in AIS static data.
+          example: 14.5
+        lastTrueHeading:
+          type: number
+          description: True heading of the last reported position (degrees).
+          example: 125
         createdAt:
           format: date-time
           type: string
@@ -5606,6 +5627,36 @@ components:
           type: string
           description: Vessel type or category.
           example: Cargo
+        typeCode:
+          type: number
+          description: >-
+            AIS ship and cargo type code (0-99) from the latest static report; `type` holds its
+            label or a registry type.
+          example: 70
+        length:
+          type: number
+          description: Length overall in meters (AIS bow + stern distances).
+          example: 397
+        beam:
+          type: number
+          description: Beam in meters (AIS port + starboard distances).
+          example: 51
+        toBow:
+          type: number
+          description: Distance from the AIS position reference to the bow, in meters.
+          example: 340
+        toStern:
+          type: number
+          description: Distance from the AIS position reference to the stern, in meters.
+          example: 57
+        toPort:
+          type: number
+          description: Distance from the AIS position reference to port, in meters.
+          example: 25
+        toStarboard:
+          type: number
+          description: Distance from the AIS position reference to starboard, in meters.
+          example: 26
         grossTonnage:
           type: number
           description: Gross tonnage of the vessel.
