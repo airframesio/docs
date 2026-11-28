@@ -3440,7 +3440,8 @@ paths:
         Voice frequencies (tower, ground, clearance, approach and departure, center, ATIS/AWOS,
         CTAF/UNICOM, FSS, ...). Filters combine with AND. Each frequency carries a stable key, its
         carrier frequency, primary and all services, transmitter sites, served airports, the stream
-        policy and the live feed count. Cached for 5 minutes.
+        policy, the live feed count and its activity (transmissions and transcriptions). Cached for
+        5 minutes.
       operationId: listFrequencies
       parameters:
         - name: page
@@ -3455,6 +3456,14 @@ paths:
           description: 1 to 500. Default 100.
           schema:
             example: '100'
+        - name: sort
+          required: false
+          in: query
+          description: >-
+            active: most transmissions in the last 24 hours first (activity.transmissions24h).
+            Default: by facility and service, or by distance with near=.
+          schema:
+            example: active
         - name: status
           required: false
           in: query
@@ -7686,6 +7695,41 @@ components:
         - messageId
         - receivedAt
         - kind
+    AtcFacilityActivityDto:
+      type: object
+      properties:
+        transmissions24h:
+          type: number
+          description: >-
+            Transmissions on the facility’s frequencies in the last 24 clock hours, each counted
+            once however many feeds carried it.
+          example: 412
+        airtime24hS:
+          type: number
+          description: Their airtime in seconds.
+          example: 1650
+        transcribed24h:
+          type: number
+          description: Transmissions a feeder or a listener’s browser found words in.
+          example: 301
+        untranscribed24h:
+          type: number
+          description: Transmissions a speech model heard nothing usable in.
+          example: 52
+        transcribedRatio24h:
+          type: number
+          description: transcribed / (transcribed + untranscribed); null when neither.
+          nullable: true
+          example: 0.853
+        lastHeardAt:
+          type: string
+          nullable: true
+          example: '2026-11-28T18:02:11.000Z'
+      required:
+        - transmissions24h
+        - airtime24hS
+        - transcribed24h
+        - untranscribed24h
     AtcFacilityDto:
       type: object
       properties:
@@ -7767,6 +7811,14 @@ components:
           type: number
           description: Live audio feeds on this facility’s frequencies.
           example: 2
+        activity:
+          description: >-
+            Activity on the facility’s own frequencies (aggregator-atc). Null until the activity
+            tables exist.
+          nullable: true
+          type: object
+          allOf:
+            - $ref: '#/components/schemas/AtcFacilityActivityDto'
         sources:
           example: &ref_55
             - faa_nasr
@@ -7869,6 +7921,71 @@ components:
       required:
         - lat
         - lon
+    AtcFrequencyActivityDto:
+      type: object
+      properties:
+        transmissions24h:
+          type: number
+          description: >-
+            Transmissions on the facility’s frequencies in the last 24 clock hours, each counted
+            once however many feeds carried it.
+          example: 412
+        airtime24hS:
+          type: number
+          description: Their airtime in seconds.
+          example: 1650
+        transcribed24h:
+          type: number
+          description: Transmissions a feeder or a listener’s browser found words in.
+          example: 301
+        untranscribed24h:
+          type: number
+          description: Transmissions a speech model heard nothing usable in.
+          example: 52
+        transcribedRatio24h:
+          type: number
+          description: transcribed / (transcribed + untranscribed); null when neither.
+          nullable: true
+          example: 0.853
+        lastHeardAt:
+          type: string
+          nullable: true
+          example: '2026-11-28T18:02:11.000Z'
+        transmissions:
+          type: number
+          description: All-time transmissions.
+          example: 18211
+        airtimeS:
+          type: number
+          description: All-time airtime in seconds.
+          example: 70412
+        transcribed:
+          type: number
+          example: 12004
+        untranscribed:
+          type: number
+          example: 2210
+        transcribedRatio:
+          type: number
+          nullable: true
+          example: 0.845
+        firstHeardAt:
+          type: string
+          nullable: true
+          example: '2026-11-22T06:51:00.000Z'
+        lastTranscribedAt:
+          type: string
+          nullable: true
+          example: '2026-11-28T18:01:40.000Z'
+      required:
+        - transmissions24h
+        - airtime24hS
+        - transcribed24h
+        - untranscribed24h
+        - transmissions
+        - airtimeS
+        - transcribed
+        - untranscribed
     AtcFrequencyDto:
       type: object
       properties:
@@ -8052,6 +8169,15 @@ components:
         liveFeedCount:
           type: number
           example: 1
+        activity:
+          description: >-
+            Transmissions, airtime and transcriptions heard on this frequency (aggregator-atc), for
+            the last 24 clock hours and all time. Null until the activity tables exist, and on match
+            results.
+          nullable: true
+          type: object
+          allOf:
+            - $ref: '#/components/schemas/AtcFrequencyActivityDto'
         firstSeen:
           type: string
           example: '2026-10-29'
@@ -8162,6 +8288,14 @@ components:
           type: number
           description: Live audio feeds on this facility’s frequencies.
           example: 2
+        activity:
+          description: >-
+            Activity on the facility’s own frequencies (aggregator-atc). Null until the activity
+            tables exist.
+          nullable: true
+          type: object
+          allOf:
+            - $ref: '#/components/schemas/AtcFacilityActivityDto'
         sources:
           example: *ref_55
           type: array
