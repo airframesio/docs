@@ -2085,6 +2085,39 @@ paths:
       security: *ref_29
       summary: Get a station by numeric ID
       tags: *ref_30
+  /v1/stations/{id}/feeds:
+    get:
+      description: >-
+        Per-feed status for a station that feeds through the Airframes feed gateway (one QUIC
+        connection, one stream per feed): each feed's mode, state, last message and message count,
+        plus the connection's transport, round trip and (when the feeder clock is synced) latency
+        each way. Updated every 15 seconds. Stations that feed the per-port ingests have no feeds
+        here.
+      operationId: getStationFeeds
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Numeric station ID (positive integer).
+          schema:
+            example: 1234
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StationFeedsResponse'
+        '400':
+          description: The station ID is malformed.
+        '401': *ref_6
+        '404':
+          description: Station not found.
+        '429': *ref_1
+      security: *ref_29
+      summary: Get live feed status for a station
+      tags: *ref_30
   /v1/stations/counts_24_hours:
     get:
       description: >-
@@ -6130,6 +6163,119 @@ components:
         - serial
         - createdAt
         - updatedAt
+    StationFeedStatus:
+      type: object
+      properties:
+        mode:
+          type: string
+          example: vdl2
+          description: Mode (acars, vdl2, hfdl, aero-l, aero-c, iridium, ais).
+        format:
+          type: string
+          example: dumpvdl2
+          description: Wire format of the feed.
+        state:
+          type: string
+          example: live
+          description: >-
+            live (a message in the last 5 minutes), quiet (connected, no recent message), degraded
+            (the feeder reports a radio problem), starting, or closed (ended in the last 15
+            minutes).
+        label:
+          type: string
+          example: VDL2 136.975
+          description: Label the feeder gave the feed.
+        frequenciesHz:
+          example:
+            - 136975000
+          type: array
+          items:
+            type: number
+        openedAt:
+          type: string
+          example: '2026-11-28T07:44:36Z'
+        closedAt:
+          type: string
+          example: '2026-11-28T07:59:01Z'
+        closeReason:
+          type: string
+          example: finished
+        lastMessageAt:
+          type: string
+          example: '2026-11-28T07:58:59Z'
+        messages:
+          type: number
+          example: 1520
+          description: Messages on this connection.
+        captureLatencyMs:
+          type: number
+          example: 420
+          description: Average time from capture to the gateway, when the feeder clock is synced.
+        decoder:
+          type: object
+          example:
+            name: xng
+            version: 0.28.0
+        sdrState:
+          type: string
+          example: ok
+          description: Radio state the feeder reports.
+        transport:
+          type: string
+          example: quic
+          description: quic, or tcp (TLS over TCP when UDP is blocked).
+        connectedAt:
+          type: string
+          example: '2026-11-28T07:00:12Z'
+        reconnects:
+          type: number
+          example: 0
+          description: Reconnects the feeder reported for this run.
+        rttMs:
+          type: number
+          example: 38.2
+          description: Round trip to the gateway.
+        upMs:
+          type: number
+          example: 18.9
+          description: Feeder to gateway, when its clock is synced.
+        downMs:
+          type: number
+          example: 19.3
+          description: Gateway to feeder, when its clock is synced.
+        clockSynced:
+          type: boolean
+          example: true
+      required:
+        - mode
+        - format
+        - state
+        - openedAt
+        - messages
+        - transport
+        - connectedAt
+        - reconnects
+        - clockSynced
+    StationFeedsResponse:
+      type: object
+      properties:
+        stationId:
+          type: number
+          example: 1234
+        connected:
+          type: boolean
+          description: True when at least one feed is open now.
+        at:
+          type: string
+          description: When the newest status was written.
+        feeds:
+          type: array
+          items:
+            $ref: '#/components/schemas/StationFeedStatus'
+      required:
+        - stationId
+        - connected
+        - feeds
     AcarsLabelDto:
       type: object
       properties:
