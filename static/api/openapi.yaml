@@ -5492,6 +5492,14 @@ components:
           type: boolean
           description: Position accuracy flag (true = high accuracy, e.g. DGPS within 10m).
           example: true
+        navigationStatus:
+          type: number
+          description: >-
+            AIS navigation status code (0 under way using engine, 1 at anchor, 2 not under command,
+            3 restricted maneuverability, 4 constrained by draught, 5 moored, 6 aground, 7 engaged
+            in fishing, 8 under way sailing, 9-13 reserved, 14 AIS-SART active). Null when not
+            reported (15).
+          example: 0
         createdAt:
           format: date-time
           type: string
@@ -5565,6 +5573,32 @@ components:
           type: number
           description: True heading of the last reported position (degrees).
           example: 125
+        lastNavigationStatus:
+          type: number
+          description: >-
+            Navigation status of the last report that carried one. AIS navigation status code (0
+            under way using engine, 1 at anchor, 2 not under command, 3 restricted maneuverability,
+            4 constrained by draught, 5 moored, 6 aground, 7 engaged in fishing, 8 under way
+            sailing, 9-13 reserved, 14 AIS-SART active). Null when not reported (15).
+          example: 5
+        offPosition:
+          type: boolean
+          description: >-
+            Aids to navigation only: true when the AtoN reports that it is off its charted position
+            (for example a buoy that has drifted). Null for ships.
+          example: false
+        hazardCones:
+          type: number
+          description: >-
+            Inland AIS only: hazardous cargo as the number of blue cones/lights (0-3), or 4 for the
+            B-flag. Null when not reported.
+          example: 1
+        loaded:
+          type: boolean
+          description: >-
+            Inland AIS only: true when the vessel reports itself loaded, false when unloaded. Null
+            when not reported.
+          example: true
         createdAt:
           format: date-time
           type: string
@@ -5706,6 +5740,16 @@ components:
           type: number
           description: Distance from the AIS position reference to starboard, in meters.
           example: 26
+        eniNumber:
+          type: string
+          description: 'Inland AIS only: European Vessel Identification Number (ENI), 8 digits.'
+          example: '02334567'
+        inlandTypeCode:
+          type: number
+          description: >-
+            Inland AIS only: ERI ship or convoy type code (8000-8999, ERI/ERINOT code list), for
+            example 8010 motor freighter or 8030 motor tanker.
+          example: 8010
         grossTonnage:
           type: number
           description: Gross tonnage of the vessel.
