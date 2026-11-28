@@ -31,6 +31,7 @@ The original own-station WebSocket feed also still works on every plan; see [Rea
 | Filter by airline, label, region | — | — | ✓ | ✓ |
 | Full network firehose | — | — | — | ✓ |
 | Messages per second (burst) | — | 20 (100) | 100 (500) | Custom |
+| [Map viewport](#map-viewports) positions per second (burst) | — | 40 (200) | 100 (500) | 300 (1,500) |
 
 Limits apply per account. Connections are counted across WebSocket and MQTT together. None of these limits apply to [your own stations](#your-own-stations-are-always-included).
 
@@ -90,6 +91,32 @@ Ships and balloons arrive as `stream:message` too, with a `type` so they can be 
 ```
 
 Speed is in knots, ship course and heading in degrees (null when the ship does not report them), `navigationStatus` the AIS navigation status (0 under way using engine, 1 at anchor, 5 moored, 7 fishing, 8 under way sailing; null when not reported), balloon altitude in meters and velocities in m/s. Every AIS position report is streamed; a balloon's newest position arrives every few seconds. Balloon data comes from [SondeHub](https://sondehub.org) under CC BY-SA 2.0: anything that shows it must credit SondeHub.
+
+## Map viewports
+
+A map can stream the positions of everything it shows: subscribe with `viewport: true` and the visible box, and resubscribe with the same id whenever the map moves.
+
+```js
+socket.emit('stream:subscribe', {
+  id: 'viewport',
+  filter: { viewport: true, region: [-125, 30, -110, 45] },
+});
+```
+
+- Any box size is allowed on every paid plan, including the whole world. A box that crosses the antimeridian has `minLon` greater than `maxLon` (`[170, -50, -170, -30]`).
+- Without `kinds` a viewport carries aircraft, ships and balloons; add `kinds` to pick some. No other filter field may go with it.
+- Each item is sent at most once every 5 seconds (3 on Business, 2 on Enterprise), under its own rate cap on top of your plan's message rate. Positions over the cap are skipped quietly, without a `stream:throttled` notice, so a map simply moves each item on its next position.
+- One viewport per connection. Moving it (resubscribing with its id) does not count toward subscription changes; it has its own allowance of 60 moves a minute on Pro (120 on Business, 240 on Enterprise), beyond which the move is refused with `viewport_rate_limited` and the previous box stays.
+
+Aircraft come as small position items instead of whole messages. Ships and balloons come as shown above.
+
+```json
+{ "type": "aircraft-position", "flightId": "1234567", "icao": "AC101F", "tail": "N8768Q",
+  "flight": "WN2457", "timestamp": "2026-11-28T06:50:12.000Z",
+  "latitude": 43.6, "longitude": -116.3, "altitude": 3150 }
+```
+
+Only aircraft messages that carry a position are sent, so an aircraft's position is as fresh as its last message with one. Altitude is in feet as the message reported it.
 
 ## WebSocket
 
@@ -201,6 +228,8 @@ For complete capture, use the REST API or a bulk export.
 | `region_too_large` | The region box is larger than your plan allows. |
 | `invalid_filter`, `invalid_id`, `invalid_topic` | The request is malformed. |
 | `rate_limited` | Too many subscription changes in a minute. |
+| `viewport_rate_limited` | The map viewport moved too often in a minute; the previous box stays. |
+| `viewport_limit` | A connection has one viewport; resubscribe with its id to move it. |
 | `slow_consumer` | Disconnected because the client was not keeping up. |
 
 ## Your usage
