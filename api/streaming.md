@@ -105,7 +105,7 @@ socket.emit('stream:subscribe', {
 
 - Any box size is allowed on every paid plan, including the whole world. A box that crosses the antimeridian has `minLon` greater than `maxLon` (`[170, -50, -170, -30]`).
 - Without `kinds` a viewport carries aircraft, ships and balloons; add `kinds` to pick some. No other filter field may go with it.
-- Each item is sent at most once every 5 seconds (3 on Business, 2 on Enterprise), under its own rate cap on top of your plan's message rate. Positions over the cap are skipped quietly, without a `stream:throttled` notice, so a map simply moves each item on its next position.
+- Each item is sent at most once every 5 seconds (3 on Business, 2 on Enterprise), under its own rate cap on top of your plan's message rate. Positions over the cap are skipped quietly, without a `stream:throttled` notice. A skipped item moves on its next position that gets through; until one does, it stays where it was last sent.
 - One viewport per connection. Moving it (resubscribing with its id) does not count toward subscription changes; it has its own allowance of 60 moves a minute on Pro (120 on Business, 240 on Enterprise), beyond which the move is refused with `viewport_rate_limited` and the previous box stays.
 
 Aircraft come as small position items instead of whole messages. Ships and balloons come as shown above.
@@ -115,6 +115,8 @@ Aircraft come as small position items instead of whole messages. Ships and ballo
   "flight": "WN2457", "timestamp": "2026-11-28T06:50:12.000Z",
   "latitude": 43.6, "longitude": -116.3, "altitude": 3150 }
 ```
+
+A viewport is the one exception to single delivery: when a message also matches your other subscriptions (say `tails` for the selected aircraft), those get the whole message as usual, listing their ids, and the viewport gets its position item in a separate `stream:message` listing only the viewport's id.
 
 Only aircraft messages that carry a position are sent, so an aircraft's position is as fresh as its last message with one. Altitude is in feet as the message reported it.
 
