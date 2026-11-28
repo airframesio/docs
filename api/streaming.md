@@ -78,7 +78,7 @@ Ships and balloons arrive as `stream:message` too, with a `type` so they can be 
 { "type": "marine-position", "voyageId": "5b0c6a43-…", "vesselId": "ab2d6a43-…",
   "timestamp": "2026-11-27T12:00:01.000Z", "latitude": 51.95, "longitude": 4.05,
   "speedOverGround": 12.3, "courseOverGround": 87.1, "trueHeading": 88,
-  "rateOfTurn": 0, "countryCode": "NL" }
+  "rateOfTurn": 0, "navigationStatus": 0, "countryCode": "NL" }
 ```
 
 ```json
@@ -89,7 +89,7 @@ Ships and balloons arrive as `stream:message` too, with a `type` so they can be 
   "attribution": "Balloon data: SondeHub (CC BY-SA 2.0)" }
 ```
 
-Speed is in knots, ship course and heading in degrees (null when the ship does not report them), balloon altitude in meters and velocities in m/s. Every AIS position report is streamed; a balloon's newest position arrives every few seconds. Balloon data comes from [SondeHub](https://sondehub.org) under CC BY-SA 2.0: anything that shows it must credit SondeHub.
+Speed is in knots, ship course and heading in degrees (null when the ship does not report them), `navigationStatus` the AIS navigation status (0 under way using engine, 1 at anchor, 5 moored, 7 fishing, 8 under way sailing; null when not reported), balloon altitude in meters and velocities in m/s. Every AIS position report is streamed; a balloon's newest position arrives every few seconds. Balloon data comes from [SondeHub](https://sondehub.org) under CC BY-SA 2.0: anything that shows it must credit SondeHub.
 
 ## WebSocket
 
