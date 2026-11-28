@@ -3626,6 +3626,52 @@ paths:
         - {}
       summary: Report a frequency missing from the directory
       tags: *ref_44
+  /v1/atc/interest:
+    post:
+      description: >-
+        Sent by the ATC listening site when someone opens an airport or frequency page (view),
+        chooses an airport or adds a frequency (pick), starts playback (listen), or asks for an
+        airport where nothing is live (missed). Only daily counts per facility are kept, plus a
+        daily distinct-visitor estimate; no user id or IP is stored. Used to decide where receivers
+        are needed. Requests from crawlers and unknown facilities are accepted and ignored.
+      operationId: recordInterest
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - event
+              properties:
+                event:
+                  type: string
+                  enum:
+                    - view
+                    - pick
+                    - listen
+                    - missed
+                facility:
+                  type: string
+                  example: airport:KSFO
+                frequency:
+                  type: string
+                  example: airport:KSFO:TWR:120500
+      responses:
+        '204':
+          description: Counted (or ignored).
+        '400':
+          description: Invalid event or facility.
+        '401': *ref_6
+        '429':
+          description: Too many requests.
+      security:
+        - *ref_45
+        - *ref_46
+        - {}
+      summary: Count interest in an ATC facility
+      tags: *ref_44
   /v1/atc/frequencies/{id}:
     get:
       description: One frequency by key, including retired ones. Cached for 10 minutes.
@@ -4280,6 +4326,11 @@ components:
           type: string
           description: Ground track / heading at this position, in degrees.
           example: '271'
+        groundSpeed:
+          type: number
+          description: Ground speed reported with this position, in knots. Null when the report carried none.
+          example: 452
+          nullable: true
         createdAt:
           format: date-time
           type: string
@@ -4418,15 +4469,13 @@ components:
         groundSpeed:
           type: number
           description: >-
-            Ground speed in knots from the newest live position (the entity cache), when known. Only
-            on `/flights/active`.
+            Last reported ground speed in knots, when known. Only reports that carry a speed set it
+            (ADS-C, ADS-B); it is not computed from positions. See `groundSpeedAt` for its age.
           example: 452
           nullable: true
         groundSpeedAt:
           type: number
-          description: >-
-            When the aircraft was at `groundSpeed` (epoch milliseconds), when known. Only on
-            `/flights/active`.
+          description: When the aircraft was at `groundSpeed` (epoch milliseconds), when known.
           example: 1717459200000
           nullable: true
         phase:
@@ -5443,6 +5492,14 @@ components:
           type: boolean
           description: Position accuracy flag (true = high accuracy, e.g. DGPS within 10m).
           example: true
+        navigationStatus:
+          type: number
+          description: >-
+            AIS navigation status code (0 under way using engine, 1 at anchor, 2 not under command,
+            3 restricted maneuverability, 4 constrained by draught, 5 moored, 6 aground, 7 engaged
+            in fishing, 8 under way sailing, 9-13 reserved, 14 AIS-SART active). Null when not
+            reported (15).
+          example: 0
         createdAt:
           format: date-time
           type: string
@@ -5516,6 +5573,32 @@ components:
           type: number
           description: True heading of the last reported position (degrees).
           example: 125
+        lastNavigationStatus:
+          type: number
+          description: >-
+            Navigation status of the last report that carried one. AIS navigation status code (0
+            under way using engine, 1 at anchor, 2 not under command, 3 restricted maneuverability,
+            4 constrained by draught, 5 moored, 6 aground, 7 engaged in fishing, 8 under way
+            sailing, 9-13 reserved, 14 AIS-SART active). Null when not reported (15).
+          example: 5
+        offPosition:
+          type: boolean
+          description: >-
+            Aids to navigation only: true when the AtoN reports that it is off its charted position
+            (for example a buoy that has drifted). Null for ships.
+          example: false
+        hazardCones:
+          type: number
+          description: >-
+            Inland AIS only: hazardous cargo as the number of blue cones/lights (0-3), or 4 for the
+            B-flag. Null when not reported.
+          example: 1
+        loaded:
+          type: boolean
+          description: >-
+            Inland AIS only: true when the vessel reports itself loaded, false when unloaded. Null
+            when not reported.
+          example: true
         createdAt:
           format: date-time
           type: string
@@ -5657,6 +5740,16 @@ components:
           type: number
           description: Distance from the AIS position reference to starboard, in meters.
           example: 26
+        eniNumber:
+          type: string
+          description: 'Inland AIS only: European Vessel Identification Number (ENI), 8 digits.'
+          example: '02334567'
+        inlandTypeCode:
+          type: number
+          description: >-
+            Inland AIS only: ERI ship or convoy type code (8000-8999, ERI/ERINOT code list), for
+            example 8010 motor freighter or 8030 motor tanker.
+          example: 8010
         grossTonnage:
           type: number
           description: Gross tonnage of the vessel.
