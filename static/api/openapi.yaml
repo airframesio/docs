@@ -514,7 +514,7 @@ paths:
         - name: limit
           required: false
           in: query
-          description: Maximum number of flights to return (default 5000, clamped to 1–10000).
+          description: Maximum number of flights to return (default 5000, clamped to 1–15000).
           schema:
             example: 5000
             type: string
@@ -2034,9 +2034,9 @@ paths:
     get:
       description: >-
         Returns all visible stations as a JSON array. Responses are served from a Redis cache
-        (pre-gzipped when the client sends Accept-Encoding: gzip) and refreshed roughly every 10
-        seconds; sensitive fields are stripped and IPs masked before serialization. Falls back to a
-        live database query on a cache miss. Cached for 10 seconds (public).
+        (pre-compressed with brotli or gzip, as Accept-Encoding allows) and refreshed roughly every
+        10 seconds; sensitive fields are stripped and IPs masked before serialization. Falls back to
+        a live database query on a cache miss. Cached for 10 seconds (public).
       operationId: findAll
       parameters: []
       responses:
@@ -2056,6 +2056,30 @@ paths:
       summary: List all stations
       tags: &ref_30
         - Stations
+  /v1/stations/merges:
+    get:
+      description: >-
+        Stations that were retired into another station (an owner merging duplicates), with the
+        station each one now counts as. Services that keep data by station ID use it to add the
+        retired station's history to the kept one. A retired station may itself be the target of an
+        earlier merge, so follow targetId until it is not a sourceId. Cached for 60 seconds
+        (public).
+      operationId: findMerges
+      parameters: []
+      responses:
+        '200':
+          description: Array of merges, oldest first.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StationMergeEntry'
+        '401': *ref_6
+        '429': *ref_1
+      security: *ref_29
+      summary: List station merges
+      tags: *ref_30
   /v1/stations/{id}:
     get:
       description: >-
@@ -6163,6 +6187,26 @@ components:
         - serial
         - createdAt
         - updatedAt
+    StationMergeEntry:
+      type: object
+      properties:
+        sourceId:
+          type: number
+          description: Numeric ID of the retired station.
+          example: 237379618
+        targetId:
+          type: number
+          description: Numeric ID of the station it was merged into.
+          example: 237421402
+        mergedAt:
+          type: string
+          description: When the station was retired (ISO 8601), or null when unknown.
+          example: '2026-11-28T09:36:00.000Z'
+          nullable: true
+      required:
+        - sourceId
+        - targetId
+        - mergedAt
     StationFeedStatus:
       type: object
       properties:
