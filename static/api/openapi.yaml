@@ -612,6 +612,30 @@ paths:
         '429': *ref_1
       summary: List messages for a flight
       tags: *ref_11
+  /v1/flights/{id}/stations:
+    get:
+      description: >-
+        Returns one row per station that stored a message from the flight: how many messages, when
+        it first and last heard the flight, average and best signal level, and the source types.
+        Busiest station first, at most 200. The owner is included only when their profile and
+        stations are public. Served from a short-lived Redis cache.
+      operationId: findHeardBy
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Numeric flight id.
+          schema:
+            example: 123456
+            type: string
+      responses:
+        '200':
+          description: An array of stations that heard the flight.
+        '404':
+          description: No flight with this id.
+        '429': *ref_1
+      summary: List the stations that heard a flight
+      tags: *ref_11
   /v1/flights/{id}/events:
     get:
       description: >-
@@ -3266,7 +3290,7 @@ paths:
           in: query
           description: minLon,minLat,maxLon,maxLat.
           schema:
-            example: -123,37,-121.5,38.2
+            example: '-123,37,-121.5,38.2'
         - name: radius_nm
           required: false
           in: query
@@ -3408,7 +3432,7 @@ paths:
           in: query
           description: minLon,minLat,maxLon,maxLat.
           schema:
-            example: -123,37,-121.5,38.2
+            example: '-123,37,-121.5,38.2'
         - name: radius_nm
           required: false
           in: query
@@ -4268,6 +4292,77 @@ components:
         - altitude
         - track
         - createdAt
+    FlightLeg:
+      type: object
+      properties:
+        id:
+          type: number
+          description: Flight id of this leg.
+          example: 123456
+        flight:
+          type: string
+          description: Flight number as received.
+          example: BA11
+        departingAirport:
+          type: string
+          example: EGLL
+          nullable: true
+        destinationAirport:
+          type: string
+          example: OBBI
+          nullable: true
+        departureTimeScheduled:
+          format: date-time
+          type: string
+          nullable: true
+        departureTimeEstimated:
+          format: date-time
+          type: string
+          nullable: true
+        departureTimeActual:
+          format: date-time
+          type: string
+          nullable: true
+        arrivalTimeScheduled:
+          format: date-time
+          type: string
+          nullable: true
+        arrivalTimeEstimated:
+          format: date-time
+          type: string
+          nullable: true
+        arrivalTimeActual:
+          format: date-time
+          type: string
+          nullable: true
+        status:
+          type: string
+          example: in-flight
+        messagesCount:
+          type: number
+          example: 42
+        createdAt:
+          format: date-time
+          type: string
+          description: When the leg was first heard (UTC).
+        updatedAt:
+          format: date-time
+          type: string
+          description: When the leg was last updated (UTC).
+        current:
+          type: boolean
+          description: >-
+            The newest leg: the one the flight number is flying now (or flew last). Clients show it
+            first.
+          example: true
+      required:
+        - id
+        - flight
+        - status
+        - messagesCount
+        - createdAt
+        - updatedAt
+        - current
     Flight:
       type: object
       properties:
@@ -4455,6 +4550,16 @@ components:
             Source type of the newest message heard for this flight in the last 30 minutes (acars,
             vdl, hfdl, satcom...). Only set on the active flights list.
           example: vdl
+        legs:
+          description: >-
+            Legs flown under the same flight number one after the other, oldest first, this flight
+            included; the last one is the current leg. Through flights keep their number after
+            landing and continue to a new destination, and each leg is its own flight with its own
+            airports, messages and events. Empty when the flight has no other leg. Only set on
+            flight detail.
+          type: array
+          items:
+            $ref: '#/components/schemas/FlightLeg'
       required:
         - id
         - flight
