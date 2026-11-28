@@ -4415,6 +4415,20 @@ components:
             sighting in the last 10 minutes, on the ground too), `radio-silence` after that. It does
             not say whether the aircraft has landed; use `phase` for that.
           example: in-flight
+        groundSpeed:
+          type: number
+          description: >-
+            Ground speed in knots from the newest live position (the entity cache), when known. Only
+            on `/flights/active`.
+          example: 452
+          nullable: true
+        groundSpeedAt:
+          type: number
+          description: >-
+            When the aircraft was at `groundSpeed` (epoch milliseconds), when known. Only on
+            `/flights/active`.
+          example: 1717459200000
+          nullable: true
         phase:
           type: string
           description: >-
